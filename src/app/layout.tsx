@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Script from "next/script";
 import AnalyticsListener from "@/components/AnalyticsListener";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -43,7 +44,9 @@ export default function RootLayout({
           `}
         </Script>
         {children}
-        <AnalyticsListener />
+        <Suspense fallback={null}>
+          <AnalyticsListener />
+        </Suspense>
       </body>
     </html>
   );
