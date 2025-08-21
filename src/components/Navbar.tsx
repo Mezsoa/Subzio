@@ -1,3 +1,5 @@
+"use client";
+
 export default function Navbar() {
   return (
     <header className="w-full border-b border-border bg-background">
@@ -8,6 +10,11 @@ export default function Navbar() {
         <a
           href="#waitlist"
           className="inline-flex items-center justify-center h-11 px-5 rounded-md bg-primary text-on-primary text-sm font-semibold hover:bg-primary/90 transition"
+          onClick={() => {
+            if (typeof window !== 'undefined' && window.gtag) {
+              window.gtag('event', 'cta_click', { location: 'navbar' });
+            }
+          }}
         >
           Join Waitlist
         </a>

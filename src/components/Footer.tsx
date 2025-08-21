@@ -27,6 +27,11 @@ export default function Footer() {
       if (!res.ok) throw new Error(json.error || "Something went wrong");
       setStatus("success");
       setEmail("");
+      if (typeof window !== 'undefined' && window.gtag) {
+        window.gtag('event', 'waitlist_submit_success', {
+          form_location: 'footer'
+        });
+      }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to submit.";
       setStatus("error");
@@ -66,10 +71,20 @@ export default function Footer() {
         </form>
 
         <div className="flex items-center gap-6 text-sm">
-          <button className="hover:underline text-foreground" onClick={() => alert('We care about your privacy. Bank-grade encryption.')}>
+          <button className="hover:underline text-foreground" onClick={() => {
+            if (typeof window !== 'undefined' && window.gtag) {
+              window.gtag('event', 'footer_link_click', { link: 'privacy' });
+            }
+            alert('We care about your privacy. Bank-grade encryption.');
+          }}>
             Privacy
           </button>
-          <button className="hover:underline text-foreground" onClick={() => alert('Terms available upon request.')}>
+          <button className="hover:underline text-foreground" onClick={() => {
+            if (typeof window !== 'undefined' && window.gtag) {
+              window.gtag('event', 'footer_link_click', { link: 'terms' });
+            }
+            alert('Terms available upon request.');
+          }}>
             Terms
           </button>
         </div>

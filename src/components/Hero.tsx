@@ -59,6 +59,11 @@ export default function Hero() {
       if (!res.ok) throw new Error(json.error || "Something went wrong");
       setStatus("success");
       setEmail("");
+      if (typeof window !== "undefined" && window.gtag) {
+        window.gtag('event', 'waitlist_submit_success', {
+          form_location: 'hero'
+        });
+      }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to submit.";
       setStatus("error");
@@ -94,6 +99,11 @@ export default function Hero() {
         <button
           type="submit"
           className="whitespace-nowrap inline-flex items-center justify-center h-12 px-5 rounded-md bg-primary text-on-primary text-sm font-semibold hover:bg-primary/90 transition disabled:opacity-60"
+          onClick={() => {
+            if (typeof window !== 'undefined' && window.gtag) {
+              window.gtag('event', 'waitlist_submit_click', { form_location: 'hero' });
+            }
+          }}
           disabled={status === "loading"}
         >
           {status === "loading" ? "Joining…" : ctaText}

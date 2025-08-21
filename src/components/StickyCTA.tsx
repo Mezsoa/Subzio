@@ -5,6 +5,11 @@ export default function StickyCTA() {
         <a
           href="#waitlist"
           className="block w-full text-center h-12 leading-[3rem] rounded-md bg-primary text-on-primary text-sm font-semibold shadow-lg"
+          onClick={() => {
+            if (typeof window !== 'undefined' && window.gtag) {
+              window.gtag('event', 'cta_click', { location: 'sticky' });
+            }
+          }}
         >
           Join the waitlist
         </a>

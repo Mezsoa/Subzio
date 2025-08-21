@@ -12,7 +12,7 @@ function formatTime(ms: number) {
 }
 
 function Fomo() {
-  const [spotsLeft, setSpotsLeft] = useState<number>(128);
+  const [spotsLeft, setSpotsLeft] = useState<number>(73);
   const [now, setNow] = useState<number>(Date.now());
 
   const deadline = useMemo(() => {
@@ -30,7 +30,7 @@ function Fomo() {
   }, []);
 
   useEffect(() => {
-    const minSpots = 42;
+    const minSpots = 12;
     const interval = setInterval(() => {
       setSpotsLeft((s) => (s > minSpots ? s - 1 : s));
     }, 45000); // decrease ~every 15s for demo
@@ -47,10 +47,10 @@ function Fomo() {
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-muted">Early access</p>
             <h3 className="mt-2 text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">
-              Lock in $5/mo for life
+              Lock in free for life
             </h3>
             <p className="mt-3 text-sm sm:text-base text-muted max-w-xl">
-              Price increases after early access. Join now and keep your rate—cancel anytime.
+              First 100 people get free for life. Join now and keep your rate—cancel anytime.
             </p>
             <div className="mt-5 inline-flex items-center gap-2 rounded-md bg-emerald-500/10 text-emerald-300 px-3 py-1 text-xs">
               <span className="inline-block h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -83,6 +83,11 @@ function Fomo() {
             <a
               href="#waitlist"
               className="mt-4 inline-flex w-full items-center justify-center h-11 px-5 rounded-md bg-primary text-on-primary text-sm font-semibold hover:bg-primary/90 transition"
+              onClick={() => {
+                if (typeof window !== 'undefined' && window.gtag) {
+                  window.gtag('event', 'cta_click', { location: 'fomo' });
+                }
+              }}
             >
               Join the waitlist
             </a>
