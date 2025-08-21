@@ -1,8 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 export type ABVariant = "A" | "B";
+
+type Gtag = (command: 'config' | 'event' | 'js', ...params: unknown[]) => void;
+declare global {
+  interface Window {
+    gtag?: Gtag;
+  }
+}
 
 export function useABVariant() {
   const [variant, setVariant] = useState<ABVariant>("A");
@@ -14,24 +21,24 @@ export function useABVariant() {
     if (qp === "A" || qp === "B") {
       localStorage.setItem("subkill_ab_variant", qp);
       setVariant(qp);
-      if ((window as any).gtag) {
-        (window as any).gtag('event', 'ab_variant_assigned', { variant: qp, source: 'query' });
+      if (window.gtag) {
+        window.gtag('event', 'ab_variant_assigned', { variant: qp, source: 'query' });
       }
       return;
     }
     const stored = localStorage.getItem("subkill_ab_variant") as ABVariant | null;
     if (stored === "A" || stored === "B") {
       setVariant(stored);
-      if ((window as any).gtag) {
-        (window as any).gtag('event', 'ab_variant_assigned', { variant: stored, source: 'storage' });
+      if (window.gtag) {
+        window.gtag('event', 'ab_variant_assigned', { variant: stored, source: 'storage' });
       }
       return;
     }
     const assigned: ABVariant = Math.random() < 0.5 ? "A" : "B";
     localStorage.setItem("subkill_ab_variant", assigned);
     setVariant(assigned);
-    if ((window as any).gtag) {
-      (window as any).gtag('event', 'ab_variant_assigned', { variant: assigned, source: 'random' });
+    if (window.gtag) {
+      window.gtag('event', 'ab_variant_assigned', { variant: assigned, source: 'random' });
     }
   }, []);
 
