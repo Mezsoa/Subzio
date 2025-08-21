@@ -1,7 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Card from "@/components/Card";
-// import PricingCard from "@/components/PricingCard";
 import TestimonialCard from "@/components/TestimonialCard";
 import Footer from "@/components/Footer";
 import Fomo from "@/components/Fomo";
@@ -10,16 +9,17 @@ import FounderMessage from "@/components/FounderMessage";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-black/20 to-amber-900/30 text-foreground overflow-hidden mb-16">
+    <div className="min-h-screen flex flex-col bg-gradient-to-bl from-white via-black/20 to-amber-900/30 text-foreground overflow-hidden mb-16">
       <Navbar />
 
       <main className="flex-1">
         <Hero />
         
-        <section className="mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-transparent h-[30vh] flex items-center justify-center h-full">
+        <section className="relative mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-transparent h-[30vh] flex items-center justify-center">
           <div className="">
             <TestimonialCard />
           </div>
+          <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-10 sm:w-16 bg-gradient-to-r from-background via-background/90 to-transparent" />
         </section>
 
 

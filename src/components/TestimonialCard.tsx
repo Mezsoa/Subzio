@@ -77,7 +77,7 @@ export default function TestimonialCard() {
         {testimonials.concat(testimonials).map((t, i) => (
           <CarouselItem
             key={i}
-            className="basis-4/5 sm:basis-1/2 md:basis-1/3 lg:basis-1/3 xl:basis-1/4 min-w-[300px] max-w-[400px] "
+            className="basis-4/5 sm:basis-1/2 md:basis-1/3 lg:basis-1/3 xl:basis-1/4 min-w-[300px] max-w-[400px]"
           >
             <div className="h-full px-3">
               <div className="h-full rounded-2xl bg-gradient-to-br from-white/5 to-white/0 border border-white/10 p-6 shadow-lg">
