@@ -10,7 +10,7 @@ export default function FAQ() {
     },
     {
       q: "Can you cancel for me?",
-      a: "Yes—authorize one click and we handle the emails, forms, and follow-ups for supported merchants.",
+      a: "Yes—authorize us and we handle the emails, forms, and follow-ups for supported merchants.",
     },
     {
       q: "What does it cost?",

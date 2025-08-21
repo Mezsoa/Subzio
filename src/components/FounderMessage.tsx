@@ -13,7 +13,7 @@ export default function FounderMessage() {
             I built SubKill after getting hit by surprise renewals and “free trials” that quietly turned paid. Too many subscriptions were buried in statements or intentionally hard to cancel.
           </p>
           <p className="text-sm sm:text-base text-muted leading-relaxed text-center mt-4">
-            SubKill finds recurring charges, alerts you before renewals, and cancels in one click—so you keep more of your money with zero hassle.
+            SubKill finds recurring charges, alerts you before renewals, and handles cancellations for you—so you keep more of your money with zero hassle.
           </p>
           <p className="text-sm text-white/80 text-center">— John, Founder of SubKill</p>
         </div>

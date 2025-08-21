@@ -15,8 +15,8 @@ export default function Home() {
       <main className="flex-1">
         <Hero />
         
-        <section className="relative mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-transparent h-[30vh] flex items-center justify-center">
-          <div className="">
+        <section className="relative mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 bg-transparent sm:h-[30vh] flex items-start sm:items-center justify-start sm:justify-center">
+          <div>
             <TestimonialCard />
           </div>
           <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-10 sm:w-16 bg-gradient-to-r from-background via-background/90 to-transparent" />
@@ -24,9 +24,9 @@ export default function Home() {
 
 
 
-        <div className="bg-gradient-to-tr from-white/0.5 via-black/1 to-amber-900/30 h-16" />
+        <div className="bg-gradient-to-tr from-white/0.5 via-black/1 to-amber-900/30 h-8 sm:h-16" />
 
-        <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-14 mt-0 bg-transparent">
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sm:py-14 mt-0 bg-transparent">
           <div className="mb-6">
             <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">Why SubKill</h2>
             <p className="mt-2 text-sm text-muted">Cut waste, avoid surprise renewals, and cancel without the hassle.</p>
@@ -50,7 +50,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="mx-auto h-[50vh] max-w-7xl px-4 sm:px-6 lg:px-8 py-10 bg-transparent">
+        <section className="mx-auto sm:h-[50vh] max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-10 bg-transparent">
           <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">How it works</h2>
           <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
             <Card
@@ -73,11 +73,11 @@ export default function Home() {
 
         <Fomo />
 
-        <section className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-10 bg-transparent h-[80vh] flex items-center justify-center">
+        <section className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-8 sm:py-10 bg-transparent sm:h-[80vh] flex items-center justify-center">
           <FounderMessage />
         </section>
 
-        <section className="mx-auto h-[60vh] max-w-5xl md:mt-24 px-4 sm:px-6 lg:px-8 py-8 bg-transparent">
+        <section className="mx-auto sm:h-[60vh] max-w-5xl md:mt-24 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 bg-transparent">
           <FAQ />
         </section>
         

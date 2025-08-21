@@ -30,8 +30,8 @@ export default function Hero() {
   const subhead = useMemo(() => {
     if (query.s) return query.s;
     return ab === "B"
-      ? "Automatic detection, day‑before alerts, and one‑click cancellations."
-      : "SubKill finds and cancels your forgotten subscriptions in one click.";
+      ? "Automatic detection, day‑before alerts, and hassle‑free cancellations."
+      : "SubKill finds hidden subscriptions and handles cancellations for you.";
   }, [query.s, ab]);
 
   const ctaText = useMemo(() => {
