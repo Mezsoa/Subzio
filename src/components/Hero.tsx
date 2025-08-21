@@ -1,11 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import SubscriptionsCard from "@/components/SubscriptionsCard";
+import { useABVariant } from "@/lib/ab";
+
+function useQuery() {
+  const [query, setQuery] = useState<Record<string, string>>({});
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const obj: Record<string, string> = {};
+    params.forEach((v, k) => (obj[k] = v));
+    setQuery(obj);
+  }, []);
+  return query;
+}
 
 export default function Hero() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState<string>("");
+  const query = useQuery();
+  const ab = useABVariant();
+
+  const headline = useMemo(() => {
+    return query.h || "Stop paying for subscriptions you don’t use";
+  }, [query.h]);
+
+  const subhead = useMemo(() => {
+    if (query.s) return query.s;
+    return ab === "B"
+      ? "Automatic detection, day‑before alerts, and one‑click cancellations."
+      : "SubKill finds and cancels your forgotten subscriptions in one click.";
+  }, [query.s, ab]);
+
+  const ctaText = useMemo(() => {
+    if (query.cta) return query.cta;
+    return ab === "B" ? "Get early access" : "Join the waitlist";
+  }, [query.cta, ab]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -34,21 +66,21 @@ export default function Hero() {
     }
   }
 
-  const inputStyles = `w-full h-12 px-4 rounded-md border text-sm focus:outline-none focus:ring-2 transition ${
-    status === "error" ? "border-red-500 focus:ring-red-200" : "border-black/10 focus:ring-black/10"
+  const inputStyles = `w-full h-12 px-4 rounded-md border text-sm bg-background text-foreground placeholder:opacity-60 focus:outline-none focus:ring-2 transition ${
+    status === "error" ? "border-red-500 focus:ring-red-200" : "border-border focus:ring-foreground/10"
   }`;
 
   return (
-    <section className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 pb-16 text-center">
-      <p className="text-xs uppercase tracking-[0.2em] text-black/60">SubZIo</p>
-      <h1 className="mt-3 text-3xl sm:text-5xl md:text-6xl font-semibold tracking-tight">
-        Stop paying for subscriptions you don’t use
+    <section className="mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 pb-16 text-center bg-gradient-to-b from-zinc-950 via-neutral-800 to-zinc-950 text-foreground ">
+      <p className="text-xs uppercase tracking-[0.2em] text-muted">SubKill</p>
+      <h1 className="mt-3 text-3xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-foreground">
+        {headline}
       </h1>
-      <p className="mt-4 text-base sm:text-lg text-black/60 max-w-2xl mx-auto">
-        Subscription Killer finds and cancels your forgotten subscriptions in one click.
+      <p className="mt-4 text-base sm:text-lg text-muted max-w-2xl mx-auto">
+        {subhead}
       </p>
 
-      <form id="waitlist" onSubmit={onSubmit} className="mt-8 max-w-xl mx-auto flex flex-col sm:flex-row gap-3">
+      <form id="waitlist" onSubmit={onSubmit} className="mt-8 max-w-xl mx-auto flex flex-col sm:flex-row gap-3 border border-border rounded-md p-2 bg-transparent">
         <input
           type="email"
           name="email"
@@ -61,10 +93,10 @@ export default function Hero() {
         />
         <button
           type="submit"
-          className="whitespace-nowrap inline-flex items-center justify-center h-12 px-5 rounded-md bg-black text-white text-sm font-semibold hover:bg-black/90 transition disabled:opacity-60"
+          className="whitespace-nowrap inline-flex items-center justify-center h-12 px-5 rounded-md bg-primary text-on-primary text-sm font-semibold hover:bg-primary/90 transition disabled:opacity-60"
           disabled={status === "loading"}
         >
-          {status === "loading" ? "Joining…" : "Join the waitlist"}
+          {status === "loading" ? "Joining…" : ctaText}
         </button>
       </form>
 
@@ -75,7 +107,18 @@ export default function Hero() {
         <p className="mt-2 text-sm text-green-600">Thanks! You&apos;re on the list.</p>
       )}
 
-      <div className="mt-12 h-56 sm:h-72 md:h-80 bg-gradient-to-br from-black/[0.04] to-black/[0.02] rounded-xl border border-black/10" />
+      <SubscriptionsCard />
+
+      <div className="mt-6 text-xs text-muted flex items-center justify-center gap-2">
+        <span className="inline-flex items-center gap-1">
+          <span className="inline-block h-2 w-2 rounded-full bg-emerald-400" />
+          Privacy‑first, bank‑grade security
+        </span>
+        <span aria-hidden>•</span>
+        <span>Powered by Plaid</span>
+        <span aria-hidden>•</span>
+        <span>Cancel anytime</span>
+      </div>
     </section>
   );
 }
