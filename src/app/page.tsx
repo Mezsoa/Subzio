@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import Fomo from "@/components/Fomo";
 import FAQ from "@/components/FAQ";
 import FounderMessage from "@/components/FounderMessage";
+import SnapSection from "@/components/SnapSection";
 
 export default function Home() {
   return (
@@ -14,7 +15,8 @@ export default function Home() {
 
       <main className="flex-1 snap-y snap-always">
         <Hero />
-        
+
+        {/* Testimonial */}
         <section className="relative mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 bg-transparent sm:h-[30vh] flex items-start sm:items-center justify-start sm:justify-center">
           <div>
             <TestimonialCard />
@@ -22,24 +24,24 @@ export default function Home() {
           <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-10 sm:w-16 bg-gradient-to-r from-background via-background/90 to-transparent" />
         </section>
 
-        
-        
-        
+        {/* Spacer */}
         <div className="bg-gradient-to-tr from-white/0.5 via-black/1 to-amber-900/30 h-8 sm:h-16" />
 
+        {/* KillSub */}
         <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sm:py-14 mt-0 bg-transparent h-[30vh]">
           <div className="mb-6">
-            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground text-end mr-23">KillSub</h2>
+            <h2 className="text-xl sm:text-2xl font-regular tracking-tight text-foreground text-end mr-23">KillSub</h2>
             <p className="mt-2 text-sm text-muted text-end">The last subscription killer.</p>
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sm:py-14 mt-0 bg-transparent">
+        {/* Why KillSub */}
+        <SnapSection className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-10 sm:py-14 mt-0 bg-transparent h-[30vh] flex flex-col items-start justify-center">
           <div className="mb-6">
-            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">Why KillSub</h2>
-            <p className="mt-2 text-sm text-muted">Cut waste, avoid surprise renewals, and cancel without the hassle.</p>
+            <h2 className="text-xl sm:text-2xl font-regular tracking-tight text-foreground">Why KillSub</h2>
+            <p className="mt-2 text-sm text-muted">Cut waste, avoid surprise renewals, and cancel with guided steps.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+          <div className="flex flex-col gap-4">
             <Card
               title="Hidden charges"
               description="Find sneaky recurring charges buried in statements before they drain your balance."
@@ -51,19 +53,20 @@ export default function Home() {
               icon={<span aria-hidden className="text-2xl">⏰</span>}
             />
             <Card
-              title="One‑click cancellations"
-              description="We navigate the fine print and handle emails and forms for you."
+              title="Guided cancellations"
+              description="We send you straight to the right cancellation page and steps."
               icon={<span aria-hidden className="text-2xl">✅</span>}
             />
           </div>
-        </section>
+        </SnapSection>
 
-        <section className="mx-auto sm:h-[30vh] max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-10 bg-transparent mt-36 flex flex-col items-center justify-center">
-          <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">How it works</h2>
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        {/* How it works */}
+        <SnapSection className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-8 sm:py-10 bg-transparent mt-36 flex flex-col items-end justify-center">
+          <h2 className="text-xl sm:text-2xl font-regular tracking-tight text-foreground">How it works</h2>
+          <div className="flex flex-col gap-4">
             <Card
               title="1) Connect securely"
-              description="Link your bank or PayPal via Plaid. We never see or store your credentials."
+              description="Link your bank via Plaid or BankID (where supported). We never see or store your credentials."
               icon={<span aria-hidden className="text-2xl">🔐</span>}
             />
             <Card
@@ -72,15 +75,16 @@ export default function Home() {
               icon={<span aria-hidden className="text-2xl">🧠</span>}
             />
             <Card
-              title="3) Cancel in one click"
-              description="Authorize once—emails, forms, and follow‑ups handled. You get confirmation."
+              title="3) Cancel with guidance"
+              description="We direct you to the provider’s cancellation page and provide simple steps or templates."
               icon={<span aria-hidden className="text-2xl">🧾</span>}
             />
           </div>
-        </section>
+        </SnapSection>
 
         <Fomo />
 
+        {/* Founder Message */}
         <section className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-8 sm:py-10 bg-transparent sm:h-[80vh] flex items-center justify-center">
           <FounderMessage />
         </section>

@@ -99,9 +99,14 @@ export default function SubscriptionsCard() {
 
             <div className="sm:w-56 flex items-center justify-between sm:justify-end gap-2">
               <StatusBadge status={s.status} />
-              <button className="inline-flex items-center justify-center h-9 px-3 rounded-md bg-primary text-on-primary text-xs sm:text-sm font-semibold hover:bg-primary/90 transition">
-                Cancel
-              </button>
+              <a
+                className="inline-flex items-center justify-center h-9 px-3 rounded-md bg-primary text-on-primary text-xs sm:text-sm font-semibold hover:bg-primary/90 transition"
+                href={`https://www.google.com/search?q=${encodeURIComponent(s.name + " cancel subscription")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Cancel (guide)
+              </a>
             </div>
           </div>
         ))}

@@ -16,9 +16,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "KillSub – Cancel forgotten subscriptions",
+  title: "KillSub – Find subscriptions with AI. Cancel with guidance.",
   description:
-    "Automatically track, find and cancel unwanted subscriptions.",
+    "Connect via Plaid/BankID to scan for recurring charges and get guided cancellation links.",
 };
 
 export default function RootLayout({
@@ -32,7 +32,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-MMTS4ZZ692"
+          src="https://www.googletagmanager.com/gtag/js?id=G-P6J457HR70"
           strategy="afterInteractive"
         />
         <Script id="gtag-init" strategy="afterInteractive">
@@ -40,7 +40,7 @@ export default function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-MMTS4ZZ692');
+            gtag('config', 'G-P6J457HR70');
           `}
         </Script>
         {children}

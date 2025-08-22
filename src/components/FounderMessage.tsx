@@ -13,7 +13,7 @@ export default function FounderMessage() {
             I built KillSub after getting hit by surprise renewals and “free trials” that quietly turned paid. Too many subscriptions were buried in statements or intentionally hard to cancel.
           </p>
           <p className="text-sm sm:text-base text-muted leading-relaxed text-center mt-4">
-            KillSub finds recurring charges, alerts you before renewals, and handles cancellations for you—so you keep more of your money with zero hassle.
+            KillSub connects securely, finds recurring charges with AI, sends day‑before alerts, and guides you through cancelling—so you keep more of your money with less hassle.
           </p>
           <p className="text-sm text-white/80 text-center">— John, Founder of KillSub</p>
         </div>

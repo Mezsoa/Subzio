@@ -100,8 +100,8 @@ function Fomo() {
             <div className="text-muted mt-1">Never get surprised by a “free trial” turning paid.</div>
           </div>
           <div className="rounded-md border border-white/10 bg-white/5 p-3">
-            <div className="text-foreground font-medium">Done‑for‑you cancellations</div>
-            <div className="text-muted mt-1">We handle the emails and fine print for you.</div>
+            <div className="text-foreground font-medium">Guided cancellations</div>
+            <div className="text-muted mt-1">Direct links and steps to cancel with each provider.</div>
           </div>
           <div className="rounded-md border border-white/10 bg-white/5 p-3">
             <div className="text-foreground font-medium">Privacy‑first</div>

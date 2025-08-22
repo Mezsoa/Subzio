@@ -13,8 +13,8 @@ export default function PricingCard({ price, ctaHref = "#waitlist", ctaText = "J
         <span className="text-sm text-card-muted">/ month</span>
       </div>
       <ul className="mt-4 text-sm text-card-foreground space-y-2">
-        <li>Cancel unlimited subscriptions</li>
-        <li>Automatic detection & alerts</li>
+        <li>AI‑powered recurring charge detection</li>
+        <li>Guided cancellations with direct provider links</li>
         <li>Privacy-first, bank-grade security</li>
       </ul>
       <a

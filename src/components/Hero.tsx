@@ -30,8 +30,8 @@ export default function Hero() {
   const subhead = useMemo(() => {
     if (query.s) return query.s;
     return ab === "B"
-      ? "Automatic detection, day‑before alerts, and hassle‑free cancellations."
-      : "KillSub finds hidden subscriptions and handles cancellations for you.";
+      ? "Connect via Plaid/BankID, AI‑scan for recurring charges, and get guided cancellations."
+      : "KillSub connects to your bank, detects subscriptions with AI, and guides cancellation steps.";
   }, [query.s, ab]);
 
   const ctaText = useMemo(() => {
@@ -125,7 +125,7 @@ export default function Hero() {
           Privacy‑first, bank‑grade security
         </span>
         <span aria-hidden>•</span>
-        <span>Powered by Plaid</span>
+        <span>Powered by Plaid / BankID</span>
         <span aria-hidden>•</span>
         <span>Cancel anytime</span>
       </div>
