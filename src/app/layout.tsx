@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SubKill – Cancel forgotten subscriptions",
+  title: "KillSub – Cancel forgotten subscriptions",
   description:
     "Automatically track, find and cancel unwanted subscriptions.",
 };

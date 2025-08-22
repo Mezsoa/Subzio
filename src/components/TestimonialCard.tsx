@@ -33,7 +33,7 @@ export default function TestimonialCard() {
         img: "/testamonials/SofiaK.webp",
       },
       {
-        quote: "If SubKill existed sooner, I wouldn’t have eaten $300 in 'free trial' fees. Take my money.",
+        quote: "If KillSub existed sooner, I wouldn’t have eaten $300 in 'free trial' fees. Take my money.",
         name: "William D.",
         title: "Founder",
         img: "/testamonials/WilliamD.webp",

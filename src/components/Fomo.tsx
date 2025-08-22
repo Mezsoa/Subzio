@@ -41,7 +41,7 @@ function Fomo() {
   const { days, hours, minutes, seconds } = formatTime(remaining);
 
   return (
-    <section className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-14">
+    <section className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-14 h-[100vh] flex items-center justify-center mt-48">
       <div className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-zinc-900 via-black to-zinc-900 p-6 sm:p-10 shadow-xl">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
           <div>

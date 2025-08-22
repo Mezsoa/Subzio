@@ -12,14 +12,14 @@ export function useABVariant() {
     const params = new URLSearchParams(window.location.search);
     const qp = params.get("ab");
     if (qp === "A" || qp === "B") {
-      localStorage.setItem("subkill_ab_variant", qp);
+      localStorage.setItem("killsub_ab_variant", qp);
       setVariant(qp);
       if (window.gtag) {
         window.gtag('event', 'ab_variant_assigned', { variant: qp, source: 'query' });
       }
       return;
     }
-    const stored = localStorage.getItem("subkill_ab_variant") as ABVariant | null;
+    const stored = localStorage.getItem("killsub_ab_variant") as ABVariant | null;
     if (stored === "A" || stored === "B") {
       setVariant(stored);
       if (window.gtag) {
@@ -28,7 +28,7 @@ export function useABVariant() {
       return;
     }
     const assigned: ABVariant = Math.random() < 0.5 ? "A" : "B";
-    localStorage.setItem("subkill_ab_variant", assigned);
+    localStorage.setItem("killsub_ab_variant", assigned);
     setVariant(assigned);
     if (window.gtag) {
       window.gtag('event', 'ab_variant_assigned', { variant: assigned, source: 'random' });

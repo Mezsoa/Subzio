@@ -31,7 +31,7 @@ export default function Hero() {
     if (query.s) return query.s;
     return ab === "B"
       ? "Automatic detection, day‑before alerts, and hassle‑free cancellations."
-      : "SubKill finds hidden subscriptions and handles cancellations for you.";
+      : "KillSub finds hidden subscriptions and handles cancellations for you.";
   }, [query.s, ab]);
 
   const ctaText = useMemo(() => {
@@ -77,7 +77,7 @@ export default function Hero() {
 
   return (
     <section className="mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 pb-16 text-center bg-gradient-to-b from-zinc-950 via-neutral-800 to-zinc-950 text-foreground ">
-      <p className="text-xs uppercase tracking-[0.2em] text-muted">SubKill</p>
+      <p className="text-xs uppercase tracking-[0.2em] text-muted">KillSub</p>
       <h1 className="mt-3 text-3xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-foreground">
         {headline}
       </h1>

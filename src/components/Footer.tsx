@@ -47,7 +47,7 @@ export default function Footer() {
     <footer className="w-full border-t border-border mt-24 bg-background">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-foreground">
         <div className="text-sm text-muted">
-          <span className="font-medium text-foreground">SubKill</span> © {new Date().getFullYear()}
+          <span className="font-medium text-foreground">KillSub</span> © {new Date().getFullYear()}
         </div>
 
         <form onSubmit={onSubmit} className="w-full sm:w-auto max-w-md flex items-center gap-2">

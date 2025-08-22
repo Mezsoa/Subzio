@@ -5,7 +5,7 @@ export default function FAQ() {
       a: "Yes. We use bank-grade encryption and connect via trusted aggregators like Plaid. We never see or store your credentials.",
     },
     {
-      q: "How does SubKill detect subscriptions?",
+      q: "How does KillSub detect subscriptions?",
       a: "We analyze transaction patterns and merchant descriptors to flag recurring charges, then surface them for review.",
     },
     {

@@ -12,7 +12,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-gradient-to-bl from-white via-black/20 to-amber-900/30 text-foreground overflow-hidden mb-16">
       <Navbar />
 
-      <main className="flex-1">
+      <main className="flex-1 snap-y snap-always">
         <Hero />
         
         <section className="relative mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 bg-transparent sm:h-[30vh] flex items-start sm:items-center justify-start sm:justify-center">
@@ -22,13 +22,21 @@ export default function Home() {
           <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-10 sm:w-16 bg-gradient-to-r from-background via-background/90 to-transparent" />
         </section>
 
-
-
+        
+        
+        
         <div className="bg-gradient-to-tr from-white/0.5 via-black/1 to-amber-900/30 h-8 sm:h-16" />
+
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sm:py-14 mt-0 bg-transparent h-[30vh]">
+          <div className="mb-6">
+            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground text-end mr-23">KillSub</h2>
+            <p className="mt-2 text-sm text-muted text-end">The last subscription killer.</p>
+          </div>
+        </section>
 
         <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sm:py-14 mt-0 bg-transparent">
           <div className="mb-6">
-            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">Why SubKill</h2>
+            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">Why KillSub</h2>
             <p className="mt-2 text-sm text-muted">Cut waste, avoid surprise renewals, and cancel without the hassle.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
@@ -50,7 +58,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="mx-auto sm:h-[50vh] max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-10 bg-transparent">
+        <section className="mx-auto sm:h-[30vh] max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-10 bg-transparent mt-36 flex flex-col items-center justify-center">
           <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">How it works</h2>
           <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
             <Card
