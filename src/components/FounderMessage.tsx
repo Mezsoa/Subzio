@@ -10,10 +10,10 @@ export default function FounderMessage() {
         </div>
         <div className="space-y-3 mt-16">
           <p className="text-sm sm:text-base text-muted leading-relaxed text-center">
-            I built KillSub after getting hit by surprise renewals and “free trials” that quietly turned paid. Too many subscriptions were buried in statements or intentionally hard to cancel.
+            I started building KillSub after getting hit by surprise renewals and “free trials” that quietly turned paid. Too many subscriptions were buried in statements or intentionally hard to cancel. What can I say, I&apos;m a lazy bastard and I&apos;m probably not going to cancel them due to the struggle. 
           </p>
           <p className="text-sm sm:text-base text-muted leading-relaxed text-center mt-4">
-            KillSub connects securely, finds recurring charges with AI, sends day‑before alerts, and guides you through cancelling—so you keep more of your money with less hassle.
+            My goal is to make KillSub the best way to manage your subscriptions and the last subscription killer. It connects securely, finds recurring charges with AI, sends day‑before alerts, and guides you through cancelling—so you keep more of your money with less hassle.
           </p>
           <p className="text-sm text-white/80 text-center">— John, Founder of KillSub</p>
         </div>

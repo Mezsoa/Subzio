@@ -48,10 +48,10 @@ function Fomo() {
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-muted">Early access</p>
             <h3 className="mt-2 text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">
-              Lock in free for life
+              Lock in free for a lifetime
             </h3>
             <p className="mt-3 text-sm sm:text-base text-muted max-w-xl">
-              First 100 people get free for life. Join now and keep your rate—cancel anytime.
+              First 100 people get free for life. Join now and keep your account—cancel anytime.
             </p>
             <div className="mt-5 inline-flex items-center gap-2 rounded-md bg-emerald-500/10 text-emerald-300 px-3 py-1 text-xs">
               <span className="inline-block h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
