@@ -1,12 +1,12 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
-import Card from "@/components/Card";
 import TestimonialCard from "@/components/TestimonialCard";
 import Footer from "@/components/Footer";
 import Fomo from "@/components/Fomo";
 import FAQ from "@/components/FAQ";
 import FounderMessage from "@/components/FounderMessage";
 import SnapSection from "@/components/SnapSection";
+import GlassFeature from "@/components/GlassFeature";
 
 export default function Home() {
   return (
@@ -36,48 +36,74 @@ export default function Home() {
         </section>
 
         {/* Why KillSub */}
-        <SnapSection className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-10 sm:py-14 mt-0 bg-transparent h-[30vh] flex flex-col items-start justify-center">
-          <div className="mb-6">
-            <h2 className="text-xl sm:text-2xl font-regular tracking-tight text-foreground">Why KillSub</h2>
-            <p className="mt-2 text-sm text-muted">Cut waste, avoid surprise renewals, and cancel with guided steps.</p>
+        <SnapSection className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16 bg-transparent flex flex-col items-center justify-center text-center">
+          <div className="mb-16">
+            <h2 className="text-xl sm:text-2xl font-regular tracking-tight text-foreground text-center">Why KillSub</h2>
+            <p className="mt-3 text-sm text-muted max-w-2xl mx-auto">Cut waste, avoid surprise renewals, and cancel with guided steps.</p>
           </div>
-          <div className="flex flex-col gap-4">
-            <Card
+          <div className="w-full grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-6">
+            <GlassFeature
               title="Hidden charges"
               description="Find sneaky recurring charges buried in statements before they drain your balance."
               icon={<span aria-hidden className="text-2xl">🔎</span>}
+              accent="emerald"
+              className="md:col-span-3"
             />
-            <Card
+            <GlassFeature
               title="Forgotten free trials"
               description="Day‑before alerts so trials don’t convert while you’re not looking."
               icon={<span aria-hidden className="text-2xl">⏰</span>}
+              accent="amber"
+              className="md:col-span-2"
             />
-            <Card
+            <GlassFeature
               title="Guided cancellations"
               description="We send you straight to the right cancellation page and steps."
               icon={<span aria-hidden className="text-2xl">✅</span>}
+              accent="violet"
+              className="md:col-span-2"
+            />
+            <GlassFeature
+              title="Privacy‑first"
+              description="Bank‑grade security. Disconnect anytime."
+              icon={<span aria-hidden className="text-2xl">🔒</span>}
+              accent="zinc"
+              className="md:col-span-3"
             />
           </div>
         </SnapSection>
 
         {/* How it works */}
-        <SnapSection className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-8 sm:py-10 bg-transparent mt-36 flex flex-col items-end justify-center">
-          <h2 className="text-xl sm:text-2xl font-regular tracking-tight text-foreground">How it works</h2>
-          <div className="flex flex-col gap-4">
-            <Card
-              title="1) Connect securely"
+        <SnapSection className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16 bg-transparent flex flex-col items-center justify-center text-center">
+          <h2 className="text-xl sm:text-2xl font-regular tracking-tight text-foreground text-center mb-16">How it works</h2>
+          <div className="w-full grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-6">
+            <GlassFeature
+              title="Connect securely"
               description="Link your bank via Plaid or BankID (where supported). We never see or store your credentials."
               icon={<span aria-hidden className="text-2xl">🔐</span>}
+              accent="sky"
+              className="md:col-span-3"
             />
-            <Card
-              title="2) Detect subscriptions"
+            <GlassFeature
+              title="Detect subscriptions"
               description="We scan descriptors and patterns to surface recurring charges you may have missed."
               icon={<span aria-hidden className="text-2xl">🧠</span>}
+              accent="emerald"
+              className="md:col-span-2"
             />
-            <Card
-              title="3) Cancel with guidance"
+            <GlassFeature
+              title="Cancel with guidance"
               description="We direct you to the provider’s cancellation page and provide simple steps or templates."
               icon={<span aria-hidden className="text-2xl">🧾</span>}
+              accent="violet"
+              className="md:col-span-2"
+            />
+            <GlassFeature
+              title="Start killing subscriptions"
+              description="Start killing subscriptions now. It's free to try."
+              icon={<span aria-hidden className="text-2xl">🚀</span>}
+              accent="zinc"
+              className="md:col-span-3"
             />
           </div>
         </SnapSection>
@@ -85,13 +111,13 @@ export default function Home() {
         <Fomo />
 
         {/* Founder Message */}
-        <section className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-8 sm:py-10 bg-transparent sm:h-[80vh] flex items-center justify-center">
+        <SnapSection className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8 sm:py-10 bg-transparent sm:h-[80vh] flex items-center justify-center">
           <FounderMessage />
-        </section>
+        </SnapSection>
 
-        <section className="mx-auto sm:h-[60vh] max-w-5xl md:mt-24 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 bg-transparent">
+        <SnapSection className="mx-auto sm:h-[60vh] max-w-5xl md:mt-24 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 bg-transparent">
           <FAQ />
-        </section>
+        </SnapSection>
         
       </main>
 

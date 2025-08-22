@@ -67,8 +67,8 @@ function StatusBadge({ status }: { status: Subscription["status"] }) {
 
 export default function SubscriptionsCard() {
   return (
-      <div className="mt-12 h-[30vh] mx-auto max-w-3xl rounded-2xl border border-card-border bg-card text-card-foreground p-4 sm:p-6 shadow-sm overflow-scroll mb-16">
-      <div className="flex items-center justify-between gap-3">
+      <div className="mt-12 h-[30vh] mx-auto max-w-3xl rounded-2xl border border-card-border bg-card text-card-foreground shadow-sm mb-16 overflow-hidden">
+      <div className="p-4 sm:p-6 flex items-center justify-between gap-3">
         <div>
           <h3 className="text-base sm:text-lg font-semibold tracking-tight">Your subscriptions</h3>
           <p className="text-xs sm:text-sm text-card-muted">Automatically detected from your transactions</p>
@@ -79,7 +79,8 @@ export default function SubscriptionsCard() {
         </div>
       </div>
 
-      <div className="mt-4 divide-y divide-card-border/70">
+      <div className="h-[calc(100%-80px)] overflow-y-auto scrollbar-thin scrollbar-color-card-border px-4 sm:px-6 pb-4">
+        <div className="divide-y divide-card-border/70">
         {subscriptions.map((s) => (
           <div key={s.name} className="py-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
             <div className="flex-1 min-w-0 flex items-center gap-3">
@@ -105,11 +106,12 @@ export default function SubscriptionsCard() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Cancel (guide)
+                Cancel guide
               </a>
             </div>
           </div>
         ))}
+        </div>
       </div>
     </div>
   );
