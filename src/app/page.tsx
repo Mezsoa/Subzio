@@ -7,7 +7,7 @@ import FAQ from "@/components/FAQ";
 import FounderMessage from "@/components/FounderMessage";
 import SnapSection from "@/components/SnapSection";
 import GlassFeature from "@/components/GlassFeature";
-import Image from "next/image";
+import Reveal from "@/components/animations/Reveal";
 
 export default function Home() {
   return (
@@ -33,14 +33,14 @@ export default function Home() {
 
         {/* KillSub */}
         <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sm:py-14 mt-0 bg-transparent h-[30vh]">
-          <div className="mb-6">
+          <Reveal className="mb-6">
             <h2 className="text-xl sm:text-2xl font-regular tracking-tight text-foreground text-end mr-23">
               KillSub
             </h2>
             <p className="mt-2 text-sm text-muted text-end">
               The last subscription killer.
             </p>
-          </div>
+          </Reveal>
         </section>
 
         {/* Why KillSub */}

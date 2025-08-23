@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Reveal from "./animations/Reveal";
 
 type GlassFeatureProps = {
   title: string;
@@ -22,10 +23,11 @@ const ACCENT_MAP: Record<NonNullable<GlassFeatureProps["accent"]>, string> = {
 export default function GlassFeature({ title, description, icon, accent = "zinc", className = "" }: GlassFeatureProps) {
   const accentClasses = ACCENT_MAP[accent];
   return (
-    <div
+    <>
+    <Reveal threshold={0.5} offsetPx={200} durationMs={1000}
       className={`relative rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-xl transition-colors hover:bg-white/7.5 ${className}`}
     >
-      <div className="pointer-events-none absolute inset-0 [mask-image:radial-gradient(100%_60%_at_0%_0%,_white,_transparent)]">
+      <div className="pointer-events-none absolute rounded-2xl inset-0 [mask-image:radial-gradient(100%_60%_at_0%_0%,_white,_transparent)]">
         <div className={`absolute -top-12 -left-12 h-48 w-48 rounded-full bg-gradient-to-br ${accentClasses}`} />
       </div>
 
@@ -34,7 +36,8 @@ export default function GlassFeature({ title, description, icon, accent = "zinc"
         <h3 className="text-lg font-medium text-foreground tracking-tight">{title}</h3>
         <p className="mt-2 text-sm text-muted leading-relaxed">{description}</p>
       </div>
-    </div>
+    </Reveal>
+    </>
   );
 }
 

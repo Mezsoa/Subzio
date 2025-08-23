@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import SnapSection from './SnapSection'
 import Image from 'next/image'
+import Reveal from './animations/Reveal'
 
 function formatTime(ms: number) {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
@@ -44,7 +45,7 @@ function Fomo() {
 
   return (
     <SnapSection className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-14 h-[100vh] flex items-center justify-center mt-48">
-       <div className="flex max-w-4xl mx-auto items-center justify-center w-full mb-24">
+       <Reveal threshold={0.5} offsetPx={150} durationMs={1000} className="flex max-w-4xl mx-auto items-center justify-center w-full mb-24">
           <Image
             src="/laurel/left.webp"
             alt="KillSub"
@@ -69,8 +70,8 @@ function Fomo() {
             height={150}
             className="text-black"
           />
-        </div>
-      <div className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-zinc-900 via-black to-zinc-900 p-6 sm:p-10 shadow-xl">
+        </Reveal>
+      <Reveal threshold={0.5} offsetPx={150} durationMs={1000} className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-zinc-900 via-black to-zinc-900 p-6 sm:p-10 shadow-xl">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-muted">Early access</p>
@@ -140,7 +141,7 @@ function Fomo() {
         <p className="mt-6 text-xs text-muted">
           84 people joined the waitlist this week.
         </p>
-      </div>
+      </Reveal>
     </SnapSection>
   )
 }

@@ -63,7 +63,7 @@ export default function Footer() {
           />
           <button
             type="submit"
-            className="whitespace-nowrap inline-flex items-center justify-center h-10 px-4 rounded-md bg-primary text-on-primary text-sm font-semibold hover:bg-primary/90 transition disabled:opacity-60"
+            className="whitespace-nowrap inline-flex items-center justify-center h-10 px-4 rounded-md bg-gradient-to-r from-primary to-transparent text-on-primary text-sm font-semibold hover:bg-primary/5 hover:border-[0.5px] hover:border border-neutral-800 transition duration-900 disabled:opacity-60 hover:backdrop-blur-sm"
             disabled={status === "loading"}
           >
             {status === "loading" ? "Joining…" : "Join waitlist"}
