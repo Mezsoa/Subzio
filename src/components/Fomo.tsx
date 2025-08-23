@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import SnapSection from './SnapSection'
+import Image from 'next/image'
 
 function formatTime(ms: number) {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
@@ -43,6 +44,32 @@ function Fomo() {
 
   return (
     <SnapSection className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-14 h-[100vh] flex items-center justify-center mt-48">
+       <div className="flex max-w-4xl mx-auto items-center justify-center w-full mb-24">
+          <Image
+            src="/laurel/left.webp"
+            alt="KillSub"
+            width={100}
+            height={150}
+            className="text-black"
+          />
+
+          <div className="flex flex-col items-center justify-start h-[100px]">
+            <p className="text-sm text-muted mb-2">Thoreau once said…</p>
+            <p className="text-lg italic font-semibold text-white">
+              “Most men live in quiet desperation.”
+            </p>
+            <p className="text-xs text-gray-400 mt-1">
+              Today, that desperation is hidden inside endless subscriptions.
+            </p>
+          </div>
+          <Image
+            src="/laurel/right.webp"
+            alt="KillSub"
+            width={109.5}
+            height={150}
+            className="text-black"
+          />
+        </div>
       <div className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-zinc-900 via-black to-zinc-900 p-6 sm:p-10 shadow-xl">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
           <div>
