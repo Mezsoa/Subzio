@@ -2,23 +2,23 @@ export default function FAQ() {
   const faqs = [
     {
       q: "Is connecting my bank safe?",
-      a: "Yes. We use bank-grade encryption and connect via trusted aggregators like Plaid. We never see or store your credentials.",
+      a: "Yes. We use bank-grade encryption and connect via trusted aggregators like Plaid. We never see or store your credentials. You can disconnect anytime and request deletion.",
     },
     {
       q: "How does KillSub detect subscriptions?",
-      a: "We analyze transaction patterns and merchant descriptors to flag recurring charges, then surface them for review.",
+      a: "We analyze transaction patterns and merchant descriptors to flag recurring charges, then surface them for review. We are working on a more accurate way to detect subscriptions.",
     },
     {
       q: "Can you cancel for me?",
-      a: "We guide you to the correct cancellation page and provide easy steps or templates. We don’t automate cancellations.",
+      a: "As for now, no. But we will guide you to the correct cancellation page and provide easy steps or templates. We don’t automate cancellations.",
     },
     {
       q: "What does it cost?",
-      a: "Early access is $5/month and you keep this rate for life. Cancel anytime.",
+      a: "Nothing! Early access is free and you keep this for life. Cancel anytime.",
     },
     {
       q: "What happens to my data?",
-      a: "Your data is encrypted at rest and in transit. You can disconnect anytime and request deletion.",
+      a: "Your data is encrypted at rest and in transit. We don't store any data on our servers.",
     },
   ];
 
