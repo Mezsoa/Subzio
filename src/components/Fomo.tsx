@@ -17,6 +17,7 @@ function formatTime(ms: number) {
 function Fomo() {
   const [spotsLeft, setSpotsLeft] = useState<number>(73);
   const [now, setNow] = useState<number>(Date.now());
+  const [mounted, setMounted] = useState<boolean>(false);
 
   const deadline = useMemo(() => {
     const now = new Date();
@@ -40,8 +41,15 @@ function Fomo() {
     return () => clearInterval(interval);
   }, []);
 
+  // Avoid hydration mismatch by only rendering dynamic countdown on client
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const remaining = Math.max(0, deadline - now);
   const { days, hours, minutes, seconds } = formatTime(remaining);
+
+  if (!mounted) return null;
 
   return (
     <SnapSection className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-14 h-[100vh] flex items-center justify-center mt-48">
@@ -79,7 +87,7 @@ function Fomo() {
               Lock in free for a lifetime
             </h3>
             <p className="mt-3 text-sm sm:text-base text-muted max-w-xl">
-              First 100 people get free for life. Join now and keep your account—cancel anytime.
+              First 100 people get 50% off for life. Join now and keep your account—cancel anytime.
             </p>
             <div className="mt-5 inline-flex items-center gap-2 rounded-md bg-emerald-500/10 text-emerald-300 px-3 py-1 text-xs">
               <span className="inline-block h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -111,14 +119,14 @@ function Fomo() {
 
             <a
               href="#waitlist"
-              className="mt-4 inline-flex w-full items-center justify-center h-11 px-5 rounded-md bg-primary text-on-primary text-sm font-semibold hover:bg-primary/90 transition"
+              className="mt-4 inline-flex w-full items-center justify-center h-11 px-5 rounded-md bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-500/90 transition shadow-md"
               onClick={() => {
                 if (typeof window !== 'undefined' && window.gtag) {
                   window.gtag('event', 'cta_click', { location: 'fomo' });
                 }
               }}
             >
-              Join the waitlist
+              Reserve early access – $5 when we launch
             </a>
           </div>
         </div>
@@ -138,9 +146,8 @@ function Fomo() {
           </div>
         </div>
 
-        <p className="mt-6 text-xs text-muted">
-          84 people joined the waitlist this week.
-        </p>
+        <p className="mt-6 text-xs text-muted">✅ No spam. Cancel anytime. Join 18 others already waiting.</p>
+        <p className="mt-1 text-xs text-muted">People from 🇸🇪 🇺🇸 🇨🇦 already joined this week.</p>
       </Reveal>
     </SnapSection>
   )

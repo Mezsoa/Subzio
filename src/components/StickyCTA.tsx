@@ -4,14 +4,14 @@ export default function StickyCTA() {
       <div className="mx-auto max-w-2xl px-4 pb-4">
         <a
           href="#waitlist"
-          className="block w-full text-center h-12 leading-[3rem] rounded-md bg-primary text-on-primary text-sm font-semibold shadow-lg"
+          className="block w-full text-center h-12 leading-[3rem] rounded-md bg-emerald-500 text-white text-sm font-semibold shadow-lg"
           onClick={() => {
             if (typeof window !== 'undefined' && window.gtag) {
               window.gtag('event', 'cta_click', { location: 'sticky' });
             }
           }}
         >
-          Join the waitlist
+          Reserve early access – $5 when we launch
         </a>
       </div>
     </div>

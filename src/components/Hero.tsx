@@ -36,8 +36,8 @@ export default function Hero() {
 
   const ctaText = useMemo(() => {
     if (query.cta) return query.cta;
-    return ab === "B" ? "Get early access" : "Join the waitlist";
-  }, [query.cta, ab]);
+    return "Reserve early access – $5 when we launch";
+  }, [query.cta]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -85,6 +85,10 @@ export default function Hero() {
         {subhead}
       </p>
 
+      <p className="mt-2 text-sm text-emerald-300/90">
+        Launching soon — $5/month. First 100 users get 50% off for life.
+      </p>
+
       <form id="waitlist" onSubmit={onSubmit} className="mt-8 max-w-xl mx-auto flex flex-col sm:flex-row gap-3 border border-border rounded-md p-2 bg-transparent">
         <input
           type="email"
@@ -98,7 +102,7 @@ export default function Hero() {
         />
         <button
           type="submit"
-          className="whitespace-nowrap inline-flex items-center justify-center h-12 px-5 rounded-md bg-primary text-on-primary text-sm font-semibold hover:bg-primary/90 transition disabled:opacity-60"
+          className="whitespace-nowrap inline-flex items-center justify-center h-12 px-5 rounded-md bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-500/90 shadow-md transition disabled:opacity-60"
           onClick={() => {
             if (typeof window !== 'undefined' && window.gtag) {
               window.gtag('event', 'waitlist_submit_click', { form_location: 'hero' });
@@ -109,6 +113,13 @@ export default function Hero() {
           {status === "loading" ? "Joining…" : ctaText}
         </button>
       </form>
+
+      <div className="mt-2 text-xs text-muted">
+        <span className="mr-1">✅</span>No spam. Cancel anytime. Join 18 others already waiting.
+      </div>
+      <div className="mt-1 text-xs text-muted">
+        People from 🇸🇪 🇺🇸 🇨🇦 already joined this week.
+      </div>
 
       {status === "error" && (
         <p className="mt-2 text-sm text-red-600">{errorMsg}</p>
