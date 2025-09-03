@@ -1,27 +1,54 @@
 "use client";
 
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { supabaseBrowser } from "@/lib/supabaseClient";
+
+
+type SessionUser = {
+  email?: string | null;
+  user_metadata?: { name?: string | null };
+} | null;
+
 export default function Navbar() {
+  const [user, setUser] = useState<SessionUser>(null);
+
+  useEffect(() => {
+    const sb = supabaseBrowser();
+    sb.auth.getUser().then(({ data }) => setUser(data.user ?? null));
+    const { data: sub } = sb.auth.onAuthStateChange((_evt, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  const initials = (() => {
+    const name = user?.user_metadata?.name || user?.email || "";
+    const parts = name.split(" ");
+    const first = parts[0]?.[0] || name[0] || "U";
+    const second = parts[1]?.[0] || "";
+    return (first + second).toUpperCase();
+  })();
+
   return (
     <header className="w-full border-b border-border bg-background">
-      <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <a
-          href="#"
-          className="text-sm font-semibold tracking-tight text-foreground">
+      <nav className="mx-auto max-w-screen w-[90%] px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <Link
+          href="/"
+          className="text-sm font-semibold tracking-tight text-foreground w-full">
           KillSub -{" "}
           <span className="text-muted text-xs">
             the last subscription killer
           </span>
-        </a>
-        <a
-          href="#waitlist"
-          className="inline-flex items-center justify-center h-8 px-5 rounded-md bg-gradient-to-r from-primary to-transparent text-on-primary text-sm font-semibold hover:bg-primary/8 hover:border-[0.5px] hover:border border-neutral-800 transition duration-900 hover:backdrop-blur-sm"
-          onClick={() => {
-            if (typeof window !== "undefined" && window.gtag) {
-              window.gtag("event", "cta_click", { location: "navbar" });
-            }
-          }}>
-          Join Waitlist
-        </a>
+        </Link>
+        <div className="flex items-center gap-6 w-full justify-end">
+          
+          <Link
+            href="/auth/signin"
+            className="inline-flex items-center justify-center h-8 px-4 rounded-md border border-white/10 text-sm text-foreground hover:bg-white/5">
+            Sign in
+          </Link>
+        </div>
       </nav>
     </header>
   );

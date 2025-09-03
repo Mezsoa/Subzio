@@ -22,7 +22,7 @@ function Fomo() {
   const deadline = useMemo(() => {
     const now = new Date();
     const currentYear = now.getFullYear();
-    const sept5ThisYear = new Date(currentYear, 8, 5, 23, 59, 59, 999).getTime();
+    const sept5ThisYear = new Date(currentYear, 8, 17, 23, 59, 59, 999).getTime();
     if (Date.now() <= sept5ThisYear) return sept5ThisYear;
     const sept5NextYear = new Date(currentYear + 1, 8, 5, 23, 59, 59, 999).getTime();
     return sept5NextYear;

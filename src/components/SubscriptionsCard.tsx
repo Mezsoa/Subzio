@@ -106,7 +106,7 @@ export default function SubscriptionsCard() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Cancel guide
+                Cancel
               </a>
             </div>
           </div>

@@ -15,45 +15,45 @@ export default function TestimonialCard() {
   const testimonials: Testimonial[] = useMemo(
     () => [
       {
-        quote: "I’d happily pay $10/mo just to never get burned by forgotten renewals again.",
+        quote: "Saw this on X—following along. Curious to try once beta opens.",
         name: "Eric Jr",
-        title: "SaaS founder",
+        title: "On X (early interest)",
         img: "/testamonials/EricJr.webp",
       },
       {
-        quote: "I’d pay double for the peace of mind of not having to worry about forgotten subscriptions.",
+        quote: "Looks promising. I hate surprise renewals. Keep me posted.",
         name: "Luis V.",
-        title: "E‑commerce",
+        title: "On X (early interest)",
         img: "/testamonials/LuisV.webp",
       },
       {
-        quote: "One missed annual renewal cost me $199 last year—this would’ve easily been worth it.",
+        quote: "Does it catch annual billing? That’s where I usually get burned.",
         name: "Sofia K",
-        title: "Indie hacker",
+        title: "On X (question)",
         img: "/testamonials/SofiaK.webp",
       },
       {
-        quote: "If KillSub existed sooner, I wouldn’t have eaten $300 in 'free trial' fees. Take my money.",
+        quote: "Happy to try the MVP when it’s live.",
         name: "William D.",
-        title: "Founder",
+        title: "On X (beta interest)",
         img: "/testamonials/WilliamD.webp",
       },
       {
-        quote: "The day‑before alerts alone are worth the price—I’d pay just for those.",
-        name: "Victor N.",
-        title: "Product designer",
+        quote: "Following. Price and bank coverage will decide for me.",
+        name: "Viktor N.",
+        title: "On X (considering)",
         img: "/testamonials/viktorN.webp",
       },
       {
-        quote: "I budget for Netflix and 12 random tools I forgot last year. This would be a no‑brainer subscription.",
+        quote: "Bookmarked. DM me when EU banks are supported.",
         name: "Jakob H.",
-        title: "Creator",
+        title: "On X (request)",
         img: "/testamonials/JakobH.webp",
       },
       {
-        quote: "I like the idea of it. I’d keep paying to never think about cancellations again.",
+        quote: "Nice idea—interested if alerts are reliable.",
         name: "Lukas M.",
-        title: "Developer",
+        title: "On X (early interest)",
         img: "/testamonials/LukasM.webp",
       },
     ],
@@ -61,7 +61,11 @@ export default function TestimonialCard() {
   );
 
   return (
-    <Carousel
+    <div>
+      <div className="mb-2 text-xs text-white/60">
+        Early reactions from Twitter/X (pre‑launch)
+      </div>
+      <Carousel
       opts={{ align: "start", loop: true, dragFree: true, direction: 'ltr' }}
       plugins={[
         AutoScroll({
@@ -105,6 +109,7 @@ export default function TestimonialCard() {
         ))}
       </CarouselContent>
     </Carousel>
+    </div>
   );
 }
 

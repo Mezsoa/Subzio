@@ -4,6 +4,9 @@ import Script from "next/script";
 import AnalyticsListener from "@/components/AnalyticsListener";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "@fortawesome/fontawesome-svg-core/styles.css";
+import { config as fontawesomeConfig } from "@fortawesome/fontawesome-svg-core";
+fontawesomeConfig.autoAddCss = false;
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
