@@ -109,11 +109,28 @@ export async function POST(req: NextRequest) {
     const subs = detectRecurring(
       txns.map((t) => ({
         id: (t as any).id,
-        amount: typeof t.amount === "number" ? t.amount : (t.amount as any)?.value,
-        date: (t as any).date || (t as any).bookingDate || (t as any).transactionDate,
-        description: t.description,
+        amount: (t as any).amount,
+        transactionAmount: (t as any).transactionAmount,
+        currency: (t as any).currency,
+        date: (t as any).date,
+        bookingDate: (t as any).bookingDate,
+        transactionDate: (t as any).transactionDate,
+        dates: (t as any).dates,
+        description: (t as any).description,
+        descriptions: (t as any).descriptions,
         merchantName: (t as any).merchantName,
+        merchant: (t as any).merchant,
+        payee: (t as any).payee,
+        counterparty: (t as any).counterparty,
+        payerOrPayee: (t as any).payerOrPayee,
         reference: (t as any).reference,
+        remittanceInformation: (t as any).remittanceInformation,
+        message: (t as any).message,
+        category: (t as any).category,
+        categoryCode: (t as any).categoryCode,
+        classification: (t as any).classification,
+        types: (t as any).types,
+        status: (t as any).status,
       }))
     );
 
@@ -127,6 +144,10 @@ export async function POST(req: NextRequest) {
         last_amount: s.lastAmount,
         last_date: s.lastDate,
         count: s.count,
+        confidence: (s as any).confidence ?? null,
+        reasons: (s as any).reasons ?? null,
+        cancel_url: (s as any).cancelUrl ?? null,
+        provider_emoji: (s as any).providerEmoji ?? null,
       });
     }
 

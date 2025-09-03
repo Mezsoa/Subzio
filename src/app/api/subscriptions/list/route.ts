@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
   const svc = supabaseService();
   const { data: rows, error } = await svc
     .from("detected_subscriptions")
-    .select("name,cadence,last_amount,last_date,count")
+    .select("name,cadence,last_amount,last_date,count,confidence,reasons,cancel_url,provider_emoji")
     .eq("user_id", userId)
     .order("last_date", { ascending: false });
   if (error) return new Response(JSON.stringify({ subscriptions: [] }), { status: 200 });
@@ -34,6 +34,10 @@ export async function GET(req: NextRequest) {
     lastAmount: Number(r.last_amount),
     lastDate: r.last_date,
     count: r.count,
+    confidence: typeof (r as any).confidence === "number" ? (r as any).confidence : undefined,
+    reasons: Array.isArray((r as any).reasons) ? (r as any).reasons : undefined,
+    cancelUrl: (r as any).cancel_url || undefined,
+    providerEmoji: (r as any).provider_emoji || undefined,
   }));
   return new Response(JSON.stringify({ subscriptions }), {
     status: 200,

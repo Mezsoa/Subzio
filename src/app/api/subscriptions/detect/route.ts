@@ -1,16 +1,36 @@
 import { NextRequest } from "next/server";
+import { matchProvider } from "@/lib/subscriptionProviders";
 import { supabaseServer } from "@/lib/supabaseServer";
 import { supabaseService } from "@/lib/supabaseClient";
 
 export const runtime = "nodejs";
 
+type BigDecimal = { unscaledValue?: string; scale?: string | number };
+type TinkAmount = number | { value?: number | BigDecimal; currencyCode?: string };
 type TinkTxn = {
   id?: string;
-  amount?: number | { value?: number };
+  amount?: TinkAmount;
+  transactionAmount?: { value?: number | string; currencyCode?: string };
+  currency?: string;
   date?: string;
+  bookingDate?: string;
+  transactionDate?: string;
+  dates?: { booked?: string; valueDate?: string };
   description?: string;
+  descriptions?: { display?: string; original?: string };
   merchantName?: string;
+  merchant?: { name?: string };
+  payee?: { name?: string; displayName?: string };
+  counterparty?: { name?: string };
+  payerOrPayee?: { name?: string };
   reference?: string;
+  remittanceInformation?: string;
+  message?: string;
+  category?: string;
+  categoryCode?: string;
+  classification?: { category?: string; detailedCategory?: string };
+  types?: { type?: string };
+  status?: string;
 };
 
 export async function GET(req: NextRequest) {
@@ -69,66 +89,125 @@ export async function GET(req: NextRequest) {
 }
 
 function detectRecurring(txns: TinkTxn[]) {
-  // Normalize transactions
   const normalized = txns
-    .map((t) => {
-      const dateStr = (t as any).date || (t as any).bookingDate || (t as any).transactionDate || null;
-      const date = dateStr ? new Date(dateStr) : null;
-      const amountValue = typeof t.amount === "number" ? t.amount : (t.amount as any)?.value;
-      const amount = typeof amountValue === "number" ? amountValue : null;
-      const desc = t.merchantName || t.description || t.reference || "";
-      return date && typeof amount === "number"
-        ? { date, amount, desc }
-        : null;
-    })
-    .filter(Boolean) as { date: Date; amount: number; desc: string }[];
+    .map((t) => normalizeTxn(t))
+    .filter(Boolean) as { date: Date; amountAbs: number; rawAmount: number; desc: string }[];
 
   if (normalized.length === 0) return [] as any[];
 
-  // Group by merchant-ish key
-  const groups = new Map<string, { date: Date; amount: number; raw: string }[]>();
+  // Group by normalized merchant key
+  const groups = new Map<string, { date: Date; amountAbs: number; rawAmount: number; rawDesc: string }[]>();
   for (const t of normalized) {
     const key = makeKey(t.desc);
     if (!groups.has(key)) groups.set(key, []);
-    groups.get(key)!.push({ date: t.date, amount: Math.abs(t.amount), raw: t.desc });
+    groups.get(key)!.push({ date: t.date, amountAbs: t.amountAbs, rawAmount: t.rawAmount, rawDesc: t.desc });
   }
 
   const results: any[] = [];
   groups.forEach((arr, key) => {
-    if (arr.length < 2) return; // need at least two
-    // sort by date asc
+    if (arr.length < 2) return; // need at least two to be recurring
     arr.sort((a, b) => a.date.getTime() - b.date.getTime());
+
     // diffs in days
-    const diffs = [] as number[];
+    const diffs: number[] = [];
     for (let i = 1; i < arr.length; i++) {
       const d = (arr[i].date.getTime() - arr[i - 1].date.getTime()) / (1000 * 60 * 60 * 24);
       diffs.push(Math.round(d));
     }
     if (diffs.length === 0) return;
 
-    const cadence = inferCadence(diffs);
-    if (!cadence) return; // not recurring enough
+    const cadenceInfo = inferCadenceWithScore(diffs);
+    if (!cadenceInfo) return;
 
-    // amount stability: median absolute deviation below threshold
-    const amounts = arr.map((x) => x.amount).sort((a, b) => a - b);
+    // Amount stability
+    const amounts = arr.map((x) => x.amountAbs).sort((a, b) => a - b);
     const median = amounts[Math.floor(amounts.length / 2)];
     const mad = medianAbsDeviation(amounts, median);
-    const stable = mad <= Math.max(1, median * 0.15); // allow 15% variation or <= 1 unit
-    if (!stable) return;
+    const stabilityScore = computeStabilityScore(median, mad);
+
+    // Count score (more occurrences => higher confidence)
+    const count = arr.length;
+    const countScore = Math.max(0, Math.min(1, (count - 2) / 6)); // 2→0, 8→1
+
+    // Keyword/vendor score
+    const vendorName = denormalizeKey(key, arr[arr.length - 1].rawDesc);
+    const providerMatch = matchProvider(vendorName);
+    const keywordScore = providerMatch?.score ?? computeKeywordScore(vendorName);
+
+    // Overall confidence (weights sum to 1)
+    const confidence = clamp01(
+      cadenceInfo.score * 0.45 +
+      stabilityScore * 0.30 +
+      countScore * 0.15 +
+      keywordScore * 0.10
+    );
 
     const last = arr[arr.length - 1];
     results.push({
-      name: denormalizeKey(key, last.raw),
-      cadence,
-      lastAmount: last.amount,
+      name: providerMatch?.provider.displayName || vendorName,
+      cadence: cadenceInfo.label,
+      lastAmount: last.amountAbs,
       lastDate: last.date.toISOString().slice(0, 10),
-      count: arr.length,
+      count,
+      confidence: Number(confidence.toFixed(2)),
+      reasons: buildReasons({ cadenceInfo, stabilityScore, count, keywordScore }),
+      cancelUrl: providerMatch?.provider.cancelUrl,
+      providerEmoji: providerMatch?.provider.logoEmoji,
     });
   });
 
-  // Sort by last date desc
-  results.sort((a, b) => (a.lastDate < b.lastDate ? 1 : -1));
-  return results.slice(0, 50);
+  // Sort by confidence desc, then last date desc
+  results.sort((a, b) => (b.confidence - a.confidence) || (a.lastDate < b.lastDate ? 1 : -1));
+  return results.slice(0, 100);
+}
+
+function normalizeTxn(t: TinkTxn) {
+  const dateStr = t.date || t.bookingDate || t.transactionDate || t.dates?.booked || t.dates?.valueDate || null;
+  const date = dateStr ? new Date(dateStr) : null;
+  const amount = parseAmount(t);
+  const desc = getTxnDesc(t);
+  if (!date || amount == null) return null;
+  return { date, amountAbs: Math.abs(amount), rawAmount: amount, desc };
+}
+
+function parseAmount(t: TinkTxn): number | null {
+  if (typeof t.amount === "number") return t.amount;
+  const nested = t.amount && typeof t.amount === "object" ? (t.amount as any).value : undefined;
+  if (typeof nested === "number") return nested;
+  if (nested && typeof nested === "object") {
+    const u = (nested as BigDecimal).unscaledValue;
+    const s = (nested as BigDecimal).scale;
+    if (typeof u === "string") {
+      const scaleNum = typeof s === "string" ? parseInt(s, 10) : (typeof s === "number" ? s : 0);
+      const intVal = parseInt(u, 10);
+      if (!Number.isNaN(intVal)) return intVal / Math.pow(10, scaleNum || 0);
+    }
+  }
+  const alt = t.transactionAmount?.value;
+  if (typeof alt === "number") return alt;
+  if (typeof alt === "string") {
+    const p = parseFloat(alt);
+    return Number.isNaN(p) ? null : p;
+  }
+  return null;
+}
+
+function getTxnDesc(t: TinkTxn): string {
+  return (
+    t.merchantName ||
+    t.descriptions?.display ||
+    t.descriptions?.original ||
+    t.merchant?.name ||
+    t.payee?.displayName ||
+    t.payee?.name ||
+    t.counterparty?.name ||
+    t.payerOrPayee?.name ||
+    t.description ||
+    t.reference ||
+    t.remittanceInformation ||
+    t.message ||
+    ""
+  );
 }
 
 function makeKey(s: string) {
@@ -139,7 +218,7 @@ function denormalizeKey(key: string, fallback: string) {
   return cap || fallback;
 }
 function inferCadence(diffs: number[]) {
-  // use median diff
+  // kept for compatibility; not used directly
   const sorted = diffs.slice().sort((a, b) => a - b);
   const med = sorted[Math.floor(sorted.length / 2)];
   if (approx(med, 30, 8)) return "Monthly";
@@ -148,6 +227,30 @@ function inferCadence(diffs: number[]) {
   if (approx(med, 365, 30)) return "Yearly";
   return null;
 }
+
+function inferCadenceWithScore(diffs: number[]) {
+  // Use median and IQR to score regularity
+  const sorted = diffs.slice().sort((a, b) => a - b);
+  const med = sorted[Math.floor(sorted.length / 2)];
+  const label = approx(med, 7, 2)
+    ? "Weekly"
+    : approx(med, 14, 3)
+    ? "Biweekly"
+    : approx(med, 30, 8)
+    ? "Monthly"
+    : approx(med, 365, 30)
+    ? "Yearly"
+    : null;
+  if (!label) return null;
+
+  // Regularity score: lower spread => higher
+  const q1 = sorted[Math.floor(sorted.length * 0.25)];
+  const q3 = sorted[Math.floor(sorted.length * 0.75)];
+  const iqr = Math.max(0, (q3 ?? med) - (q1 ?? med));
+  const tol = label === "Weekly" ? 2 : label === "Biweekly" ? 3 : label === "Monthly" ? 8 : 30;
+  const reg = clamp01(1 - iqr / (tol * 2));
+  return { label, score: reg };
+}
 function approx(value: number, target: number, tol: number) {
   return Math.abs(value - target) <= tol;
 }
@@ -155,4 +258,36 @@ function medianAbsDeviation(values: number[], median: number) {
   const devs = values.map((v) => Math.abs(v - median)).sort((a, b) => a - b);
   return devs[Math.floor(devs.length / 2)] || 0;
 }
+function computeStabilityScore(median: number, mad: number) {
+  if (!isFinite(median) || median === 0) return 0;
+  // full score when mad <= 5% of median; zero when >= 30%
+  const ratio = mad / Math.abs(median);
+  if (ratio <= 0.05) return 1;
+  if (ratio >= 0.3) return 0;
+  return clamp01(1 - (ratio - 0.05) / (0.25));
+}
+
+const KNOWN_VENDORS: { pattern: RegExp; weight: number }[] = [
+  { pattern: /spotify|netflix|youtube premium|disney\+|hbo|viaplay/i, weight: 1 },
+  { pattern: /apple music|apple tv|icloud/i, weight: 1 },
+  { pattern: /amazon prime|audible/i, weight: 1 },
+  { pattern: /tidal|deezer/i, weight: 0.8 },
+  { pattern: /patreon|onlyfans/i, weight: 0.6 },
+  { pattern: /gym|fitness|ifitness|sats|actic/i, weight: 0.6 },
+  { pattern: /telia|tele2|comviq|tre|halebop|telenor/i, weight: 0.8 },
+  { pattern: /abonnemang|prenumeration|subscription/i, weight: 0.7 },
+];
+function computeKeywordScore(name: string): number {
+  const hit = KNOWN_VENDORS.find((v) => v.pattern.test(name));
+  return hit ? hit.weight : 0;
+}
+function buildReasons(args: { cadenceInfo: { label: string; score: number }; stabilityScore: number; count: number; keywordScore: number }) {
+  const reasons: string[] = [];
+  reasons.push(`${args.cadenceInfo.label} cadence pattern`);
+  if (args.stabilityScore > 0.6) reasons.push("Stable charge amount");
+  if (args.count >= 3) reasons.push(`${args.count} occurrences`);
+  if (args.keywordScore > 0) reasons.push("Known subscription provider");
+  return reasons;
+}
+function clamp01(x: number) { return Math.max(0, Math.min(1, x)); }
 
