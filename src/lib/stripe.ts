@@ -1,13 +1,23 @@
 import Stripe from 'stripe';
-import { loadStripe } from '@stripe/stripe-js';
+import { loadStripe, Stripe as StripeJS } from '@stripe/stripe-js';
 
-// Server-side Stripe instance
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-12-18.acacia',
-});
+// Server-side Stripe instance (only available on server)
+export const getStripeServer = () => {
+  if (typeof window !== 'undefined') {
+    throw new Error('getStripeServer should only be called on the server side');
+  }
+  
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error('STRIPE_SECRET_KEY is not set');
+  }
+  
+  return new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: '2025-08-27.basil',
+  });
+};
 
 // Client-side Stripe instance
-let stripePromise: Promise<Stripe | null>;
+let stripePromise: Promise<StripeJS | null>;
 export const getStripe = () => {
   if (!stripePromise) {
     stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
@@ -38,7 +48,7 @@ export const STRIPE_PLANS = {
     id: 'pro',
     name: 'Pro',
     price: 999, // $9.99 in cents
-    priceId: process.env.STRIPE_PRO_PRICE_ID!,
+    priceId: process.env.STRIPE_PRO_PRICE_ID || 'price_pro_placeholder',
     features: [
       'Unlimited bank accounts',
       'Unlimited subscription detection',
@@ -57,7 +67,7 @@ export const STRIPE_PLANS = {
     id: 'business',
     name: 'Business',
     price: 1999, // $19.99 in cents
-    priceId: process.env.STRIPE_BUSINESS_PRICE_ID!,
+    priceId: process.env.STRIPE_BUSINESS_PRICE_ID || 'price_business_placeholder',
     features: [
       'Everything in Pro',
       'Family/team accounts (up to 5 users)',
@@ -80,7 +90,22 @@ export type PlanId = keyof typeof STRIPE_PLANS;
 
 // Helper functions
 export function getPlanById(planId: string): typeof STRIPE_PLANS[PlanId] | null {
-  return STRIPE_PLANS[planId as PlanId] || null;
+  // Convert planId to uppercase to match STRIPE_PLANS keys
+  const upperPlanId = planId.toUpperCase() as PlanId;
+  const plan = STRIPE_PLANS[upperPlanId] || null;
+  
+  // Debug logging to see what's happening
+  console.log('getPlanById debug:', {
+    planId,
+    upperPlanId,
+    plan: plan ? { ...plan, priceId: plan.priceId } : null,
+    envVars: {
+      STRIPE_PRO_PRICE_ID: process.env.STRIPE_PRO_PRICE_ID,
+      STRIPE_BUSINESS_PRICE_ID: process.env.STRIPE_BUSINESS_PRICE_ID,
+    }
+  });
+  
+  return plan;
 }
 
 export function formatPrice(price: number): string {

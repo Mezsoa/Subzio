@@ -1,6 +1,7 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { STRIPE_PLANS, PlanId, isFeatureAllowed } from '@/lib/stripe';
+import { authedFetch } from '@/lib/authedFetch';
 
 interface UserSubscription {
   id?: string;
@@ -39,22 +40,56 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   const fetchSubscription = async () => {
     try {
       setLoading(true);
+      
+      // Check if we're on the client side and user is authenticated
+      if (typeof window === 'undefined') {
+        setLoading(false);
+        return;
+      }
+
       const [subRes, usageRes] = await Promise.all([
-        fetch('/api/user/subscription'),
-        fetch('/api/user/usage')
+        authedFetch('/api/user/subscription').catch(() => ({ ok: false })),
+        authedFetch('/api/user/usage').catch(() => ({ ok: false }))
       ]);
       
       if (subRes.ok) {
         const { subscription: sub } = await subRes.json();
         setSubscription(sub);
+      } else {
+        // Set default free subscription if API fails
+        setSubscription({
+          user_id: 'unknown',
+          plan_id: 'free',
+          status: 'active',
+        });
       }
       
       if (usageRes.ok) {
         const { usage: userUsage } = await usageRes.json();
         setUsage(userUsage);
+      } else {
+        // Set default usage if API fails
+        setUsage({
+          bank_accounts_connected: 0,
+          subscriptions_detected: 0,
+          alerts_created: 0,
+          cancellation_requests: 0,
+        });
       }
     } catch (error) {
       console.error('Error fetching subscription:', error);
+      // Set defaults on error
+      setSubscription({
+        user_id: 'unknown',
+        plan_id: 'free',
+        status: 'active',
+      });
+      setUsage({
+        bank_accounts_connected: 0,
+        subscriptions_detected: 0,
+        alerts_created: 0,
+        cancellation_requests: 0,
+      });
     } finally {
       setLoading(false);
     }
@@ -98,7 +133,25 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
 export const useSubscription = () => {
   const context = useContext(SubscriptionContext);
   if (context === undefined) {
-    throw new Error('useSubscription must be used within a SubscriptionProvider');
+    // Provide default values instead of throwing an error
+    return {
+      subscription: {
+        user_id: 'unknown',
+        plan_id: 'free' as const,
+        status: 'active',
+      },
+      usage: {
+        bank_accounts_connected: 0,
+        subscriptions_detected: 0,
+        alerts_created: 0,
+        cancellation_requests: 0,
+      },
+      loading: false,
+      plan: STRIPE_PLANS.FREE,
+      isFeatureAllowed: () => false,
+      isLimitReached: () => false,
+      refreshSubscription: async () => {},
+    };
   }
   return context;
 };

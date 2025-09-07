@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { authedFetch, AuthError } from "@/lib/authedFetch";
 import { usePlaidLink } from "react-plaid-link";
 import type { PlaidLinkError } from "react-plaid-link";
+import bubbleArrow from "public/icons/bubbleArrow.png";
+import Image from "next/image";
 
 async function fetchLinkToken(): Promise<string> {
   const res = await fetch("/api/plaid/link-token");
@@ -20,7 +22,9 @@ export default function ConnectBank() {
   const router = useRouter();
   useEffect(() => {
     setMounted(true);
-    fetchLinkToken().then(setLinkToken).catch((e) => setError(e.message));
+    fetchLinkToken()
+      .then(setLinkToken)
+      .catch((e) => setError(e.message));
     (async () => {
       try {
         const { supabaseBrowser } = await import("@/lib/supabaseClient");
@@ -35,27 +39,32 @@ export default function ConnectBank() {
     })();
   }, []);
 
-  const onSuccess = useCallback(async (public_token: string) => {
-    console.log("[Plaid] Link onSuccess", { public_token: public_token?.slice?.(0, 12) + "…" });
-    try {
-      // Ensure we send Authorization: Bearer for server fallback
-      const res = await authedFetch("/api/plaid/exchange", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ public_token }),
+  const onSuccess = useCallback(
+    async (public_token: string) => {
+      console.log("[Plaid] Link onSuccess", {
+        public_token: public_token?.slice?.(0, 12) + "…",
       });
-      if (!res.ok) {
-        const text = await res.text();
-        throw new AuthError(text || "Exchange failed");
+      try {
+        // Ensure we send Authorization: Bearer for server fallback
+        const res = await authedFetch("/api/plaid/exchange", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ public_token }),
+        });
+        if (!res.ok) {
+          const text = await res.text();
+          throw new AuthError(text || "Exchange failed");
+        }
+        console.log("[Plaid] Exchange completed OK");
+        // Navigate to dashboard after successful link
+        router.replace("/dashboard");
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : "Exchange failed";
+        setError(msg);
       }
-      console.log("[Plaid] Exchange completed OK");
-      // Navigate to dashboard after successful link
-      router.replace("/dashboard");
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : "Exchange failed";
-      setError(msg);
-    }    
-  }, [router]);
+    },
+    [router]
+  );
 
   const config = {
     token: linkToken || "",
@@ -67,16 +76,33 @@ export default function ConnectBank() {
 
   // Only initialize Plaid Link when component is mounted and has a token
   const shouldInitialize = mounted && linkToken;
-  const { open, ready } = usePlaidLink(shouldInitialize ? config : { token: "", onSuccess: () => {}, onExit: () => {} });
+  const { open, ready } = usePlaidLink(
+    shouldInitialize
+      ? config
+      : { token: "", onSuccess: () => {}, onExit: () => {} }
+  );
 
   return (
-    <div className="flex flex-col items-center gap-3 w-full">
+    <div className="flex flex-col items-end gap-1 w-[350px]">
       <button
         onClick={() => open()}
         disabled={!shouldInitialize || !ready}
-        className="px-4 py-2 rounded-md bg-[linear-gradient(90deg,var(--cta-start),var(--cta-end))] text-[var(--on-primary)] shadow w-full hover:brightness-110 disabled:opacity-50"
-      >
-        {!shouldInitialize ? "Loading..." : "Connect Plaid"}
+        className="px-2 py-2 rounded-md text-sm bg-gradient-to-r from-black/40 via-black/20 to-white/70 text-foreground-black shadow w-1/2 hover:brightness-110 hover:bg-black/50 hover:text-white transition-all duration-500 disabled:opacity-50 cursor-pointer w-[150px]">
+        {!shouldInitialize ? (
+          "Loading..."
+        ) : (
+          <span className="flex items-center gap-1">
+            Connect
+            <Image
+              src={bubbleArrow}
+              alt="→"
+              width={12}
+              height={12}
+              className="inline"
+            />
+            Plaid
+          </span>
+        )}
       </button>
       <button
         onClick={async () => {
@@ -84,7 +110,9 @@ export default function ConnectBank() {
             // Pass Supabase session token as Bearer to help API identify user
             const { supabaseBrowser } = await import("@/lib/supabaseClient");
             const sb = supabaseBrowser();
-            const { data: { session } } = await sb.auth.getSession();
+            const {
+              data: { session },
+            } = await sb.auth.getSession();
             if (!session) {
               setError("Please sign in again, then retry!");
               return;
@@ -96,7 +124,8 @@ export default function ConnectBank() {
               try {
                 if (ct.includes("application/json")) {
                   const data = await res.json();
-                  const detail = (data && (data.error || JSON.stringify(data))) || "";
+                  const detail =
+                    (data && (data.error || JSON.stringify(data))) || "";
                   if (detail) message = `${message}: ${detail}`;
                 } else {
                   const text = await res.clone().text();
@@ -108,16 +137,39 @@ export default function ConnectBank() {
             const { url } = await res.json();
             window.location.href = url;
           } catch (e) {
-            const msg = e instanceof Error ? e.message : "Failed to start BankID";
+            const msg =
+              e instanceof Error ? e.message : "Failed to start BankID";
             setError(msg);
           }
         }}
-        className="px-4 py-2 rounded-md bg-sky-600 hover:bg-sky-500 text-white shadow"
-      >
-        {sessionReady ? "Connect BankID (Tink)" : "Sign in to connect BankID"}
+        className="px-2 py-2 rounded-md text-sm bg-gradient-to-r from-black/40 via-black/20 to-white/70 text-foreground-black shadow w-1/2 hover:brightness-110 hover:bg-black/50 hover:text-white transition-all duration-500 disabled:opacity-50 cursor-pointer w-[150px]">
+        {sessionReady ? (
+          <span className="flex items-center gap-1">
+            Connect
+            <Image
+              src={bubbleArrow}
+              alt="→"
+              width={12}
+              height={12}
+              className="inline"
+            />
+            BankID
+          </span>
+        ) : (
+          <span className="flex items-center gap-1">
+            Sign in to connect
+            <Image
+              src={bubbleArrow}
+              alt="→"
+              width={12}
+              height={12}
+              className="inline"
+            />
+            BankID
+          </span>
+        )}
       </button>
       {error && <p className="text-sm text-red-400">{error}</p>}
     </div>
   );
 }
-

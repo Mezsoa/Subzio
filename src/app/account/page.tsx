@@ -3,9 +3,11 @@ import { useState, useEffect } from 'react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { STRIPE_PLANS, formatPrice } from '@/lib/stripe';
 import { getStripe } from '@/lib/stripe';
+import { authedFetch } from '@/lib/authedFetch';
 import RequireAuth from '@/components/auth/RequireAuth';
 import SidebarNav from '@/components/SidebarNav';
 import { useSidebar } from '@/contexts/SidebarContext';
+import AppProviders from '@/components/AppProviders';
 import { 
   User, 
   CreditCard, 
@@ -38,13 +40,24 @@ export default function AccountPage() {
   const handleUpgrade = async (planId: 'pro' | 'business') => {
     try {
       setUpgradeLoading(true);
-      const response = await fetch('/api/stripe/create-checkout', {
+      const response = await authedFetch('/api/stripe/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ planId }),
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Checkout API Error:', errorData);
+        throw new Error(errorData.error || 'Failed to create checkout session');
+      }
+
       const { sessionId } = await response.json();
+      
+      if (!sessionId) {
+        throw new Error('No session ID returned from checkout creation');
+      }
+
       const stripe = await getStripe();
       
       if (stripe) {
@@ -62,7 +75,7 @@ export default function AccountPage() {
     
     try {
       setCancelLoading(true);
-      const response = await fetch('/api/stripe/cancel-subscription', {
+      const response = await authedFetch('/api/stripe/cancel-subscription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -82,20 +95,23 @@ export default function AccountPage() {
   if (loading) {
     return (
       <RequireAuth>
-        <div className={`min-h-screen bg-background-light transition-all duration-300 ${
-          isCollapsed ? 'ml-16' : 'ml-64'
-        }`}>
-          <div className="flex items-center justify-center h-screen">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <AppProviders>
+          <div className={`min-h-screen bg-background-light transition-all duration-300 ${
+            isCollapsed ? 'ml-16' : 'ml-64'
+          }`}>
+            <div className="flex items-center justify-center h-screen">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
           </div>
-        </div>
-        <SidebarNav />
+          <SidebarNav />
+        </AppProviders>
       </RequireAuth>
     );
   }
 
   return (
     <RequireAuth>
+      <AppProviders>
       <div className={`min-h-screen bg-background-light transition-all duration-300 ${
         isCollapsed ? 'ml-16' : 'ml-64'
       }`}>
@@ -171,7 +187,7 @@ export default function AccountPage() {
                     <div className="text-right">
                       <div className="text-sm text-muted-light">Renews on</div>
                       <div className="font-medium text-foreground-black">
-                        {new Date(subscription.current_period_end).toLocaleDateString()}
+                       {new Date(subscription.current_period_end as string).toLocaleDateString()}
                       </div>
                     </div>
                   )}
@@ -299,6 +315,7 @@ export default function AccountPage() {
         </main>
       </div>
       <SidebarNav />
+      </AppProviders>
     </RequireAuth>
   );
 }

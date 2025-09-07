@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import RequireAuth from '@/components/auth/RequireAuth';
 import SidebarNav from '@/components/SidebarNav';
 import { useSidebar } from '@/contexts/SidebarContext';
+import { authedFetch } from '@/lib/authedFetch';
+import AppProviders from '@/components/AppProviders';
 import { 
   Clock, 
   CheckCircle, 
@@ -39,7 +41,7 @@ export default function CancellationRequestsPage() {
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/cancellation/request');
+      const response = await authedFetch('/api/cancellation/request');
       
       if (!response.ok) {
         throw new Error('Failed to fetch cancellation requests');
@@ -102,20 +104,23 @@ export default function CancellationRequestsPage() {
   if (loading) {
     return (
       <RequireAuth>
-        <div className={`min-h-screen bg-background-light transition-all duration-300 ${
-          isCollapsed ? 'ml-16' : 'ml-64'
-        }`}>
-          <div className="flex items-center justify-center h-screen">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <AppProviders>
+          <div className={`min-h-screen bg-background-light transition-all duration-300 ${
+            isCollapsed ? 'ml-16' : 'ml-64'
+          }`}>
+            <div className="flex items-center justify-center h-screen">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
           </div>
-        </div>
-        <SidebarNav />
+          <SidebarNav />
+        </AppProviders>
       </RequireAuth>
     );
   }
 
   return (
     <RequireAuth>
+      <AppProviders>
       <div className={`min-h-screen bg-background-light transition-all duration-300 ${
         isCollapsed ? 'ml-16' : 'ml-64'
       }`}>
@@ -251,6 +256,7 @@ export default function CancellationRequestsPage() {
         </main>
       </div>
       <SidebarNav />
+      </AppProviders>
     </RequireAuth>
   );
 }
