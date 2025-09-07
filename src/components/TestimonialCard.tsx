@@ -62,7 +62,7 @@ export default function TestimonialCard() {
 
   return (
     <div>
-      <div className="mb-2 text-xs text-white/60">
+      <div className="mb-2 text-xs text-[color:var(--foreground)]/60">
         Early reactions from Twitter/X (pre‑launch)
       </div>
       <Carousel
@@ -84,7 +84,7 @@ export default function TestimonialCard() {
             className="basis-4/5 sm:basis-1/2 md:basis-1/3 lg:basis-1/3 xl:basis-1/4 min-w-[300px] max-w-[400px]"
           >
             <div className="h-full px-3">
-              <div className="h-full rounded-2xl bg-gradient-to-br from-white/5 to-white/0 border border-white/10 p-6 shadow-lg">
+              <div className="h-full rounded-2xl border border-white/10 p-6 shadow-lg" style={{ background: "linear-gradient(135deg, rgba(0,0,0,0.35), rgba(255,255,255,0.04))" }}>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 overflow-hidden rounded-full">
                     <Image
@@ -98,11 +98,11 @@ export default function TestimonialCard() {
                     />
                   </div>
                   <div>
-                    <div className="text-white/90 text-sm font-medium">{t.name}</div>
-                    <div className="text-white/60 text-xs">{t.title}</div>
+                    <div className="text-[color:var(--foreground)]/90 text-sm font-medium">{t.name}</div>
+                    <div className="text-[color:var(--foreground)]/60 text-xs">{t.title}</div>
                   </div>
                 </div>
-                <p className="text-white/85 leading-relaxed text-sm">“{t.quote}”</p>
+                <p className="leading-relaxed text-sm" style={{ color: "var(--foreground)" }}>“{t.quote}”</p>
               </div>
             </div>
           </CarouselItem>

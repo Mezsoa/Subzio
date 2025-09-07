@@ -1,45 +1,72 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --muted: #525252;
-  --border: #e5e5e5;
-  --card: #ffffff;
-  --card-foreground: #171717;
-  --card-muted: #525252;
-  --card-border: #e5e5e5;
-  --primary: #000000;
-  --on-primary: #ffffff;
-}
+  :root {
+    /* High-conversion dark palette with X-blue primary */
+    --background: #0b1220; /* deep navy */
+    --background-light: #ffffff; /* white */
+    --background-light-mid: #f8fafc; /* slate-50 */
+    --foreground: #e6f1ff; /* near-white */
+    --foreground-black: #0f172a; /* slate-900 */ 
+    --muted: #94a3b8; /* slate-400 */
+    --muted-light: #64748b; /* slate-500 for light theme */
+    --border: #1e293b; /* slate-800 */
+    --border-light: #e2e8f0; /* slate-200 for light theme */
+    --card: #0f172a; /* slate-900 */
+    --card-light: #ffffff; /* white for light theme */
+    --card-foreground: #e6f1ff;
+    --card-muted: #94a3b8;
+    --card-border: #1e293b;
+    --card-hover-light: #f8fafc; /* slate-50 for light theme */
+    --primary: #1d9bf0; /* X blue */
+    --on-primary: #001018; /* very dark for contrast on bright primary */
+    --on-primary-light: #ffffff; /* white text on blue for light theme */
+    /* Card gradient tokens for light theme */
+    --card-bg-start-light: #ffffff; /* white */
+    --card-bg-end-light: #f8fafc; /* slate-50 */
+    /* CTA gradient tokens */
+    --cta-start: #1d9bf0; /* X blue */
+    --cta-end: #8b5cf6; /* violet-500 */
+  }
 
 @theme inline {
   --color-background: var(--background);
+  --color-background-light: var(--background-light);
+  --color-background-light-mid: var(--background-light-mid);
   --color-foreground: var(--foreground);
+  --color-foreground-black: var(--foreground-black);
   --color-muted: var(--muted);
+  --color-muted-light: var(--muted-light);
   --color-border: var(--border);
+  --color-border-light: var(--border-light);
   --color-card: var(--card);
+  --color-card-light: var(--card-light);
   --color-card-foreground: var(--card-foreground);
   --color-card-muted: var(--card-muted);
   --color-card-border: var(--card-border);
+  --color-card-hover-light: var(--card-hover-light);
+  --color-card-bg-start-light: var(--card-bg-start-light);
+  --color-card-bg-end-light: var(--card-bg-end-light);
   --color-primary: var(--primary);
   --color-on-primary: var(--on-primary);
+  --color-on-primary-light: var(--on-primary-light);
+  --color-cta-start: var(--cta-start);
+  --color-cta-end: var(--cta-end);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #000000;
-    --foreground: #ffffff;
-    --muted: #c9c9c9;
-    --border: #1f1f1f;
-    --card: #ffffff;
-    --card-foreground: #171717;
-    --card-muted: #525252;
-    --card-border: #e5e5e5;
-    --primary: #ffffff;
-    --on-primary: #000000;
+    --background: #0b1220;
+    --foreground: #e6f1ff;
+    --muted: #94a3b8;
+    --border: #1e293b;
+    --card: #0f172a;
+    --card-foreground: #e6f1ff;
+    --card-muted: #94a3b8;
+    --card-border: #1e293b;
+    --primary: #1d9bf0;
+    --on-primary: #001018;
   }
 }
 

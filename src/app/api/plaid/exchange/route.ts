@@ -5,10 +5,19 @@ import { supabaseService } from "@/lib/supabaseClient";
 
 export async function POST(req: NextRequest) {
   try {
-    // Identify current user
+    // Identify current user (cookie first, then Authorization: Bearer fallback)
     const supabase = await supabaseServer();
-    const { data: userData } = await supabase.auth.getUser();
-    const user = userData?.user;
+    let { data: userData } = await supabase.auth.getUser();
+    let user = userData?.user;
+    if (!user) {
+      const auth = req.headers.get("authorization") || req.headers.get("Authorization");
+      const token = auth?.toLowerCase().startsWith("bearer ") ? auth.slice(7) : null;
+      if (token) {
+        const svc = supabaseService();
+        const via = await svc.auth.getUser(token);
+        user = via.data.user || null;
+      }
+    }
     if (!user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
@@ -45,6 +54,8 @@ export async function POST(req: NextRequest) {
         headers: { "content-type": "application/json" },
       });
     }
+
+    console.log("[Plaid] Exchange success", { user_id: user.id, item_id: data.item_id });
 
     return new Response(
       JSON.stringify({ ok: true, item_id: data.item_id }),

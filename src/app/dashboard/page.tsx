@@ -1,643 +1,397 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { authedFetch, AuthError } from "@/lib/authedFetch";
-import SidebarNav from "@/components/SidebarNav";
 import RequireAuth from "@/components/auth/RequireAuth";
+import SidebarNav from "@/components/SidebarNav";
+import { useSidebar } from "@/contexts/SidebarContext";
 
-type TinkAccount = {
+interface Account {
   name?: string;
-  displayName?: string;
-  account?: { name?: string } | null;
-  institutionName?: string;
-  providerName?: string;
-  financialInstitutionId?: string;
+  official_name?: string;
   type?: string;
-  accountType?: string;
-  categoryType?: string;
+  subtype?: string;
   balances?: {
-    available?: { value?: number; currencyCode?: string };
-    current?: { value?: number; currencyCode?: string };
+    current?: number;
+    available?: number;
   };
-  balance?: number;
-  accountBalance?: { value?: number };
-  iban?: string;
-  accountNumber?: string;
-  mask?: string;
-};
-type TinkAmount =
-  | number
-  | {
-      value?: number | { unscaledValue?: string; scale?: string | number };
-      currencyCode?: string;
-    };
-type TinkTransaction = {
-  date?: string;
-  bookingDate?: string;
-  transactionDate?: string;
-  time?: string;
-  dates?: { booked?: string; valueDate?: string };
-  merchantName?: string;
+}
+
+interface Transaction {
+  name?: string;
   description?: string;
-  reference?: string;
-  remittanceInformation?: string;
-  descriptions?: { display?: string; original?: string };
-  counterparty?: { name?: string };
-  payerOrPayee?: { name?: string };
-  payee?: { name?: string; displayName?: string };
-  merchant?: { name?: string };
-  creditorName?: string;
-  debtorName?: string;
-  message?: string;
-  amount?: TinkAmount;
-  currency?: string;
-  category?: string;
-  categoryCode?: string;
-  type?: string;
-  classification?: { category?: string; detailedCategory?: string };
-  transactionAmount?: { value?: number | string; currencyCode?: string };
-  types?: { type?: string };
-  status?: string;
-  identifiers?: { providerTransactionId?: string };
-};
-type SubscriptionItem = {
+  date?: string;
+  amount: number;
+  account_id?: string;
+}
+
+interface Subscription {
   name: string;
-  cadence: string;
-  lastAmount: number;
-  lastDate: string;
-  count: number;
-  confidence?: number;
-  reasons?: string[];
-  providerEmoji?: string;
-  cancelUrl?: string;
-};
+  frequency?: string;
+  amount: number;
+}
+
+type DataSource = "auto" | "bankid" | "plaid";
 
 export default function DashboardPage() {
-  const [accounts, setAccounts] = useState<TinkAccount[] | null>(null);
-  const [tx, setTx] = useState<TinkTransaction[] | null>(null);
-  const [subs, setSubs] = useState<SubscriptionItem[] | null>(null);
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [tx, setTx] = useState<Transaction[]>([]);
+  const [subs, setSubs] = useState<Subscription[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [showRawAccounts, setShowRawAccounts] = useState<boolean>(false);
-  const [showRawTransactions, setShowRawTransactions] =
-    useState<boolean>(false);
+  const [showRawTransactions, setShowRawTransactions] = useState<boolean>(false);
+  const [dataSource, setDataSource] = useState<DataSource>("auto");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { isCollapsed } = useSidebar();
+
+  const fetchData = useCallback(async (source: DataSource = dataSource) => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      console.log(`[Dashboard] Fetching data from: ${source}`);
+      
+      let accountsData: Account[] = [];
+      let transactionsData: Transaction[] = [];
+      
+      if (source === "auto") {
+        // Try BankID first; fall back to Plaid
+        const ar = await authedFetch("/api/bankid/accounts").catch(() => new Response(null, { status: 500 }));
+        if (ar && ar.ok) {
+          const data = await ar.json();
+          console.log("[Dashboard] BankID accounts:", data);
+          accountsData = data.accounts || [];
+          
+          const tr = await authedFetch("/api/bankid/transactions").catch(() => new Response(null, { status: 500 }));
+          if (tr && tr.ok) {
+            const txData = await tr.json();
+            console.log("[Dashboard] BankID transactions:", txData);
+            transactionsData = txData.transactions || [];
+          }
+        } else {
+          console.log("[Dashboard] BankID failed, trying Plaid...");
+          const pr = await authedFetch("/api/plaid/accounts");
+          if (pr.ok) {
+            const data = await pr.json();
+            console.log("[Dashboard] Plaid accounts:", data);
+            accountsData = data.accounts || [];
+          }
+          
+          const prt = await authedFetch("/api/plaid/transactions");
+          if (prt.ok) {
+            const txData = await prt.json();
+            console.log("[Dashboard] Plaid transactions:", txData);
+            transactionsData = txData.transactions || [];
+          }
+        }
+      } else if (source === "bankid") {
+        // BankID only
+        const ar = await authedFetch("/api/bankid/accounts");
+        if (ar.ok) {
+          const data = await ar.json();
+          console.log("[Dashboard] BankID accounts:", data);
+          accountsData = data.accounts || [];
+        } else {
+          console.log("[Dashboard] BankID accounts failed:", ar.status, await ar.text());
+        }
+        
+        const tr = await authedFetch("/api/bankid/transactions");
+        if (tr.ok) {
+          const txData = await tr.json();
+          console.log("[Dashboard] BankID transactions:", txData);
+          transactionsData = txData.transactions || [];
+        } else {
+          console.log("[Dashboard] BankID transactions failed:", tr.status, await tr.text());
+        }
+      } else if (source === "plaid") {
+        // Plaid only
+        const pr = await authedFetch("/api/plaid/accounts");
+        if (pr.ok) {
+          const data = await pr.json();
+          console.log("[Dashboard] Plaid accounts:", data);
+          accountsData = data.accounts || [];
+        } else {
+          console.log("[Dashboard] Plaid accounts failed:", pr.status, await pr.text());
+        }
+        
+        const prt = await authedFetch("/api/plaid/transactions");
+        if (prt.ok) {
+          const txData = await prt.json();
+          console.log("[Dashboard] Plaid transactions:", txData);
+          transactionsData = txData.transactions || [];
+        } else {
+          console.log("[Dashboard] Plaid transactions failed:", prt.status, await prt.text());
+        }
+      }
+      
+      setAccounts(accountsData);
+      setTx(transactionsData);
+      
+      // Always fetch subscriptions (they're provider-agnostic)
+      const sr = await authedFetch("/api/subscriptions/detect");
+      setSubs(sr.ok ? (await sr.json()).subscriptions : []);
+      
+      console.log(`[Dashboard] Data fetch completed for ${source}`);
+    } catch (e) {
+      console.error("[Dashboard] Error during fetch:", e);
+      if (e instanceof AuthError) {
+        window.location.href = "/auth/signin";
+        return;
+      }
+      setError(`Failed to load data from ${source}.`);
+      setAccounts([]);
+      setTx([]);
+      setSubs([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [dataSource]);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const ar = await authedFetch("/api/bankid/accounts");
-        setAccounts(ar.ok ? (await ar.json()).accounts : []);
-        const tr = await authedFetch("/api/bankid/transactions");
-        setTx(tr.ok ? (await tr.json()).transactions : []);
-        const sr = await authedFetch("/api/subscriptions/detect");
-        setSubs(sr.ok ? (await sr.json()).subscriptions : []);
-      } catch (e) {
-        if (e instanceof AuthError) {
-          window.location.href = "/auth/signin";
-          return;
-        }
-        setError("Failed to load data.");
-        setAccounts([]);
-        setTx([]);
-        setSubs([]);
-      }
-    })();
-  }, []);
+    fetchData();
+  }, [fetchData]);
 
   return (
     <>
       <RequireAuth>
-        <section>
-          <SidebarNav />
-
-          <div className="mx-auto px-4 sm:px-6 lg:px-8 py-10 ml-64">
-            <div className="mb-6">
+        <div className={`min-h-screen bg-background-light transition-all duration-300 ${
+          isCollapsed ? 'ml-16' : 'ml-64'
+        }`}>
+          {/* Header */}
+          <header className="border-b border-border-light bg-background-light/95 backdrop-blur-sm sticky top-0 z-10 shadow-sm">
+            <div className="max-w-7xl mx-auto px-6 py-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
-                    Your money hub
-                  </h1>
-                  <p className="text-sm text-muted mt-1">
-                    Private, encrypted, and yours. Connect once, gain clarity
-                    forever.
-                  </p>
+                  <h1 className="text-2xl font-semibold text-foreground-black">Dashboard</h1>
+                  <p className="text-sm text-muted-light mt-1">Manage your financial connections and subscriptions</p>
                 </div>
-                <button
-                  onClick={async () => {
-                    try {
-                      const r = await authedFetch("/api/data/refresh", {
-                        method: "POST",
-                      });
-                      if (r.ok) {
-                        // Re-pull lightweight lists after refresh
-                        const sr = await authedFetch("/api/subscriptions/list");
-                        setSubs(sr.ok ? (await sr.json()).subscriptions : []);
-                        const ar = await authedFetch("/api/bankid/accounts");
-                        setAccounts(ar.ok ? (await ar.json()).accounts : []);
-                        const tr = await authedFetch(
-                          "/api/bankid/transactions"
-                        );
-                        setTx(tr.ok ? (await tr.json()).transactions : []);
-                      }
-                    } catch {
-                      setError("Refresh failed");
-                    }
-                  }}
-                  className="h-9 px-4 rounded-md border border-white/10 bg-white/5 text-sm hover:bg-white/10">
-                  Refresh data
-                </button>
+                
+                {/* Data Source Selector */}
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 text-sm text-muted-light">
+                    <span>Data source:</span>
+                    <select 
+                      value={dataSource}
+                      className="bg-card-light border border-border-light rounded-md px-3 py-1.5 text-foreground-black text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 hover:bg-card-hover-light hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                      onChange={(e) => {
+                        const newSource = e.target.value as DataSource;
+                        setDataSource(newSource);
+                        fetchData(newSource);
+                      }}
+                      disabled={isLoading}
+                    >
+                      <option value="auto">Auto (BankID → Plaid)</option>
+                      <option value="bankid">BankID Only</option>
+                      <option value="plaid">Plaid Only</option>
+                    </select>
+                  </div>
+                  
+                  <button 
+                    onClick={() => fetchData()}
+                    disabled={isLoading}
+                    className="px-4 py-2 text-sm bg-card-light border border-border-light rounded-md text-foreground-black transition-colors hover:bg-card-hover-light hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? "Loading..." : "Refresh Data"}
+                  </button>
+                </div>
               </div>
             </div>
+          </header>
 
+          {/* Main Content */}
+          <main className="max-w-7xl mx-auto px-6 py-8">
             {error && (
-              <div className="rounded-xl border border-red-400/20 bg-red-500/10 text-red-200 p-4 mb-6">
-                {error}
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-600 text-sm">{error}</p>
               </div>
             )}
 
-            {/* Metrics */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-              <MetricCard
-                label="Connection"
-                value={accounts ? "Connected" : "Pending"}
-                hint={accounts ? "Bank link active" : "Awaiting connection"}
-                tone={accounts ? "emerald" : "amber"}
-              />
-              <MetricCard
-                label="Accounts"
-                value={Array.isArray(accounts) ? String(accounts.length) : "—"}
-                hint="Linked via Tink"
-                tone="zinc"
-              />
-              <MetricCard
-                label="Transactions (90d)"
-                value={
-                  tx === null
-                    ? "—"
-                    : String(extractTransactionsArray(tx).length)
-                }
-                hint="Fetched securely"
-                tone="zinc"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <GlassPanel
-                title="Accounts"
-                description="Linked accounts returned by your provider.">
-                <div className="flex items-center justify-end mb-3">
-                  <SegmentedToggle
-                    value={showRawAccounts ? "raw" : "friendly"}
-                    onChange={(v) => setShowRawAccounts(v === "raw")}
-                  />
-                </div>
-                {showRawAccounts ? (
-                  <JsonBlock data={accounts} maxHeight="max-h-[60vh]" />
-                ) : (
-                  <AccountsList accounts={accounts} />
-                )}
-              </GlassPanel>
-
-              <GlassPanel
-                title="Recent transactions"
-                description="Showing the latest 10 for brevity.">
-                <div className="flex items-center justify-end mb-3">
-                  <SegmentedToggle
-                    value={showRawTransactions ? "raw" : "friendly"}
-                    onChange={(v) => setShowRawTransactions(v === "raw")}
-                  />
-                </div>
-                {showRawTransactions ? (
-                  <JsonBlock
-                    data={
-                      Array.isArray(tx) ? (tx as unknown[]).slice(0, 10) : tx
-                    }
-                  />
-                ) : (
-                  <TransactionsTable transactions={tx} />
-                )}
-              </GlassPanel>
-            </div>
-
-            <div className="mt-6">
-              <GlassPanel
-                title="Detected subscriptions"
-                description="Rule-based MVP from recent transactions.">
-                <SubscriptionsList items={subs} />
-              </GlassPanel>
-            </div>
-          </div>
-        </section>
-      </RequireAuth>
-    </>
-  );
-}
-
-function FeedbackButtons({ name }: { name: string }) {
-  async function send(action: "confirm" | "reject") {
-    try {
-      await authedFetch("/api/subscriptions/feedback", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ name, action }),
-      });
-    } catch {}
-  }
-  const btn = "h-8 px-2 rounded-md border border-white/10 text-xs hover:bg-white/10";
-  return (
-    <div className="inline-flex items-center gap-1">
-      <button className={`${btn}`} onClick={() => send("confirm")} title="This is a subscription">
-        Confirm
-      </button>
-      <button className={`${btn}`} onClick={() => send("reject")} title="Not a subscription">
-        Not this
-      </button>
-    </div>
-  );
-}
-
-function MetricCard({
-  label,
-  value,
-  hint,
-  tone,
-}: {
-  label: string;
-  value: string;
-  hint?: string;
-  tone?: "emerald" | "amber" | "zinc";
-}) {
-  const ring =
-    tone === "emerald"
-      ? "ring-emerald-400/30"
-      : tone === "amber"
-      ? "ring-amber-400/30"
-      : "ring-white/10";
-  const dot =
-    tone === "emerald"
-      ? "bg-emerald-400"
-      : tone === "amber"
-      ? "bg-amber-400"
-      : "bg-white/30";
-  return (
-    <div
-      className={`rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-4 ring-1 ${ring}`}>
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-muted">{label}</div>
-        <span className={`w-2 h-2 rounded-full ${dot}`} />
-      </div>
-      <div className="mt-2 text-2xl font-semibold">{value}</div>
-      {hint && <div className="mt-1 text-xs text-muted">{hint}</div>}
-    </div>
-  );
-}
-
-function GlassPanel({
-  title,
-  description,
-  children,
-}: {
-  title: string;
-  description?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-5">
-      <div className="mb-3">
-        <h2 className="font-medium">{title}</h2>
-        {description && (
-          <p className="text-xs text-muted mt-1">{description}</p>
-        )}
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function JsonBlock({ data, maxHeight }: { data: unknown; maxHeight?: string }) {
-  const text = safeStringify(data);
-  async function copy() {
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch {}
-  }
-  return (
-    <div
-      className={`relative rounded-xl border border-white/10 bg-black/30 ${
-        maxHeight || "max-h-[60vh]"
-      } overflow-auto p-4`}>
-      <button
-        onClick={copy}
-        className="absolute top-2 right-2 text-xs px-2 py-1 rounded-md border border-white/10 bg-white/10 hover:bg-white/20">
-        Copy
-      </button>
-      <pre className="text-xs whitespace-pre-wrap opacity-90">{text}</pre>
-    </div>
-  );
-}
-
-function safeStringify(value: unknown) {
-  try {
-    return JSON.stringify(value, null, 2);
-  } catch {
-    return String(value);
-  }
-}
-
-function SegmentedToggle({
-  value,
-  onChange,
-}: {
-  value: "friendly" | "raw";
-  onChange: (v: "friendly" | "raw") => void;
-}) {
-  const base = "text-xs h-8 px-3 rounded-md border border-white/10";
-  const active = "bg-white/20 text-foreground";
-  const inactive = "bg-white/5 hover:bg-white/10 text-foreground/80";
-  return (
-    <div className="inline-flex items-center gap-2">
-      <button
-        className={`${base} ${value === "friendly" ? active : inactive}`}
-        onClick={() => onChange("friendly")}
-        aria-pressed={value === "friendly"}>
-        Friendly
-      </button>
-      <button
-        className={`${base} ${value === "raw" ? active : inactive}`}
-        onClick={() => onChange("raw")}
-        aria-pressed={value === "raw"}>
-        Raw JSON
-      </button>
-    </div>
-  );
-}
-
-function formatCurrency(amount: number | null | undefined, currency?: string) {
-  if (typeof amount !== "number" || isNaN(amount)) return "—";
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: "currency",
-      currency: currency || "USD",
-    }).format(amount);
-  } catch {
-    return `${amount.toFixed(2)} ${currency || ""}`.trim();
-  }
-}
-
-function extractTransactionsArray(input: unknown): TinkTransaction[] {
-  if (Array.isArray(input)) return input as TinkTransaction[];
-  if (input && typeof input === "object") {
-    const obj = input as {
-      transactions?: unknown;
-      data?: { transactions?: unknown };
-    };
-    if (Array.isArray(obj.transactions))
-      return obj.transactions as TinkTransaction[];
-    if (Array.isArray(obj.data?.transactions))
-      return obj.data!.transactions as TinkTransaction[];
-  }
-  return [];
-}
-
-function getTxnDate(t: TinkTransaction): string {
-  return (
-    t?.date ||
-    t?.bookingDate ||
-    t?.transactionDate ||
-    t?.time ||
-    t?.dates?.booked ||
-    t?.dates?.valueDate ||
-    ""
-  );
-}
-
-function getTxnDesc(t: TinkTransaction): string {
-  return (
-    t?.merchantName ||
-    t?.descriptions?.display ||
-    t?.descriptions?.original ||
-    t?.merchant?.name ||
-    t?.payee?.displayName ||
-    t?.payee?.name ||
-    t?.counterparty?.name ||
-    t?.payerOrPayee?.name ||
-    t?.creditorName ||
-    t?.debtorName ||
-    t?.description ||
-    t?.reference ||
-    t?.remittanceInformation ||
-    t?.message ||
-    "Transaction"
-  );
-}
-
-function getTxnCategory(t: TinkTransaction): string {
-  return (
-    t?.category ||
-    t?.classification?.detailedCategory ||
-    t?.classification?.category ||
-    t?.types?.type ||
-    t?.status ||
-    t?.categoryCode ||
-    t?.type ||
-    ""
-  );
-}
-
-function getTxnAmountAndCurrency(t: TinkTransaction): {
-  amount: number | null;
-  currency: string;
-} {
-  const fallbackCurrency =
-    t?.currency ||
-    (typeof t?.amount === "object" && t?.amount?.currencyCode) ||
-    t?.transactionAmount?.currencyCode ||
-    "USD";
-  // Try nested shapes first
-  const nestedVal =
-    typeof t?.amount === "object" ? t?.amount?.value : undefined;
-  const simpleVal = typeof t?.amount === "number" ? t?.amount : undefined;
-  const altVal = t?.transactionAmount?.value;
-  const parsedAlt = typeof altVal === "string" ? parseFloat(altVal) : altVal;
-  // Handle BigDecimal style { value: { unscaledValue, scale } }
-  let bigDecimal: number | undefined;
-  if (nestedVal && typeof nestedVal === "object") {
-    const u = (nestedVal as { unscaledValue?: string }).unscaledValue;
-    const s = (nestedVal as { scale?: string | number }).scale;
-    if (typeof u === "string") {
-      const scaleNum =
-        typeof s === "string" ? parseInt(s, 10) : typeof s === "number" ? s : 0;
-      const intVal = parseInt(u, 10);
-      if (!Number.isNaN(intVal)) {
-        bigDecimal = intVal / Math.pow(10, scaleNum || 0);
-      }
-    }
-  }
-  const value =
-    typeof simpleVal === "number"
-      ? simpleVal
-      : typeof nestedVal === "number"
-      ? nestedVal
-      : typeof bigDecimal === "number"
-      ? bigDecimal
-      : typeof parsedAlt === "number"
-      ? parsedAlt
-      : undefined;
-  return {
-    amount: typeof value === "number" && !isNaN(value) ? value : null,
-    currency: fallbackCurrency || "USD",
-  };
-}
-
-function SubscriptionsList({ items }: { items: SubscriptionItem[] | null }) {
-  if (!items) return <div className="text-sm text-muted">Loading…</div>;
-  if (!items.length)
-    return <div className="text-sm text-muted">None detected yet.</div>;
-  return (
-    <div className="divide-y divide-white/10">
-      {items.map((s, i) => (
-        <div key={i} className="py-3 flex items-center justify-between gap-3">
-          <div className="min-w-0">
-            <div className="text-sm font-medium text-foreground truncate">
-              {s.providerEmoji ? <span className="mr-2" aria-hidden>{s.providerEmoji}</span> : null}
-              {s.name}
-            </div>
-            <div className="text-xs text-muted flex items-center gap-2">
-              <span>
-                {s.cadence} • {s.count} charges • last {s.lastDate}
-              </span>
-              {typeof s.confidence === "number" && (
-                <span className="inline-flex items-center h-5 px-2 rounded-full bg-white/10 border border-white/10 text-[10px] whitespace-nowrap">
-                  {Math.round(s.confidence * 100)}% confidence
+            {/* Data Source Indicator */}
+            <div className="mb-6 flex items-center justify-between p-3 bg-card-bg-start-light/50 border border-border-light rounded-lg shadow-sm">
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${isLoading ? 'bg-amber-400 animate-pulse' : 'bg-emerald-500'}`} />
+                <span className="text-sm text-muted-light">
+                  {isLoading ? "Loading data..." : `Showing data from: ${dataSource === 'auto' ? 'Auto (BankID → Plaid)' : dataSource === 'bankid' ? 'BankID' : 'Plaid'}`}
                 </span>
+              </div>
+              <div className="text-xs text-muted-light">
+                {accounts.length} accounts • {tx.length} transactions • {subs.length} subscriptions
+              </div>
+            </div>
+
+            {/* Stats Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="bg-gradient-to-br from-card-bg-start-light to-card-bg-end-light border border-border-light rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-light">Connected Accounts</p>
+                    <p className="text-2xl font-semibold text-foreground-black mt-1">{accounts.length}</p>
+                  </div>
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-card-bg-start-light to-card-bg-end-light border border-border-light rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-light">Recent Transactions</p>
+                    <p className="text-2xl font-semibold text-foreground-black mt-1">{tx.length}</p>
+                  </div>
+                  <div className="w-12 h-12 bg-emerald-500/10 rounded-lg flex items-center justify-center">
+                    <svg className="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-card-bg-start-light to-card-bg-end-light border border-border-light rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-light">Active Subscriptions</p>
+                    <p className="text-2xl font-semibold text-foreground-black mt-1">{subs.length}</p>
+                  </div>
+                  <div className="w-12 h-12 bg-amber-500/10 rounded-lg flex items-center justify-center">
+                    <svg className="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Content Sections */}
+            <div className="space-y-8">
+              {/* Accounts Section */}
+              {accounts.length > 0 && (
+                <section>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-foreground-black">Bank Accounts</h2>
+                    <button
+                      onClick={() => setShowRawAccounts(!showRawAccounts)}
+                      className="text-sm text-muted-light hover:text-foreground-black transition-colors"
+                    >
+                      {showRawAccounts ? "Hide Details" : "Show Details"}
+                    </button>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {accounts.map((account: Account, i: number) => (
+                      <div key={i} className="bg-gradient-to-br from-card-bg-start-light to-card-bg-end-light border border-border-light rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+                        <div className="flex items-start justify-between mb-4">
+                          <div>
+                            <h3 className="font-medium text-foreground-black">{account.name || account.official_name || "Account"}</h3>
+                            <p className="text-sm text-muted-light">{account.subtype || account.type}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-lg font-semibold text-foreground-black">
+                              ${(account.balances?.current || account.balances?.available || 0).toLocaleString()}
+                            </p>
+                            <p className="text-xs text-muted-light">Available</p>
+                          </div>
+                        </div>
+                        
+                        {showRawAccounts && (
+                          <div className="mt-4 pt-4 border-t border-border-light">
+                            <pre className="text-xs text-muted-light bg-background-light-mid/50 rounded p-3 overflow-auto">
+                              {JSON.stringify(account, null, 2)}
+                            </pre>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Transactions Section */}
+              {tx.length > 0 && (
+                <section>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-foreground-black">Recent Transactions</h2>
+                    <button
+                      onClick={() => setShowRawTransactions(!showRawTransactions)}
+                      className="text-sm text-muted-light hover:text-foreground-black transition-colors"
+                    >
+                      {showRawTransactions ? "Hide Details" : "Show Details"}
+                    </button>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-card-bg-start-light to-card-bg-end-light border border-border-light rounded-lg overflow-hidden shadow-sm">
+                    <div className="max-h-96 overflow-y-auto">
+                      {tx.slice(0, 10).map((transaction: Transaction, i: number) => (
+                        <div key={i} className="flex items-center justify-between p-4 border-b border-border-light last:border-b-0">
+                          <div className="flex-1">
+                            <p className="font-medium text-foreground-black">{transaction.name || transaction.description}</p>
+                            <p className="text-sm text-muted-light">{transaction.date}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className={`font-semibold ${transaction.amount > 0 ? 'text-red-500' : 'text-emerald-500'}`}>
+                              {transaction.amount > 0 ? '-' : '+'}${Math.abs(transaction.amount).toFixed(2)}
+                            </p>
+                            <p className="text-xs text-muted-light">{transaction.account_id}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {showRawTransactions && (
+                      <div className="p-4 border-t border-border-light bg-background-light-mid/30">
+                        <pre className="text-xs text-muted-light overflow-auto max-h-64">
+                          {JSON.stringify(tx.slice(0, 5), null, 2)}
+                        </pre>
+                      </div>
+                    )}
+                  </div>
+                </section>
+              )}
+
+              {/* Subscriptions Section */}
+              {subs.length > 0 && (
+                <section>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-foreground-black">Detected Subscriptions</h2>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {subs.map((sub: Subscription, i: number) => (
+                      <div key={i} className="bg-gradient-to-br from-card-bg-start-light to-card-bg-end-light border border-border-light rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h3 className="font-medium text-foreground-black">{sub.name}</h3>
+                            <p className="text-sm text-muted-light">{sub.frequency}</p>
+                          </div>
+                          <p className="text-lg font-semibold text-foreground-black">${sub.amount}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Empty State */}
+              {accounts.length === 0 && tx.length === 0 && (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-muted-light/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-muted-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-medium text-foreground-black mb-2">No bank connections found</h3>
+                  <p className="text-muted-light mb-6">Connect your bank account to start tracking your subscriptions and transactions.</p>
+                  <button className="px-6 py-3 bg-gradient-to-r from-cta-start to-cta-end text-on-primary-light rounded-lg font-medium hover:opacity-90 transition-opacity shadow-sm">
+                    Connect Your Bank
+                  </button>
+                </div>
               )}
             </div>
-            {Array.isArray(s.reasons) && s.reasons.length > 0 && (
-              <div className="mt-1 text-[10px] text-muted truncate">
-                {s.reasons.join(" • ")}
-              </div>
-            )}
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="text-sm font-medium">${s.lastAmount?.toFixed?.(2)}</div>
-            {s.cancelUrl ? (
-              <a
-                className="inline-flex items-center justify-center h-8 px-3 rounded-md bg-primary text-on-primary text-xs font-semibold hover:bg-primary/90"
-                href={s.cancelUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Cancel page
-              </a>
-            ) : (
-              <a
-                className="inline-flex items-center justify-center h-8 px-3 rounded-md bg-primary text-on-primary text-xs font-semibold hover:bg-primary/90"
-                href={`https://www.google.com/search?q=${encodeURIComponent(s.name + " cancel subscription")}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Cancel guide
-              </a>
-            )}
-            <FeedbackButtons name={s.name} />
-          </div>
+          </main>
         </div>
-      ))}
-    </div>
-  );
-}
-
-function AccountsList({ accounts }: { accounts: TinkAccount[] | null }) {
-  if (!accounts) return <div className="text-sm text-muted">Loading…</div>;
-  if (!Array.isArray(accounts) || accounts.length === 0)
-    return <div className="text-sm text-muted">No accounts yet.</div>;
-  return (
-    <div className="space-y-3">
-      {accounts.map((acc: TinkAccount, idx: number) => {
-        const name: string =
-          acc?.name ||
-          acc?.displayName ||
-          acc?.account?.name ||
-          `Account ${idx + 1}`;
-        const institution: string =
-          acc?.institutionName ||
-          acc?.providerName ||
-          acc?.financialInstitutionId ||
-          "";
-        const type: string =
-          acc?.type || acc?.accountType || acc?.categoryType || "";
-        const available =
-          acc?.balances?.available?.value ??
-          acc?.balances?.current?.value ??
-          acc?.balance ??
-          acc?.accountBalance?.value;
-        const currency: string | undefined =
-          acc?.balances?.available?.currencyCode ||
-          (acc as unknown as { currency?: string })?.currency ||
-          acc?.balances?.current?.currencyCode;
-        const ibanOrNumber: string =
-          acc?.iban || acc?.accountNumber || acc?.mask || "";
-        return (
-          <div
-            key={idx}
-            className="rounded-xl border border-white/10 bg-white/5 p-4">
-            <div className="flex items-center justify-between gap-4">
-              <div className="min-w-0">
-                <div className="text-sm font-medium truncate">{name}</div>
-                <div className="text-xs text-muted truncate">
-                  {[institution, type, ibanOrNumber]
-                    .filter(Boolean)
-                    .join(" • ")}
-                </div>
-              </div>
-              <div className="text-sm font-semibold whitespace-nowrap">
-                {formatCurrency(
-                  typeof available === "number" ? available : Number(available),
-                  currency
-                )}
-              </div>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-function TransactionsTable({
-  transactions,
-}: {
-  transactions: TinkTransaction[] | null;
-}) {
-  const items = extractTransactionsArray(transactions).slice(0, 50);
-  if (!transactions) return <div className="text-sm text-muted">Loading…</div>;
-  if (items.length === 0)
-    return <div className="text-sm text-muted">No recent transactions.</div>;
-  return (
-    <div className="px-4 py-3 rounded-xl border border-white/10 overflow-scroll h-[40vh]">
-      <div className="divide-y divide-white/10">
-        {items.map((t: TinkTransaction, idx: number) => {
-          const date = getTxnDate(t);
-          const desc = getTxnDesc(t);
-          const category = getTxnCategory(t);
-          const { amount, currency } = getTxnAmountAndCurrency(t);
-          const signed = amount;
-          return (
-            <div
-              key={idx}
-              className="grid grid-cols-12 items-center w-[100%] gap-3 px-4 py-3 bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 border-b border-white/10">
-              <div className="col-span-4 min-w-0">
-                <div className="text-sm font-medium truncate">{desc}</div>
-                <div className="text-xs text-muted truncate">{date}</div>
-              </div>
-              <div className="col-span-6 text-xs text-muted truncate">
-                {category}
-              </div>
-              <div className="col-span-2 text-right text-sm font-semibold">
-                {signed != null ? formatCurrency(signed, currency) : "—"}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
+        <SidebarNav />
+      </RequireAuth>
+    </>
   );
 }

@@ -13,10 +13,10 @@ import FounderMessage from "@/components/FounderMessage";
 export default function Landing() {
   const ab = useABVariant();
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-black/20 to-amber-900/30 text-foreground">
+    <div className="min-h-screen flex flex-col bg-[radial-gradient(1200px_600px_at_10%_0%,_rgba(29,155,240,0.12),_transparent_60%),_linear-gradient(to_bottom,_rgba(11,18,32,1),_rgba(11,18,32,1))] text-foreground">
       <main className="flex-1">
         <Hero />
-        <section className="mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-black">
+        <section className="mx-auto px-4 sm:px-6 lg:px-8 py-8" style={{ backgroundColor: "var(--background)" }}>
           <div className="mt-6">
             <TestimonialCard />
           </div>

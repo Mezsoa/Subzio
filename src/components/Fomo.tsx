@@ -79,7 +79,7 @@ function Fomo() {
             className="text-black"
           />
         </Reveal>
-      <Reveal threshold={0.5} offsetPx={150} durationMs={1000} className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-zinc-900 via-black to-zinc-900 p-6 sm:p-10 shadow-xl">
+      <Reveal threshold={0.5} offsetPx={150} durationMs={1000} className="relative overflow-hidden rounded-2xl border border-border p-6 sm:p-10 shadow-xl" style={{ background: "linear-gradient(135deg, rgba(13,23,41,1), rgba(13,23,41,0.9))" }}>
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-muted">Early access</p>
@@ -119,7 +119,7 @@ function Fomo() {
 
             <a
               href="#waitlist"
-              className="mt-4 inline-flex w-full items-center justify-center h-11 px-5 rounded-md bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-500/90 transition shadow-md"
+              className="mt-4 inline-flex w-full items-center justify-center h-11 px-5 rounded-md bg-[linear-gradient(90deg,var(--cta-start),var(--cta-end))] text-[var(--on-primary)] text-sm font-semibold hover:brightness-110 transition shadow-md"
               onClick={() => {
                 if (typeof window !== 'undefined' && window.gtag) {
                   window.gtag('event', 'cta_click', { location: 'fomo' });

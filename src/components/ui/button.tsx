@@ -11,7 +11,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
-        className={cn("bg-blue-500 text-white px-4 py-2 rounded-md", className)}
+        className={cn("px-4 py-2 rounded-md bg-[linear-gradient(90deg,var(--cta-start),var(--cta-end))] text-[var(--on-primary)] hover:brightness-110", className)}
         {...props}
       >
         {children}

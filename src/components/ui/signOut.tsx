@@ -2,6 +2,7 @@ import { LogOutIcon } from 'lucide-react'
 import { supabaseBrowser } from '@/lib/supabaseClient'
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { authedFetch } from '@/lib/authedFetch';
 
 
 const SignOut = () => {
@@ -10,6 +11,23 @@ const SignOut = () => {
 
     const handleSignOut = async () => {
         setIsLoading(true);
+        
+        try {
+            // Disconnect from both banking systems before signing out
+            const disconnectRes = await authedFetch("/api/disconnect-all", { method: "POST" });
+            
+            if (disconnectRes.ok) {
+                const data = await disconnectRes.json();
+                console.log("[Logout] Bank disconnection:", data.summary);
+            } else {
+                console.warn("[Logout] Bank disconnection failed:", await disconnectRes.text());
+            }
+        } catch (e) {
+            console.warn("[Logout] Error during bank disconnection:", e);
+            // Continue with sign out even if disconnection fails
+        }
+
+        // Sign out from Supabase
         const sb = supabaseBrowser();
         await sb.auth.signOut();
         setIsLoading(false);

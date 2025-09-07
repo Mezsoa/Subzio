@@ -11,7 +11,7 @@ import Reveal from "@/components/animations/Reveal";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-bl from-white via-black/20 to-amber-900/30 text-foreground overflow-hidden mb-16">
+    <div className="min-h-screen flex flex-col bg-[radial-gradient(1200px_600px_at_10%_0%,_rgba(29,155,240,0.12),_transparent_60%),_linear-gradient(to_bottom,_rgba(11,18,32,1),_rgba(11,18,32,1))] text-foreground overflow-hidden mb-16">
       <Navbar />
 
       <main className="flex-1 snap-y snap-always">
@@ -29,7 +29,7 @@ export default function Home() {
         </section>
 
         {/* Spacer */}
-        <div className="bg-gradient-to-tr from-white/0.5 via-black/1 to-amber-900/30 h-8 sm:h-16" />
+        <div className="bg-[radial-gradient(600px_200px_at_90%_50%,_rgba(29,155,240,0.12),_transparent_60%)] h-8 sm:h-16" />
 
         {/* KillSub */}
         <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sm:py-14 mt-0 bg-transparent h-[30vh]">

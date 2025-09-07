@@ -101,7 +101,7 @@ export default function SubscriptionsCard() {
             <div className="sm:w-56 flex items-center justify-between sm:justify-end gap-2">
               <StatusBadge status={s.status} />
               <a
-                className="inline-flex items-center justify-center h-9 px-3 rounded-md bg-primary text-on-primary text-xs sm:text-sm font-semibold hover:bg-primary/90 transition"
+                className="inline-flex items-center justify-center h-6 px-3 rounded-md bg-primary text-on-primary text-xs sm:text-sm font-regular hover:bg-primary/90 transition"
                 href={`https://www.google.com/search?q=${encodeURIComponent(s.name + " cancel subscription")}`}
                 target="_blank"
                 rel="noopener noreferrer"

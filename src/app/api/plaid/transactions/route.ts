@@ -3,18 +3,32 @@ import { getPlaidClient } from "@/lib/plaid";
 import { supabaseServer } from "@/lib/supabaseServer";
 import { supabaseService } from "@/lib/supabaseClient";
 
-export async function GET(_req: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
+    // Try cookie-based auth first
     const supabase = await supabaseServer();
     const { data: userData } = await supabase.auth.getUser();
-    const user = userData?.user;
-    if (!user) return new Response("Unauthorized", { status: 401 });
+    let user = userData?.user;
+    let userId = user?.id;
+
+    // Fallback to Bearer token if no cookie session
+    if (!userId) {
+      const authHeader = req.headers.get("Authorization");
+      if (authHeader?.startsWith("Bearer ")) {
+        const token = authHeader.slice(7);
+        const svc = supabaseService();
+        const { data: tokenUser } = await svc.auth.getUser(token);
+        userId = tokenUser?.user?.id;
+      }
+    }
+
+    if (!userId) return new Response("Unauthorized", { status: 401 });
 
     const svc = supabaseService();
     const { data: item, error } = await svc
       .from("plaid_items")
       .select("access_token")
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(1)
       .single();

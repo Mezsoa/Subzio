@@ -76,7 +76,7 @@ export default function Hero() {
   }`;
 
   return (
-    <section className="mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 pb-16 text-center bg-gradient-to-b from-zinc-950 via-neutral-800 to-zinc-950 text-foreground ">
+    <section className="mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 pb-16 text-center bg-gradient-to-b from-[rgba(29,155,240,0.08)] via-[rgba(11,18,32,1)] to-[rgba(11,18,32,1)] text-foreground ">
       <p className="text-xs uppercase tracking-[0.2em] text-muted">KillSub</p>
       <h1 className="mt-3 text-3xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-foreground">
         {headline}
@@ -85,7 +85,7 @@ export default function Hero() {
         {subhead}
       </p>
 
-      <p className="mt-2 text-sm text-emerald-300/90">
+      <p className="mt-2 text-sm text-[color:var(--foreground)]/80">
         Launching soon — $5/month. First 100 users get 50% off for life.
       </p>
 
@@ -102,7 +102,7 @@ export default function Hero() {
         />
         <button
           type="submit"
-          className="whitespace-nowrap inline-flex items-center justify-center h-12 px-5 rounded-md bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-500/90 shadow-md transition disabled:opacity-60"
+          className="whitespace-nowrap inline-flex items-center justify-center h-12 px-5 rounded-md bg-[linear-gradient(90deg,var(--cta-start),var(--cta-end))] text-[var(--on-primary)] text-sm font-semibold hover:brightness-110 shadow-md transition disabled:opacity-60"
           onClick={() => {
             if (typeof window !== 'undefined' && window.gtag) {
               window.gtag('event', 'waitlist_submit_click', { form_location: 'hero' });
@@ -132,7 +132,7 @@ export default function Hero() {
 
       <div className="mt-6 text-xs text-muted flex items-center justify-center gap-2">
         <span className="inline-flex items-center gap-1">
-          <span className="inline-block h-2 w-2 rounded-full bg-emerald-400" />
+          <span className="inline-block h-2 w-2 rounded-full" style={{ background: "var(--primary)" }} />
           Privacy‑first, bank‑grade security
         </span>
         <span aria-hidden>•</span>

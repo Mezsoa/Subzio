@@ -1,8 +1,9 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { authedFetch, AuthError } from "@/lib/authedFetch";
 import { usePlaidLink } from "react-plaid-link";
-import type { PlaidLinkError, PlaidLinkOnExitMetadata } from "react-plaid-link";
+import type { PlaidLinkError } from "react-plaid-link";
 
 async function fetchLinkToken(): Promise<string> {
   const res = await fetch("/api/plaid/link-token");
@@ -15,7 +16,10 @@ export default function ConnectBank() {
   const [linkToken, setLinkToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [sessionReady, setSessionReady] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const router = useRouter();
   useEffect(() => {
+    setMounted(true);
     fetchLinkToken().then(setLinkToken).catch((e) => setError(e.message));
     (async () => {
       try {
@@ -32,33 +36,47 @@ export default function ConnectBank() {
   }, []);
 
   const onSuccess = useCallback(async (public_token: string) => {
-    await fetch("/api/plaid/exchange", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ public_token }),
-    });
-    // TODO: navigate to subscriptions/dashboard
-    
-  }, []);
+    console.log("[Plaid] Link onSuccess", { public_token: public_token?.slice?.(0, 12) + "…" });
+    try {
+      // Ensure we send Authorization: Bearer for server fallback
+      const res = await authedFetch("/api/plaid/exchange", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ public_token }),
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new AuthError(text || "Exchange failed");
+      }
+      console.log("[Plaid] Exchange completed OK");
+      // Navigate to dashboard after successful link
+      router.replace("/dashboard");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Exchange failed";
+      setError(msg);
+    }    
+  }, [router]);
 
   const config = {
     token: linkToken || "",
     onSuccess,
-    onExit: (err: PlaidLinkError | null, _meta?: PlaidLinkOnExitMetadata) => {
+    onExit: (err: PlaidLinkError | null) => {
       if (err) setError(err.error_message || "Exited Plaid Link");
     },
   } as const;
 
-  const { open, ready } = usePlaidLink(linkToken ? config : ({} as unknown as Parameters<typeof usePlaidLink>[0]));
+  // Only initialize Plaid Link when component is mounted and has a token
+  const shouldInitialize = mounted && linkToken;
+  const { open, ready } = usePlaidLink(shouldInitialize ? config : { token: "", onSuccess: () => {}, onExit: () => {} });
 
   return (
     <div className="flex flex-col items-center gap-3 w-full">
       <button
         onClick={() => open()}
-        disabled={!ready}
-        className="px-4 py-2 rounded-md bg-emerald-500/90 hover:bg-emerald-500 text-white shadow w-full"
+        disabled={!shouldInitialize || !ready}
+        className="px-4 py-2 rounded-md bg-[linear-gradient(90deg,var(--cta-start),var(--cta-end))] text-[var(--on-primary)] shadow w-full hover:brightness-110 disabled:opacity-50"
       >
-        Connect Plaid
+        {!shouldInitialize ? "Loading..." : "Connect Plaid"}
       </button>
       <button
         onClick={async () => {

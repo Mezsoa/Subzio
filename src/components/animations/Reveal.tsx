@@ -6,6 +6,7 @@ type RevealProps = PropsWithChildren<{
   durationMs?: number;
   offsetPx?: number;
   threshold?: number;
+  style?: React.CSSProperties;
 }>;
 
 export default function Reveal({
@@ -13,6 +14,7 @@ export default function Reveal({
   durationMs = 600,
   offsetPx = 100,
   threshold = 0.9,
+  style,
   children,
 }: RevealProps) {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -40,6 +42,7 @@ export default function Reveal({
       style={{
         transition: `opacity ${durationMs}ms ease-out, transform ${durationMs}ms ease-out`,
         transform: visible ? "translateY(0)" : `translateY(${offsetPx}px)`,
+        ...style,
       }}
     >
       {children}

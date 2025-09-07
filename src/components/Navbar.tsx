@@ -11,7 +11,7 @@ type SessionUser = {
 } | null;
 
 export default function Navbar() {
-  const [user, setUser] = useState<SessionUser>(null);
+  const [, setUser] = useState<SessionUser>(null);
 
   useEffect(() => {
     const sb = supabaseBrowser();
@@ -22,13 +22,7 @@ export default function Navbar() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  const initials = (() => {
-    const name = user?.user_metadata?.name || user?.email || "";
-    const parts = name.split(" ");
-    const first = parts[0]?.[0] || name[0] || "U";
-    const second = parts[1]?.[0] || "";
-    return (first + second).toUpperCase();
-  })();
+  // removed unused initials computation
 
   return (
     <header className="w-full border-b border-border bg-background">
@@ -45,7 +39,7 @@ export default function Navbar() {
           
           <Link
             href="/auth/signin"
-            className="inline-flex items-center justify-center h-8 px-4 rounded-md border border-white/10 text-sm text-foreground hover:bg-white/5">
+            className="inline-flex items-center justify-center h-8 px-4 rounded-md border border-white/10 text-sm text-foreground hover:bg-white/10">
             Sign in
           </Link>
         </div>

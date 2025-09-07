@@ -50,8 +50,8 @@ export default function SignInPage() {
           }}>
          
         </div>
-        <div className="relative min-h-[100dvh] flex items-center justify-center px-4 w-1/2 bg-white">
-          <div className="max-w-md w-full rounded-2xl border border-white/10 bg-black/90 backdrop-blur p-8">
+        <div className="relative min-h-[100dvh] flex items-center justify-center px-4 w-1/2" style={{ backgroundColor: "var(--background)" }}>
+          <div className="max-w-md w-full rounded-2xl border border-white/10 backdrop-blur p-8" style={{ background: "rgba(15,23,42,0.9)" }}>
             <h1 className="text-xl font-medium mb-2">
               Sign in or create account
             </h1>
@@ -85,7 +85,7 @@ export default function SignInPage() {
               />
               <button
                 type="submit"
-                className="w-full h-10 rounded-md bg-primary text-on-primary text-sm font-semibold hover:bg-primary/90 disabled:opacity-60"
+                className="w-full h-10 rounded-md bg-[linear-gradient(90deg,var(--cta-start),var(--cta-end))] text-[var(--on-primary)] text-sm font-semibold hover:brightness-110 disabled:opacity-60"
                 disabled={status === "loading"}>
                 {status === "loading" ? "Sending…" : "Email me a magic link"}
               </button>
