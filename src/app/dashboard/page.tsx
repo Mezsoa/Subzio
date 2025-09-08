@@ -545,7 +545,6 @@ export default function DashboardPage() {
               {/* AI Insights Section */}
               {subs.length > 0 && (
                 <section className="mb-8">
-                  {console.log('[Dashboard] Passing subscriptions to AIInsights:', subs)}
                   <AIInsights subscriptions={subs} />
                 </section>
               )}
