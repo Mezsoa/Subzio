@@ -51,13 +51,33 @@ export default function AlertsManager({ inline = false }: AlertsManagerProps) {
 
   const fetchAlerts = async () => {
     try {
-      const response = await fetch('/api/alerts');
-      if (response.ok) {
-        const data = await response.json();
-        setAlerts(data.alerts || []);
+      // Import supabase client for direct database access
+      const { supabaseBrowser } = await import('@/lib/supabaseClient');
+      const supabase = supabaseBrowser();
+      
+      // Get current user
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !user) {
+        console.error('❌ Not authenticated:', authError);
+        setLoading(false);
+        return;
+      }
+      
+      // Fetch alerts directly via Supabase client
+      const { data: alerts, error } = await supabase
+        .from('alerts')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('❌ Error fetching alerts:', error);
+      } else {
+        setAlerts(alerts || []);
       }
     } catch (error) {
-      console.error('Error fetching alerts:', error);
+      console.error('❌ Network error fetching alerts:', error);
     } finally {
       setLoading(false);
     }
@@ -65,19 +85,45 @@ export default function AlertsManager({ inline = false }: AlertsManagerProps) {
 
   const createAlert = async (alertData: Omit<Alert, 'id' | 'created_at'>) => {
     try {
-      const response = await fetch('/api/alerts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(alertData),
-      });
+      console.log('🔍 Creating alert with data:', alertData);
+      
+      // Import supabase client for direct database access
+      const { supabaseBrowser } = await import('@/lib/supabaseClient');
+      const supabase = supabaseBrowser();
+      
+      // Get current user
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !user) {
+        console.error('❌ Not authenticated:', authError);
+        alert('Please log in to create alerts');
+        return;
+      }
+      
+      // Create alert directly via Supabase client
+      const { data: newAlert, error } = await supabase
+        .from('alerts')
+        .insert({
+          user_id: user.id,
+          name: alertData.name,
+          type: alertData.type,
+          condition: alertData.condition,
+          enabled: alertData.enabled ?? true,
+        })
+        .select()
+        .single();
 
-      if (response.ok) {
-        const newAlert = await response.json();
+      if (error) {
+        console.error('❌ Error creating alert:', error);
+        alert(`Failed to create alert: ${error.message}`);
+      } else {
+        console.log('✅ Alert created successfully:', newAlert);
         setAlerts([...alerts, newAlert]);
         setShowCreateForm(false);
       }
     } catch (error) {
-      console.error('Error creating alert:', error);
+      console.error('❌ Network error creating alert:', error);
+      alert('Network error creating alert');
     }
   };
 

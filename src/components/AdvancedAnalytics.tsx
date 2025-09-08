@@ -25,7 +25,7 @@ interface AnalyticsData {
   subscription_lifecycle: {
     new_this_month: number;
     canceled_this_month: number;
-    price_changes: Array<{ name: string; old_price: number; new_price: number; change: number }>;
+    price_changes: Array<{ name: string; oldPrice: number; newPrice: number; change: number }>;
   };
   usage_patterns: {
     peak_spending_months: string[];
@@ -378,16 +378,16 @@ export default function AdvancedAnalytics({ subscriptions = [], transactions = [
                   <div>
                     <div className="font-medium text-foreground-black">{change.name}</div>
                     <div className="text-sm text-muted-light">
-                      ${change.old_price.toFixed(2)} → ${change.new_price.toFixed(2)}
+                      ${change.oldPrice} → ${change.newPrice?.toFixed(2)}
                     </div>
                   </div>
                 </div>
                 <div className={`text-right ${change.change > 0 ? 'text-red-600' : 'text-green-600'}`}>
                   <div className="font-semibold">
-                    {change.change > 0 ? '+' : ''}${Math.abs(change.change).toFixed(2)}
+                    {change.change > 0 ? '+' : ''}${Math.abs(change.change)}
                   </div>
                   <div className="text-xs">
-                    {change.change > 0 ? '+' : ''}{((change.change / change.old_price) * 100).toFixed(1)}%
+                    {change.change > 0 ? '+' : ''}{((change.change / change.oldPrice) * 100).toFixed(2)}%
                   </div>
                 </div>
               </div>

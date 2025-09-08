@@ -11,6 +11,10 @@ export async function supabaseServer() {
   }
 
   return createServerClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      // Use the same storage key as the browser client
+      storageKey: "killsub-auth",
+    },
     cookies: {
       get(name: string) {
         return cookieStore.get(name)?.value;
