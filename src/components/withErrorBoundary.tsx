@@ -29,7 +29,7 @@ export function withErrorBoundary<P extends object>(
     
     return (
       <ErrorBoundaryComponent
-        fallback={fallback ? <fallback error={new Error()} retry={() => {}} /> : undefined}
+        fallback={fallback ? (error: Error, retry: () => void) => React.createElement(fallback, { error, retry }) : undefined}
         onError={onError}
         resetOnPropsChange={resetOnPropsChange}
         resetKeys={resetKeys}
