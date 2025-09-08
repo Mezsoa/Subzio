@@ -5,7 +5,7 @@ import ErrorBoundary from './ErrorBoundary';
 import ApiErrorBoundary from './ApiErrorBoundary';
 
 interface WithErrorBoundaryOptions {
-  fallback?: React.ComponentType<{ error: Error; retry: () => void }>;
+  fallback?: React.ReactNode;
   onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
   resetOnPropsChange?: boolean;
   resetKeys?: Array<string | number>;
@@ -29,7 +29,7 @@ export function withErrorBoundary<P extends object>(
     
     return (
       <ErrorBoundaryComponent
-        fallback={fallback ? (error: Error, retry: () => void) => React.createElement(fallback, { error, retry }) : undefined}
+        fallback={fallback}
         onError={onError}
         resetOnPropsChange={resetOnPropsChange}
         resetKeys={resetKeys}
