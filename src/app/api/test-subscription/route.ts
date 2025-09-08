@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { supabaseServer } from "@/lib/supabaseServer";
 import { supabaseService } from "@/lib/supabaseClient";
 
-export async function GET(req: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
     // Get authenticated user from authorization header
     const authorization = req.headers.get('authorization');
@@ -24,38 +24,45 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    // Get user subscription from database (include both active and trialing)
+    const { planId } = await req.json();
+    
+    // Simulate what the webhook should do
     const svc = supabaseService();
-    const { data: subscription, error } = await svc
-      .from('user_subscriptions')
-      .select('*')
-      .eq('user_id', user.id)
-      .in('status', ['active', 'trialing'])
-      .single();
-
-    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
-      console.error('Error fetching subscription:', error);
-      return new Response(JSON.stringify({ error: "Database error" }), {
+    const subscriptionData = {
+      user_id: user.id,
+      stripe_customer_id: 'test_customer_123',
+      stripe_subscription_id: 'test_sub_123',
+      plan_id: planId,
+      status: 'trialing',
+      current_period_start: new Date().toISOString(),
+      current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      trial_end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
+    };
+    
+    console.log('🧪 Test: Creating subscription:', subscriptionData);
+    
+    const { data, error } = await svc.from('user_subscriptions').upsert(subscriptionData);
+    
+    if (error) {
+      console.error('❌ Test: Database error:', error);
+      return new Response(JSON.stringify({ error: error.message }), {
         status: 500,
         headers: { "content-type": "application/json" },
       });
     }
-
-    // Return subscription or free plan
-    const userSubscription = subscription || {
-      user_id: user.id,
-      plan_id: 'free',
-      status: 'active',
-      current_period_start: new Date().toISOString(),
-      current_period_end: null,
-    };
-
-    return new Response(JSON.stringify({ subscription: userSubscription }), {
+    
+    console.log('✅ Test: Subscription created:', data);
+    
+    return new Response(JSON.stringify({ 
+      success: true, 
+      subscription: subscriptionData,
+      message: 'Test subscription created successfully'
+    }), {
       status: 200,
       headers: { "content-type": "application/json" },
     });
   } catch (error: any) {
-    console.error('Subscription fetch error:', error);
+    console.error('❌ Test subscription error:', error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { "content-type": "application/json" },

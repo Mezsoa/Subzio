@@ -20,6 +20,8 @@ export default function ConnectBank() {
   const [sessionReady, setSessionReady] = useState(false);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
+
+  
   useEffect(() => {
     setMounted(true);
     fetchLinkToken()
@@ -143,21 +145,11 @@ export default function ConnectBank() {
           }
         }}
         className="px-2 py-2 rounded-md text-sm bg-gradient-to-r from-black/40 via-black/20 to-white/70 text-foreground-black shadow w-1/2 hover:brightness-110 hover:bg-black/50 hover:text-white transition-all duration-500 disabled:opacity-50 cursor-pointer w-[150px]">
-        {sessionReady ? (
-          <span className="flex items-center gap-1">
-            Connect
-            <Image
-              src={bubbleArrow}
-              alt="→"
-              width={12}
-              height={12}
-              className="inline"
-            />
-            BankID
-          </span>
+        {sessionReady && !shouldInitialize ? (
+          "Loading..."
         ) : (
           <span className="flex items-center gap-1">
-            Sign in to connect
+            Connect
             <Image
               src={bubbleArrow}
               alt="→"

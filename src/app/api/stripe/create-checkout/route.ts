@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Create Stripe checkout session
+    // Create Stripe checkout session with 7-day free trial
     const stripe = getStripeServer();
     const session = await stripe.checkout.sessions.create({
       customer_email: user.email,
@@ -52,11 +52,13 @@ export async function POST(req: NextRequest) {
       ],
       success_url: `${req.headers.get('origin')}/dashboard?success=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get('origin')}/dashboard?canceled=true`,
+      allow_promotion_codes: true, // Allow users to enter promo codes
       metadata: {
         userId: user.id,
         planId: planId,
       },
       subscription_data: {
+        trial_period_days: 7, // 7-day free trial
         metadata: {
           userId: user.id,
           planId: planId,

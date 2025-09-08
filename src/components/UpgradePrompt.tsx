@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { STRIPE_PLANS, formatPrice } from '@/lib/stripe';
 import { getStripe } from '@/lib/stripe';
+import { authedFetch } from '@/lib/authedFetch';
 import { Crown, X, Check, Zap } from 'lucide-react';
 
 interface UpgradePromptProps {
@@ -24,13 +25,24 @@ export default function UpgradePrompt({
   const handleUpgrade = async (planId: 'pro' | 'business') => {
     try {
       setLoading(true);
-      const response = await fetch('/api/stripe/create-checkout', {
+      const response = await authedFetch('/api/stripe/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ planId }),
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Checkout API Error:', errorData);
+        throw new Error(errorData.error || 'Failed to create checkout session');
+      }
+
       const { sessionId } = await response.json();
+      
+      if (!sessionId) {
+        throw new Error('No session ID returned from checkout creation');
+      }
+
       const stripe = await getStripe();
       
       if (stripe) {
@@ -43,7 +55,8 @@ export default function UpgradePrompt({
     }
   };
 
-  if (plan.id !== 'free') return null;
+  // Only show upgrade prompt for free users or when plan is not loaded yet
+  if (plan?.id && plan.id !== 'free') return null;
 
   const PromptContent = () => (
     <div className={`${inline ? 'p-6' : 'p-8'} ${inline ? '' : 'max-w-2xl mx-auto'}`}>
@@ -91,7 +104,7 @@ export default function UpgradePrompt({
           <button
             onClick={() => handleUpgrade('pro')}
             disabled={loading}
-            className="w-full bg-gradient-to-r from-cta-start to-cta-end text-white py-3 px-4 rounded-lg font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="w-full bg-gradient-to-r from-cta-start to-cta-end text-white py-3 px-4 rounded-lg font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 cursor-pointer"
           >
             {loading ? 'Processing...' : 'Choose Pro'}
           </button>
@@ -126,7 +139,7 @@ export default function UpgradePrompt({
           <button
             onClick={() => handleUpgrade('business')}
             disabled={loading}
-            className="w-full bg-gradient-to-r from-cta-start to-cta-end text-white py-3 px-4 rounded-lg font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="w-full bg-gradient-to-r from-cta-start to-cta-end text-white py-3 px-4 rounded-lg font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 cursor-pointer"
           >
             {loading ? 'Processing...' : 'Choose Business'}
           </button>

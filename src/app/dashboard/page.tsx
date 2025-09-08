@@ -4,7 +4,11 @@ import { authedFetch, AuthError } from "@/lib/authedFetch";
 import RequireAuth from "@/components/auth/RequireAuth";
 import SidebarNav from "@/components/SidebarNav";
 import { useSidebar } from "@/contexts/SidebarContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import ConnectBank from "@/components/ConnectBank";
+import OnboardingFlow from "@/components/OnboardingFlow";
+import AIInsights from "@/components/AIInsights";
+import UsageLimitsChecker from "@/components/UsageLimitsChecker";
 
 interface Account {
   name?: string;
@@ -69,8 +73,11 @@ export default function DashboardPage() {
   const [dataSource, setDataSource] = useState<DataSource>("auto");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showConnect, setShowConnect] = useState(false);
+  const { refreshSubscription } = useSubscription();
   const [bankidConnected, setBankidConnected] = useState<boolean | null>(null);
   const [plaidConnected, setPlaidConnected] = useState<boolean | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [onboardingChecked, setOnboardingChecked] = useState(false);
   const { isCollapsed } = useSidebar();
 
   // Helper function to calculate balance from BankID/Tink structure
@@ -238,9 +245,51 @@ export default function DashboardPage() {
     fetchData();
   }, [fetchData]);
 
+  // Handle Stripe checkout success
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === 'true') {
+      console.log('[Dashboard] Stripe checkout success detected, refreshing subscription...');
+      // Refresh subscription data after successful checkout
+      setTimeout(() => {
+        refreshSubscription();
+      }, 2000); // Wait 2 seconds for webhook to process
+      
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [refreshSubscription]);
+
+  // Check if user needs onboarding
+  useEffect(() => {
+    if (!onboardingChecked) {
+      const onboardingCompleted = localStorage.getItem('onboarding_completed');
+      const isFirstVisit = !onboardingCompleted || onboardingCompleted !== 'true';
+      
+      // Show onboarding if it's the user's first visit and they have no connected accounts
+      if (isFirstVisit && accounts.length === 0 && !isLoading) {
+        setShowOnboarding(true);
+      }
+      
+      setOnboardingChecked(true);
+    }
+  }, [accounts.length, isLoading, onboardingChecked]);
+
   return (
     <>
       <RequireAuth>
+        {/* Onboarding Overlay */}
+        {showOnboarding && (
+          <div className="fixed inset-0 bg-background-light z-50 overflow-auto">
+            <OnboardingFlow onComplete={() => {
+              setShowOnboarding(false);
+              localStorage.setItem('onboarding_completed', 'true');
+              // Refresh data after onboarding
+              fetchData();
+            }} />
+          </div>
+        )}
+        
         <div
           className={`min-h-screen bg-background-light transition-all duration-300 ${
             isCollapsed ? "ml-16" : "ml-64"
@@ -318,7 +367,7 @@ export default function DashboardPage() {
                               ? "bg-muted-light animate-pulse"
                               : bankidConnected
                               ? "bg-emerald-500"
-                              : "bg-red-500"
+                              : "bg-red-300"
                           }`}
                         />
                       </div>
@@ -333,7 +382,7 @@ export default function DashboardPage() {
                               ? "bg-muted-light animate-pulse"
                               : plaidConnected
                               ? "bg-emerald-500"
-                              : "bg-muted-light"
+                              : "bg-red-300"
                           }`}
                         />
                       </div>
@@ -490,6 +539,16 @@ export default function DashboardPage() {
 
             {/* Content Sections */}
             <div className="space-y-8">
+              {/* Usage Limits Overview */}
+              <UsageLimitsChecker />
+
+              {/* AI Insights Section */}
+              {subs.length > 0 && (
+                <section className="mb-8">
+                  <AIInsights subscriptions={subs} />
+                </section>
+              )}
+
               {/* Subscription Insights - Compound Effect */}
               {subs.length > 0 && (
                 <section className="mb-8">

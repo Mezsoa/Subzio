@@ -5,16 +5,20 @@ import { supabaseService } from "@/lib/supabaseClient";
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
 export async function POST(req: NextRequest) {
+  console.log('🔔 Stripe webhook received!');
   try {
     const body = await req.text();
     const signature = req.headers.get('stripe-signature')!;
+    console.log('📝 Webhook signature present:', !!signature);
+    console.log('🔐 Webhook secret configured:', !!webhookSecret);
 
     let event;
     try {
       const stripe = getStripeServer();
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+      console.log('✅ Webhook signature verified, event type:', event.type);
     } catch (err: any) {
-      console.error('Webhook signature verification failed:', err.message);
+      console.error('❌ Webhook signature verification failed:', err.message);
       return new Response(`Webhook Error: ${err.message}`, { status: 400 });
     }
 
@@ -22,21 +26,59 @@ export async function POST(req: NextRequest) {
 
     switch (event.type) {
       case 'checkout.session.completed': {
+        console.log('🎉 Processing checkout.session.completed');
         const session = event.data.object;
         const { userId, planId } = session.metadata!;
+        console.log('👤 User ID:', userId, 'Plan ID:', planId);
         
-        // Create or update user subscription
-        await supabase.from('user_subscriptions').upsert({
+        // Get subscription details from Stripe to get proper trial/billing dates
+        const stripe = getStripeServer();
+        console.log('🔍 Retrieving subscription details from Stripe...');
+        const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+        console.log('📋 Stripe subscription status:', subscription.status);
+        
+        // Determine subscription status - if in trial, mark as 'trialing'
+        const subscriptionStatus = subscription.status === 'trialing' ? 'trialing' : 'active';
+        
+        // Create or update user subscription with proper dates from Stripe
+        console.log('💾 Inserting subscription into database...');
+        console.log('🔍 Raw Stripe subscription data:', {
+          current_period_start: subscription.current_period_start,
+          current_period_end: subscription.current_period_end,
+          trial_end: subscription.trial_end
+        });
+        
+        const subscriptionData = {
           user_id: userId,
           stripe_customer_id: session.customer,
           stripe_subscription_id: session.subscription,
           plan_id: planId,
-          status: 'active',
-          current_period_start: new Date().toISOString(),
-          current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
-        });
+          status: subscriptionStatus,
+          current_period_start: subscription.current_period_start ? 
+            new Date(subscription.current_period_start * 1000).toISOString() : 
+            new Date().toISOString(),
+          current_period_end: subscription.current_period_end ? 
+            new Date(subscription.current_period_end * 1000).toISOString() : 
+            null,
+          trial_end: subscription.trial_end ? 
+            new Date(subscription.trial_end * 1000).toISOString() : 
+            null,
+        };
+        console.log('📊 Subscription data to insert:', subscriptionData);
         
-        console.log('Subscription created for user:', userId);
+        const { data, error } = await supabase.from('user_subscriptions').upsert(subscriptionData);
+        
+        if (error) {
+          console.error('❌ Database error:', error);
+          throw error;
+        }
+        
+        console.log('✅ Subscription saved to database:', data);
+        
+        console.log(`Subscription ${subscriptionStatus} for user:`, userId, {
+          trial_end: subscription.trial_end ? new Date(subscription.trial_end * 1000) : null,
+          current_period_end: new Date(subscription.current_period_end * 1000)
+        });
         break;
       }
 

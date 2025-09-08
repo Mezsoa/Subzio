@@ -91,6 +91,7 @@ create table if not exists public.user_subscriptions (
   status text not null default 'active',
   current_period_start timestamptz,
   current_period_end timestamptz,
+  trial_end timestamptz,
   canceled_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -115,8 +116,24 @@ create table if not exists public.user_usage (
 create unique index if not exists user_usage_user_id_unique on public.user_usage(user_id);
 alter table public.user_usage enable row level security;
 create policy "Owner can read own usage" on public.user_usage for select using (auth.uid() = user_id);
+create policy "Owner can insert own usage" on public.user_usage for insert with check (auth.uid() = user_id);
 create policy "Owner can update own usage" on public.user_usage for update using (auth.uid() = user_id);
 create policy "Service can manage usage" on public.user_usage for all using (true);
+
+-- Custom alerts (Pro/Business feature)
+create table if not exists public.alerts (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  name text not null,
+  type text not null check (type in ('spending_limit', 'new_subscription', 'price_increase', 'cancellation_reminder')),
+  condition jsonb not null,
+  enabled boolean default true,
+  last_triggered_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+alter table public.alerts enable row level security;
+create policy "Owner can manage own alerts" on public.alerts for all using (auth.uid() = user_id);
 
 -- Cancellation requests (premium feature)
 create table if not exists public.cancellation_requests (

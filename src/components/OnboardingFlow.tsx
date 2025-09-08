@@ -13,6 +13,7 @@ import {
   Bell,
   Target
 } from 'lucide-react';
+import ConnectBank from '@/components/ConnectBank';
 
 interface OnboardingStep {
   id: string;
@@ -22,7 +23,11 @@ interface OnboardingStep {
   component: React.ReactNode;
 }
 
-export default function OnboardingFlow() {
+interface OnboardingFlowProps {
+  onComplete?: () => void;
+}
+
+export default function OnboardingFlow({ onComplete }: OnboardingFlowProps = {}) {
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [userPreferences, setUserPreferences] = useState({
@@ -109,11 +114,19 @@ export default function OnboardingFlow() {
       // Mark onboarding as completed
       localStorage.setItem('onboarding_completed', 'true');
       
-      // Redirect to dashboard
-      router.push('/dashboard');
+      // Call the onComplete callback if provided, otherwise redirect
+      if (onComplete) {
+        onComplete();
+      } else {
+        router.push('/dashboard');
+      }
     } catch (error) {
       console.error('Error completing onboarding:', error);
-      router.push('/dashboard');
+      if (onComplete) {
+        onComplete();
+      } else {
+        router.push('/dashboard');
+      }
     }
   };
 
@@ -240,38 +253,51 @@ function WelcomeStep() {
 
 function ConnectBankStep() {
   return (
-    <div className="text-center space-y-6">
-      <div className="bg-background-light-mid/50 rounded-lg p-6">
-        <Shield className="w-16 h-16 text-primary mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-foreground-black mb-2">
-          Your Security is Our Priority
-        </h3>
-        <p className="text-muted-light mb-4">
-          We use Plaid and BankID - the same secure technology trusted by thousands of financial apps.
-        </p>
+    <div className="space-y-6">
+      <div className="text-center space-y-4">
+        <Shield className="w-16 h-16 text-primary mx-auto" />
+        <div>
+          <h3 className="text-lg font-semibold text-foreground-black mb-2">
+            Your Security is Our Priority
+          </h3>
+          <p className="text-muted-light">
+            We use Plaid and BankID - the same secure technology trusted by thousands of financial apps.
+          </p>
+        </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <div className="grid grid-cols-2 gap-4 text-sm max-w-md mx-auto">
           <div className="flex items-center space-x-2">
-            <Check className="w-4 h-4 text-green-500" />
+            <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
             <span className="text-foreground-black">256-bit encryption</span>
           </div>
           <div className="flex items-center space-x-2">
-            <Check className="w-4 h-4 text-green-500" />
+            <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
             <span className="text-foreground-black">Read-only access</span>
           </div>
           <div className="flex items-center space-x-2">
-            <Check className="w-4 h-4 text-green-500" />
+            <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
             <span className="text-foreground-black">No credentials stored</span>
           </div>
           <div className="flex items-center space-x-2">
-            <Check className="w-4 h-4 text-green-500" />
+            <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
             <span className="text-foreground-black">Disconnect anytime</span>
           </div>
         </div>
       </div>
+
+      {/* Actual Connect Bank Component */}
+      <div className="bg-background-light-mid/30 rounded-xl p-6 border border-border-light">
+        <div className="text-center mb-4">
+          <h4 className="font-medium text-foreground-black mb-2">Connect Your Bank Account</h4>
+          <p className="text-sm text-muted-light">Choose your preferred connection method:</p>
+        </div>
+        <div className="flex justify-start">
+          <ConnectBank />
+        </div>
+      </div>
       
-      <p className="text-sm text-muted-light">
-        You can connect your bank account in the next step or skip for now and do it later in your dashboard.
+      <p className="text-sm text-muted-light text-center">
+        You can skip this step and connect your bank account later in your dashboard.
       </p>
     </div>
   );

@@ -167,10 +167,10 @@ export default function AccountPage() {
                     <h2 className="text-xl font-semibold text-foreground-black">Current Plan</h2>
                   </div>
                   
-                  {plan.id !== 'free' && subscription?.status === 'active' && (
+                  {plan.id !== 'free' && (subscription?.status === 'active' || subscription?.status === 'trialing') && (
                     <div className="flex items-center space-x-2 text-green-600 text-sm">
                       <Check className="w-4 h-4" />
-                      <span>Active</span>
+                      <span>{subscription?.status === 'trialing' ? 'Free Trial' : 'Active'}</span>
                     </div>
                   )}
                 </div>
@@ -183,11 +183,18 @@ export default function AccountPage() {
                     </p>
                   </div>
                   
-                  {subscription?.current_period_end && (
+                  {subscription?.trial_end && subscription?.status === 'trialing' ? (
+                    <div className="text-right">
+                      <div className="text-sm text-orange-600">Trial ends on</div>
+                      <div className="font-medium text-foreground-black">
+                        {new Date(subscription.trial_end as string).toLocaleDateString()}
+                      </div>
+                    </div>
+                  ) : subscription?.current_period_end && (
                     <div className="text-right">
                       <div className="text-sm text-muted-light">Renews on</div>
                       <div className="font-medium text-foreground-black">
-                       {new Date(subscription.current_period_end as string).toLocaleDateString()}
+                        {new Date(subscription.current_period_end as string).toLocaleDateString()}
                       </div>
                     </div>
                   )}

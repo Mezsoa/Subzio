@@ -1,15 +1,17 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { STRIPE_PLANS, PlanId, isFeatureAllowed } from '@/lib/stripe';
+import { getPlanById, isFeatureAllowed } from '@/lib/stripe';
+import { UsagePlanId } from '@/lib/usageLimits';
 import { authedFetch } from '@/lib/authedFetch';
 
 interface UserSubscription {
   id?: string;
   user_id: string;
-  plan_id: PlanId;
+  plan_id: UsagePlanId;
   status: string;
   current_period_start?: string;
   current_period_end?: string;
+  trial_end?: string;
   canceled_at?: string;
 }
 
@@ -24,7 +26,7 @@ interface SubscriptionContextType {
   subscription: UserSubscription | null;
   usage: UserUsage | null;
   loading: boolean;
-  plan: typeof STRIPE_PLANS[PlanId];
+  plan: ReturnType<typeof getPlanById>;
   isFeatureAllowed: (feature: string) => boolean;
   isLimitReached: (limit: keyof UserUsage) => boolean;
   refreshSubscription: () => Promise<void>;
@@ -40,9 +42,11 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   const fetchSubscription = async () => {
     try {
       setLoading(true);
+      console.log('SubscriptionContext: Starting to fetch subscription data...');
       
       // Check if we're on the client side and user is authenticated
       if (typeof window === 'undefined') {
+        console.log('SubscriptionContext: Server side, skipping fetch');
         setLoading(false);
         return;
       }
@@ -52,19 +56,21 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
         authedFetch('/api/user/usage').catch(() => ({ ok: false }))
       ]);
       
-      if (subRes.ok) {
+      if (subRes.ok && 'json' in subRes) {
         const { subscription: sub } = await subRes.json();
+        console.log('SubscriptionContext: Subscription data received:', sub);
         setSubscription(sub);
       } else {
         // Set default free subscription if API fails
+        console.log('SubscriptionContext: Subscription API failed, setting default free plan');
         setSubscription({
           user_id: 'unknown',
-          plan_id: 'free',
+          plan_id: 'free' as UsagePlanId,
           status: 'active',
         });
       }
       
-      if (usageRes.ok) {
+      if (usageRes.ok && 'json' in usageRes) {
         const { usage: userUsage } = await usageRes.json();
         setUsage(userUsage);
       } else {
@@ -81,7 +87,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       // Set defaults on error
       setSubscription({
         user_id: 'unknown',
-        plan_id: 'free',
+        plan_id: 'free' as UsagePlanId,
         status: 'active',
       });
       setUsage({
@@ -91,6 +97,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
         cancellation_requests: 0,
       });
     } finally {
+      console.log('SubscriptionContext: Finished loading, setting loading to false');
       setLoading(false);
     }
   };
@@ -99,15 +106,17 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     fetchSubscription();
   }, []);
 
-  const currentPlan = subscription ? STRIPE_PLANS[subscription.plan_id] : STRIPE_PLANS.FREE;
+  const currentPlan = subscription ? getPlanById(subscription.plan_id) : getPlanById('free');
   
   const checkFeatureAllowed = (feature: string) => {
     if (!subscription) return false;
-    return isFeatureAllowed(subscription.plan_id, feature);
+    // Allow access to features if subscription is active OR trialing
+    if (subscription.status !== 'active' && subscription.status !== 'trialing') return false;
+    return isFeatureAllowed(subscription.plan_id.toUpperCase() as 'FREE' | 'PRO' | 'BUSINESS', feature);
   };
 
   const checkLimitReached = (limit: keyof UserUsage) => {
-    if (!usage || !currentPlan.limits) return false;
+    if (!usage || !currentPlan?.limits) return false;
     
     const planLimit = currentPlan.limits[limit as keyof typeof currentPlan.limits];
     if (planLimit === -1) return false; // unlimited
@@ -137,7 +146,7 @@ export const useSubscription = () => {
     return {
       subscription: {
         user_id: 'unknown',
-        plan_id: 'free' as const,
+        plan_id: 'free' as UsagePlanId,
         status: 'active',
       },
       usage: {
@@ -147,7 +156,7 @@ export const useSubscription = () => {
         cancellation_requests: 0,
       },
       loading: false,
-      plan: STRIPE_PLANS.FREE,
+      plan: getPlanById('free'),
       isFeatureAllowed: () => false,
       isLimitReached: () => false,
       refreshSubscription: async () => {},
