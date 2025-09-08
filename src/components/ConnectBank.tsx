@@ -6,6 +6,8 @@ import { usePlaidLink } from "react-plaid-link";
 import type { PlaidLinkError } from "react-plaid-link";
 import bubbleArrow from "public/icons/bubbleArrow.png";
 import Image from "next/image";
+import { useErrorNotifications } from "@/contexts/ErrorContext";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
 
 async function fetchLinkToken(): Promise<string> {
   const res = await fetch("/api/plaid/link-token");
@@ -20,13 +22,18 @@ export default function ConnectBank() {
   const [sessionReady, setSessionReady] = useState(false);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
+  const { showError, showSuccess } = useErrorNotifications();
+  const { handleApiError, clearError } = useErrorHandler();
 
   
   useEffect(() => {
     setMounted(true);
     fetchLinkToken()
       .then(setLinkToken)
-      .catch((e) => setError(e.message));
+      .catch((e) => {
+        setError(e.message);
+        handleApiError(e, "Plaid link token creation");
+      });
     (async () => {
       try {
         const { supabaseBrowser } = await import("@/lib/supabaseClient");
@@ -58,11 +65,13 @@ export default function ConnectBank() {
           throw new AuthError(text || "Exchange failed");
         }
         console.log("[Plaid] Exchange completed OK");
+        showSuccess("Bank account connected successfully!", "Connection Successful");
         // Navigate to dashboard after successful link
         router.replace("/dashboard");
       } catch (e) {
         const msg = e instanceof Error ? e.message : "Exchange failed";
         setError(msg);
+        handleApiError(e, "Plaid bank connection");
       }
     },
     [router]
@@ -72,7 +81,10 @@ export default function ConnectBank() {
     token: linkToken || "",
     onSuccess,
     onExit: (err: PlaidLinkError | null) => {
-      if (err) setError(err.error_message || "Exited Plaid Link");
+      if (err) {
+        setError(err.error_message || "Exited Plaid Link");
+        handleApiError(new Error(err.error_message || "Exited Plaid Link"), "Plaid Link exit");
+      }
     },
   } as const;
 

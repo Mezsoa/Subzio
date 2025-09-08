@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import SubscriptionsCard from "@/components/SubscriptionsCard";
 import { useABVariant } from "@/lib/ab";
+import { useErrorNotifications } from "@/contexts/ErrorContext";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
 
 function useQuery() {
   const [query, setQuery] = useState<Record<string, string>>({});
@@ -22,6 +24,8 @@ export default function Hero() {
   const [errorMsg, setErrorMsg] = useState<string>("");
   const query = useQuery();
   const ab = useABVariant();
+  const { showError, showSuccess } = useErrorNotifications();
+  const { handleApiError, clearError } = useErrorHandler();
 
   const headline = useMemo(() => {
     return query.h || "Stop paying for subscriptions you don’t use";
@@ -42,12 +46,16 @@ export default function Hero() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErrorMsg("");
+    clearError();
+    
     const isValid = /[^@\s]+@[^@\s]+\.[^@\s]+/.test(email);
     if (!isValid) {
       setStatus("error");
-      setErrorMsg("Please enter a valid email.");
+      setErrorMsg("Please enter a valid email address.");
+      showError("Please enter a valid email address.", "Invalid Email");
       return;
     }
+    
     setStatus("loading");
     try {
       const res = await fetch("/api/waitlist", {
@@ -57,16 +65,20 @@ export default function Hero() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Something went wrong");
+      
       setStatus("success");
       setEmail("");
+      showSuccess("You've been added to our waitlist! We'll notify you when we launch.", "Welcome to KillSub!");
+      
       if (typeof window !== "undefined" && window.gtag) {
         window.gtag('event', 'waitlist_submit_success', {
           form_location: 'hero'
         });
       }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to submit.";
       setStatus("error");
+      handleApiError(err, "Waitlist signup");
+      const message = err instanceof Error ? err.message : "Failed to submit.";
       setErrorMsg(message);
     }
   }
