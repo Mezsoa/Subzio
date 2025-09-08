@@ -18,6 +18,7 @@
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.47.10",
     "@types/pdfkit": "^0.17.3",
+    "@vercel/analytics": "^1.5.0",
     "embla-carousel-auto-scroll": "8.6.0",
     "embla-carousel-react": "8.6.0",
     "framer-motion": "^12.23.12",

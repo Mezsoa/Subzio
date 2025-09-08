@@ -6,6 +6,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config as fontawesomeConfig } from "@fortawesome/fontawesome-svg-core";
+import { Analytics } from "@vercel/analytics/next"
 fontawesomeConfig.autoAddCss = false;
 
 const geistSans = Geist({
@@ -32,8 +33,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+          <Analytics />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-P6J457HR70"
           strategy="afterInteractive"
