@@ -52,15 +52,22 @@ export default function AIInsights({ subscriptions = [], inline = false }: AIIns
 
   const generateInsights = async () => {
     try {
-      const response = await fetch('/api/insights', {
+      console.log('AIInsights: Generating insights with subscriptions:', subscriptions);
+      const { authedFetch } = await import('@/lib/authedFetch');
+      const response = await authedFetch('/api/insights', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ subscriptions }),
       });
 
+      console.log('AIInsights: Response status:', response.status);
       if (response.ok) {
         const data = await response.json();
+        console.log('AIInsights: Response data:', data);
         setInsights(data.insights || []);
+      } else {
+        const errorData = await response.json();
+        console.error('AIInsights: API error:', errorData);
       }
     } catch (error) {
       console.error('Error generating insights:', error);

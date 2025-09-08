@@ -65,7 +65,8 @@ export default function AdvancedAnalytics({ subscriptions = [], transactions = [
   const generateAnalytics = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/analytics', {
+      const { authedFetch } = await import('@/lib/authedFetch');
+      const response = await authedFetch('/api/analytics', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 

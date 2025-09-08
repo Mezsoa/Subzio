@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabaseServer';
 import { isFeatureAllowed } from '@/lib/stripe';
+import { getAuthenticatedUser } from '@/lib/authUtils';
 
 interface Subscription {
   name: string;
@@ -26,14 +27,13 @@ interface Insight {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await supabaseServer();
-    
-    // Get the authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { user, error: authError } = await getAuthenticatedUser(request);
     
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const supabase = await supabaseServer();
 
     // Check if user has access to AI insights
     const { data: subscription } = await supabase
@@ -54,7 +54,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { subscriptions } = body;
 
+    console.log('Insights API: Received subscriptions:', subscriptions);
+
     if (!subscriptions || !Array.isArray(subscriptions)) {
+      console.log('Insights API: Invalid subscriptions data');
       return NextResponse.json(
         { error: 'Invalid subscriptions data' },
         { status: 400 }
@@ -63,6 +66,7 @@ export async function POST(request: NextRequest) {
 
     // Generate AI insights
     const insights = await generateInsights(subscriptions);
+    console.log('Insights API: Generated insights:', insights);
 
     return NextResponse.json({ insights });
   } catch (error) {

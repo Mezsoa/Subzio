@@ -34,7 +34,8 @@ export default function UsageLimitsChecker({
 
   const fetchUsage = async () => {
     try {
-      const response = await fetch('/api/usage');
+      const { authedFetch } = await import('@/lib/authedFetch');
+      const response = await authedFetch('/api/usage');
       if (response.ok) {
         const data = await response.json();
         setUsage(data.usage);

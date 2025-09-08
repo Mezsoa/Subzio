@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabaseServer';
+import { getAuthenticatedUser } from '@/lib/authUtils';
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await supabaseServer();
-    
-    // Get the authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { user, error: authError } = await getAuthenticatedUser(request);
     
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const supabase = await supabaseServer();
 
     // Check if user has Business plan
     const { data: subscription } = await supabase
@@ -149,7 +149,7 @@ function generateAdvancedAnalytics(subscriptions: any[], transactions: any[], ti
     const totalExpensive = expensiveSubscriptions.reduce((sum, sub) => {
       const monthlyAmount = (sub.lastAmount || 0) * (
         sub.cadence === 'Weekly' ? 4.33 : 
-        sub.cadence === 'Daily' : 30 : 1
+        sub.cadence === 'Daily' ? 30 : 1
       );
       return sum + monthlyAmount;
     }, 0);

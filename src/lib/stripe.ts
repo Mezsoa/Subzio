@@ -115,8 +115,8 @@ export function formatPrice(price: number): string {
   }).format(price / 100);
 }
 
-export function isFeatureAllowed(userPlan: PlanId, feature: string): boolean {
-  // Define feature access by plan
+export function isFeatureAllowed(userPlan: string, feature: string): boolean {
+  // Define feature access by plan (using lowercase plan IDs)
   const featureAccess = {
     unlimited_accounts: ['pro', 'business'],
     unlimited_subscriptions: ['pro', 'business'],
@@ -128,5 +128,5 @@ export function isFeatureAllowed(userPlan: PlanId, feature: string): boolean {
     cancel_service: ['business'],
   };
   
-  return featureAccess[feature as keyof typeof featureAccess]?.includes(userPlan) || false;
+  return featureAccess[feature as keyof typeof featureAccess]?.includes(userPlan.toLowerCase()) || false;
 }
