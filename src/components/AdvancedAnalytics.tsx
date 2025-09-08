@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
-import { isFeatureAllowed } from '@/lib/stripe';
 import { 
   BarChart3, 
   TrendingUp, 
@@ -181,7 +180,7 @@ export default function AdvancedAnalytics({ subscriptions = [], transactions = [
             <span className="font-medium text-foreground-black">Monthly Trend</span>
           </div>
           <div className="text-2xl font-bold text-foreground-black">
-            {analyticsData?.spending_trends.monthly.length > 0 ? 
+            {analyticsData?.spending_trends.monthly?.length && analyticsData.spending_trends.monthly.length > 0 ? 
               `${analyticsData.spending_trends.monthly[analyticsData.spending_trends.monthly.length - 1].change > 0 ? '+' : ''}${analyticsData.spending_trends.monthly[analyticsData.spending_trends.monthly.length - 1].change.toFixed(1)}%`
               : 'N/A'
             }

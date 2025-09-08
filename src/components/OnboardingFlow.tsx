@@ -1,7 +1,6 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSubscription } from '@/contexts/SubscriptionContext';
 import { 
   ArrowRight, 
   ArrowLeft, 
@@ -9,7 +8,6 @@ import {
   Zap, 
   Shield, 
   TrendingUp,
-  CreditCard,
   Bell,
   Target
 } from 'lucide-react';
@@ -31,12 +29,12 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps = {})
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [userPreferences, setUserPreferences] = useState({
-    notifications: true,
-    weeklyReports: true,
+    emailNotifications: true,
+    smsNotifications: true,
     savingsGoal: 100,
+    weeklyReports: true,
   });
   const router = useRouter();
-  const { plan } = useSubscription();
 
   const steps: OnboardingStep[] = [
     {
@@ -75,7 +73,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps = {})
     },
     {
       id: 'complete',
-      title: 'You\'re All Set!',
+      title: 'You&apos;re All Set!',
       description: 'Start saving money with KillSub',
       icon: <Check className="w-8 h-8 text-green-500" />,
       component: <CompleteStep />
@@ -245,7 +243,7 @@ function WelcomeStep() {
       </div>
       
       <p className="text-muted-light">
-        Let's get you set up in just a few quick steps. This will take less than 3 minutes.
+        Let&apos;s get you set up in just a few quick steps. This will take less than 3 minutes.
       </p>
     </div>
   );
@@ -303,9 +301,16 @@ function ConnectBankStep() {
   );
 }
 
+interface UserPreferences {
+  savingsGoal: number;
+  emailNotifications: boolean;
+  smsNotifications: boolean;
+  weeklyReports: boolean;
+}
+
 interface PreferencesStepProps {
-  preferences: any;
-  setPreferences: (prefs: any) => void;
+  preferences: UserPreferences;
+  setPreferences: (prefs: UserPreferences) => void;
 }
 
 function PreferencesStep({ preferences, setPreferences }: PreferencesStepProps) {
@@ -335,7 +340,7 @@ function PreferencesStep({ preferences, setPreferences }: PreferencesStepProps) 
           </div>
         </div>
         <p className="text-sm text-muted-light mt-1">
-          We'll help you identify subscriptions to cancel to reach this goal
+          We&apos;ll help you identify subscriptions to cancel to reach this goal
         </p>
       </div>
 
@@ -375,10 +380,10 @@ function NotificationsStep({ preferences, setPreferences }: PreferencesStepProps
           <label className="relative inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
-              checked={preferences.notifications}
+              checked={preferences.emailNotifications}
               onChange={(e) => setPreferences({
                 ...preferences,
-                notifications: e.target.checked
+                emailNotifications: e.target.checked
               })}
               className="sr-only peer"
             />
@@ -388,7 +393,7 @@ function NotificationsStep({ preferences, setPreferences }: PreferencesStepProps
       </div>
 
       <div className="bg-background-light-mid/50 rounded-lg p-4">
-        <h4 className="font-medium text-foreground-black mb-2">What you'll get:</h4>
+        <h4 className="font-medium text-foreground-black mb-2">What you&apos;ll get:</h4>
         <ul className="space-y-1 text-sm text-muted-light">
           <li className="flex items-center space-x-2">
             <Check className="w-3 h-3 text-green-500" />
@@ -424,7 +429,7 @@ function CompleteStep() {
           Welcome to KillSub! 🎉
         </h3>
         <p className="text-muted-light">
-          You're now ready to start saving money by managing your subscriptions intelligently.
+          You&apos;re now ready to start saving money by managing your subscriptions intelligently.
         </p>
       </div>
 

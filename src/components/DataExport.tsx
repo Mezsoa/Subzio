@@ -8,7 +8,6 @@ import {
   Table, 
   Calendar, 
   DollarSign, 
-  Filter,
   CheckCircle,
   AlertCircle
 } from 'lucide-react';

@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
       .insert({
         user_id: user.id,
         subscription_name: subscriptionName,
-        subscription_details,
+        subscription_details: subscriptionDetails,
         status: 'pending',
         urgency,
         notes,

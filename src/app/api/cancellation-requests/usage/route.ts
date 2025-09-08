@@ -3,7 +3,7 @@ import { supabaseServer } from '@/lib/supabaseServer';
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = supabaseServer();
+    const supabase = await supabaseServer();
     
     // Get the authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser();

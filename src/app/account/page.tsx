@@ -167,7 +167,7 @@ export default function AccountPage() {
                     <h2 className="text-xl font-semibold text-foreground-black">Current Plan</h2>
                   </div>
                   
-                  {plan.id !== 'free' && (subscription?.status === 'active' || subscription?.status === 'trialing') && (
+                  {plan?.id !== 'free' && (subscription?.status === 'active' || subscription?.status === 'trialing') && (
                     <div className="flex items-center space-x-2 text-green-600 text-sm">
                       <Check className="w-4 h-4" />
                       <span>{subscription?.status === 'trialing' ? 'Free Trial' : 'Active'}</span>
@@ -177,9 +177,9 @@ export default function AccountPage() {
 
                 <div className="flex items-center justify-between p-4 bg-background-light-mid/50 rounded-lg mb-4">
                   <div>
-                    <h3 className="text-lg font-semibold text-foreground-black">{plan.name}</h3>
+                    <h3 className="text-lg font-semibold text-foreground-black">{plan?.name}</h3>
                     <p className="text-muted-light">
-                      {plan.price === 0 ? 'Free forever' : `${formatPrice(plan.price)}/month`}
+                      {plan?.price === 0 ? 'Free forever' : `${formatPrice(plan?.price || 0)}/month`}
                     </p>
                   </div>
                   
@@ -204,7 +204,7 @@ export default function AccountPage() {
                   <div>
                     <h4 className="font-medium text-foreground-black mb-2">Plan Features</h4>
                     <ul className="space-y-1">
-                      {plan.features.slice(0, 3).map((feature, i) => (
+                      {plan?.features?.slice(0, 3).map((feature, i) => (
                         <li key={i} className="flex items-center text-sm text-muted-light">
                           <Check className="w-3 h-3 text-green-500 mr-2" />
                           {feature}
@@ -220,14 +220,14 @@ export default function AccountPage() {
                         <span className="text-muted-light">Bank Accounts:</span>
                         <span className="text-foreground-black">
                           {usage?.bank_accounts_connected || 0}
-                          {plan.limits?.bankAccounts !== -1 && ` / ${plan.limits?.bankAccounts || 0}`}
+                          {plan?.limits?.bankAccounts !== -1 && ` / ${plan?.limits?.bankAccounts || 0}`}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-light">Subscriptions:</span>
                         <span className="text-foreground-black">
                           {usage?.subscriptions_detected || 0}
-                          {plan.limits?.subscriptions !== -1 && ` / ${plan.limits?.subscriptions || 0}`}
+                          {plan?.limits?.subscriptions !== -1 && ` / ${plan?.limits?.subscriptions || 0}`}
                         </span>
                       </div>
                     </div>
@@ -236,7 +236,7 @@ export default function AccountPage() {
 
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-3">
-                  {plan.id === 'free' && (
+                  {plan?.id === 'free' && (
                     <>
                       <button
                         onClick={() => handleUpgrade('pro')}
@@ -255,7 +255,7 @@ export default function AccountPage() {
                     </>
                   )}
                   
-                  {plan.id !== 'free' && subscription?.status === 'active' && (
+                  {plan?.id !== 'free' && subscription?.status === 'active' && (
                     <button
                       onClick={handleCancelSubscription}
                       disabled={cancelLoading}
@@ -268,7 +268,7 @@ export default function AccountPage() {
               </section>
 
               {/* Billing History */}
-              {plan.id !== 'free' && (
+              {plan?.id !== 'free' && (
                 <section className="bg-gradient-to-br from-card-bg-start-light to-card-bg-end-light border border-border-light rounded-xl p-6 shadow-sm">
                   <div className="flex items-center space-x-3 mb-6">
                     <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { isFeatureAllowed } from '@/lib/stripe';
 import { 
@@ -29,8 +29,20 @@ interface Insight {
   category?: string;
 }
 
+interface Subscription {
+  name: string;
+  cadence?: string;
+  lastAmount?: number;
+  lastDate?: string;
+  count?: number;
+  confidence?: number;
+  reasons?: string[];
+  cancelUrl?: string;
+  providerEmoji?: string;
+}
+
 interface AIInsightsProps {
-  subscriptions?: any[];
+  subscriptions?: Subscription[];
   inline?: boolean;
 }
 
@@ -42,15 +54,7 @@ export default function AIInsights({ subscriptions = [], inline = false }: AIIns
 
   const canUseAIInsights = isFeatureAllowed(plan?.id || 'free', 'advanced_insights');
 
-  useEffect(() => {
-    if (canUseAIInsights && subscriptions.length > 0) {
-      generateInsights();
-    } else {
-      setLoading(false);
-    }
-  }, [canUseAIInsights, subscriptions]);
-
-  const generateInsights = async () => {
+  const generateInsights = useCallback(async () => {
     try {
       console.log('AIInsights: Generating insights with subscriptions:', subscriptions);
       const { authedFetch } = await import('@/lib/authedFetch');
@@ -74,7 +78,15 @@ export default function AIInsights({ subscriptions = [], inline = false }: AIIns
     } finally {
       setLoading(false);
     }
-  };
+  }, [subscriptions]);
+
+  useEffect(() => {
+    if (canUseAIInsights && subscriptions.length > 0) {
+      generateInsights();
+    } else {
+      setLoading(false);
+    }
+  }, [canUseAIInsights, subscriptions, generateInsights]);
 
   if (!canUseAIInsights) {
     return (

@@ -64,7 +64,7 @@ function generateAdvancedAnalytics(subscriptions: any[], transactions: any[], ti
     const monthAmount = baseAmount * (1 + variation);
     
     // Calculate change from previous month
-    const prevAmount = monthlyTrends.length > 0 ? monthlyTrends[monthlyTrends.length - 1].amount : monthAmount;
+    const prevAmount: number = monthlyTrends.length > 0 ? monthlyTrends[monthlyTrends.length - 1].amount : monthAmount;
     const change = prevAmount > 0 ? ((monthAmount - prevAmount) / prevAmount) * 100 : 0;
     
     monthlyTrends.push({
@@ -117,8 +117,8 @@ function generateAdvancedAnalytics(subscriptions: any[], transactions: any[], ti
 
   const frequencyDistribution = Object.entries(frequencyMap).map(([frequency, data]) => ({
     frequency,
-    count: data.count,
-    total_amount: data.totalAmount
+    count: (data as { count: number; totalAmount: number }).count,
+    total_amount: (data as { count: number; totalAmount: number }).totalAmount
   }));
 
   // Current monthly spending
@@ -260,7 +260,7 @@ function categorizeSubscriptions(subscriptions: any[]) {
 
 function generatePriceChanges(subscriptions: any[]) {
   // Simulate some price changes for demo purposes
-  const priceChanges = [];
+  const priceChanges: Array<{ name: string; oldPrice: number; newPrice: number; changePercent: number }> = [];
   const changedSubs = subscriptions.slice(0, Math.min(3, subscriptions.length));
   
   changedSubs.forEach(sub => {
@@ -271,9 +271,9 @@ function generatePriceChanges(subscriptions: any[]) {
     if (Math.abs(changePercent) > 0.05) { // Only show changes > 5%
       priceChanges.push({
         name: sub.name,
-        old_price: oldPrice,
-        new_price: newPrice,
-        change: newPrice - oldPrice
+        oldPrice: oldPrice,
+        newPrice: newPrice,
+        changePercent: changePercent * 100
       });
     }
   });

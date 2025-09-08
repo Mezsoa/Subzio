@@ -25,8 +25,8 @@ export default function CancelForMeButton({
   });
 
   const canUseService = isFeatureAllowed('cancel_service');
-  const remainingRequests = plan.limits?.cancelService ? 
-    Math.max(0, plan.limits.cancelService - (usage?.cancellation_requests || 0)) : 0;
+  const remainingRequests = (plan?.limits as any)?.cancelService ? 
+    Math.max(0, (plan?.limits as any)?.cancelService - (usage?.cancellation_requests || 0)) : 0;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -199,8 +199,8 @@ export default function CancelForMeButton({
                           <p className="font-medium mb-1">How it works:</p>
                           <ul className="text-xs space-y-1">
                             <li>• Our team will contact the service provider on your behalf</li>
-                            <li>• We'll handle all the cancellation steps and requirements</li>
-                            <li>• You'll receive updates via email throughout the process</li>
+                            <li>• We&apos;ll handle all the cancellation steps and requirements</li>
+                            <li>• You&apos;ll receive updates via email throughout the process</li>
                             <li>• Most cancellations complete within 24 hours</li>
                           </ul>
                         </div>

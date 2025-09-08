@@ -14,6 +14,7 @@ export const ANALYTICS_EVENTS = {
   USER_SIGNED_UP: 'user_signed_up',
   USER_SIGNED_IN: 'user_signed_in',
   USER_SIGNED_OUT: 'user_signed_out',
+  USER_IDENTIFIED: 'user_identified',
   
   // Onboarding Events
   ONBOARDING_STARTED: 'onboarding_started',
@@ -48,6 +49,9 @@ export const ANALYTICS_EVENTS = {
   DASHBOARD_VIEWED: 'dashboard_viewed',
   DATA_EXPORTED: 'data_exported',
   SUPPORT_CONTACTED: 'support_contacted',
+  PAGE_VIEWED: 'page_viewed',
+  CONVERSION: 'conversion',
+  FUNNEL_STEP: 'funnel_step',
 } as const;
 
 type EventType = typeof ANALYTICS_EVENTS[keyof typeof ANALYTICS_EVENTS];
@@ -112,16 +116,16 @@ class Analytics {
 
   identify(userId: string, traits?: Record<string, any>) {
     this.userId = userId;
-    this.track('user_identified', { userId, ...traits });
+    this.track(ANALYTICS_EVENTS.USER_IDENTIFIED, { userId, ...traits });
   }
 
   page(name: string, properties?: Record<string, any>) {
-    this.track('page_viewed', { page: name, ...properties });
+    this.track(ANALYTICS_EVENTS.PAGE_VIEWED, { page: name, ...properties });
   }
 
   // Conversion tracking
   trackConversion(type: 'signup' | 'subscription' | 'cancellation', value?: number, properties?: Record<string, any>) {
-    this.track('conversion', {
+    this.track(ANALYTICS_EVENTS.CONVERSION, {
       conversion_type: type,
       value,
       ...properties,
@@ -140,7 +144,7 @@ class Analytics {
 
   // Funnel tracking
   trackFunnelStep(funnel: string, step: string, properties?: Record<string, any>) {
-    this.track('funnel_step', {
+    this.track(ANALYTICS_EVENTS.FUNNEL_STEP, {
       funnel,
       step,
       ...properties,
@@ -160,7 +164,12 @@ export function getAnalytics(): Analytics {
       page: () => {},
       trackConversion: () => {},
       trackFunnelStep: () => {},
-    } as Analytics;
+      userId: null,
+      sessionId: '',
+      generateSessionId: () => '',
+      initializeUserId: () => {},
+      sendEvent: () => {},
+    } as unknown as Analytics;
   }
 
   if (!analyticsInstance) {

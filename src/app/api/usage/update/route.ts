@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch current usage' }, { status: 500 });
     }
 
-    const currentValue = currentUsage?.[columnName] || 0;
+    const currentValue = (currentUsage as any)?.[columnName] || 0;
     const newValue = currentValue + increment;
 
     // Update usage

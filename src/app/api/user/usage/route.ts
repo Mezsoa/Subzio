@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
       'subscription_detected': 'subscriptions_detected',
       'alert_created': 'alerts_created',
       'cancellation_requested': 'cancellation_requests',
-    }[action];
+    }[action as string];
 
     if (!updateField) {
       return new Response(JSON.stringify({ error: "Invalid action" }), {

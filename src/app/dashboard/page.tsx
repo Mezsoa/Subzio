@@ -28,7 +28,7 @@ interface Account {
         currencyCode?: string;
       };
     };
-    available?: {
+    availableAmount?: {
       amount?: {
         value?: {
           unscaledValue?: string;
@@ -83,7 +83,7 @@ export default function DashboardPage() {
   // Helper function to calculate balance from BankID/Tink structure
   const calculateBalance = (account: Account): number => {
     // Try BankID/Tink structure first
-    const bankIdBalance = account.balances?.available?.amount?.value;
+    const bankIdBalance = account.balances?.availableAmount?.amount?.value;
     if (bankIdBalance?.unscaledValue && bankIdBalance?.scale !== undefined) {
       const unscaled = parseFloat(bankIdBalance.unscaledValue);
       const scale = parseInt(bankIdBalance.scale);
@@ -963,7 +963,7 @@ export default function DashboardPage() {
                               {(() => {
                                 const balance = calculateBalance(account);
                                 const currency =
-                                  account.balances?.available?.amount
+                                  account.balances?.availableAmount?.amount
                                     ?.currencyCode || "SEK";
                                 return `${balance.toLocaleString("sv-SE", {
                                   style: "currency",

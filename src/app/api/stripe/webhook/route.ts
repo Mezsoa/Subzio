@@ -43,9 +43,9 @@ export async function POST(req: NextRequest) {
         // Create or update user subscription with proper dates from Stripe
         console.log('💾 Inserting subscription into database...');
         console.log('🔍 Raw Stripe subscription data:', {
-          current_period_start: subscription.current_period_start,
-          current_period_end: subscription.current_period_end,
-          trial_end: subscription.trial_end
+          current_period_start: (subscription as any).current_period_start,
+          current_period_end: (subscription as any).current_period_end,
+          trial_end: (subscription as any).trial_end
         });
         
         const subscriptionData = {
@@ -54,14 +54,14 @@ export async function POST(req: NextRequest) {
           stripe_subscription_id: session.subscription,
           plan_id: planId,
           status: subscriptionStatus,
-          current_period_start: subscription.current_period_start ? 
-            new Date(subscription.current_period_start * 1000).toISOString() : 
+          current_period_start: (subscription as any).current_period_start ? 
+            new Date((subscription as any).current_period_start * 1000).toISOString() : 
             new Date().toISOString(),
-          current_period_end: subscription.current_period_end ? 
-            new Date(subscription.current_period_end * 1000).toISOString() : 
+          current_period_end: (subscription as any).current_period_end ? 
+            new Date((subscription as any).current_period_end * 1000).toISOString() : 
             null,
-          trial_end: subscription.trial_end ? 
-            new Date(subscription.trial_end * 1000).toISOString() : 
+          trial_end: (subscription as any).trial_end ? 
+            new Date((subscription as any).trial_end * 1000).toISOString() : 
             null,
         };
         console.log('📊 Subscription data to insert:', subscriptionData);
@@ -76,8 +76,8 @@ export async function POST(req: NextRequest) {
         console.log('✅ Subscription saved to database:', data);
         
         console.log(`Subscription ${subscriptionStatus} for user:`, userId, {
-          trial_end: subscription.trial_end ? new Date(subscription.trial_end * 1000) : null,
-          current_period_end: new Date(subscription.current_period_end * 1000)
+          trial_end: (subscription as any).trial_end ? new Date((subscription as any).trial_end * 1000) : null,
+          current_period_end: new Date((subscription as any).current_period_end * 1000)
         });
         break;
       }
@@ -89,8 +89,8 @@ export async function POST(req: NextRequest) {
         if (userId) {
           await supabase.from('user_subscriptions').update({
             status: subscription.status,
-            current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+            current_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
+            current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
           }).eq('stripe_subscription_id', subscription.id);
           
           console.log('Subscription updated for user:', userId);
@@ -115,18 +115,18 @@ export async function POST(req: NextRequest) {
 
       case 'invoice.payment_succeeded': {
         const invoice = event.data.object;
-        if (invoice.subscription) {
+        if ((invoice as any).subscription) {
           // Log successful payment
-          console.log('Payment succeeded for subscription:', invoice.subscription);
+          console.log('Payment succeeded for subscription:', (invoice as any).subscription);
         }
         break;
       }
 
       case 'invoice.payment_failed': {
         const invoice = event.data.object;
-        if (invoice.subscription) {
+        if ((invoice as any).subscription) {
           // Handle failed payment - maybe send email notification
-          console.log('Payment failed for subscription:', invoice.subscription);
+          console.log('Payment failed for subscription:', (invoice as any).subscription);
         }
         break;
       }

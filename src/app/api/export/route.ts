@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
         planId
       });
       
-      return new NextResponse(pdfBuffer, {
+      return new NextResponse(pdfBuffer as BodyInit, {
         headers: {
           'Content-Type': 'application/pdf',
           'Content-Disposition': `attachment; filename="subscriptions_report_${new Date().toISOString().split('T')[0]}.pdf"`,

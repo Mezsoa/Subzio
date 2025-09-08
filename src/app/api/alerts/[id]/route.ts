@@ -3,10 +3,10 @@ import { supabaseServer } from '@/lib/supabaseServer';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = supabaseServer();
+    const supabase = await supabaseServer();
     
     // Get the authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -16,7 +16,7 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const alertId = params.id;
+    const { id: alertId } = await params;
 
     // Update the alert (only if it belongs to the user)
     const { data: updatedAlert, error } = await supabase
@@ -45,10 +45,10 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = supabaseServer();
+    const supabase = await supabaseServer();
     
     // Get the authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -57,7 +57,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const alertId = params.id;
+    const { id: alertId } = await params;
 
     // Delete the alert (only if it belongs to the user)
     const { error } = await supabase
