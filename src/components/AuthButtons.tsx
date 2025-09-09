@@ -6,21 +6,29 @@ import { faGoogle } from "@fortawesome/free-brands-svg-icons";
 
 export default function AuthButtons() {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string>("");
 
   async function signInWithGoogle() {
     setLoading(true);
-    const supabase = supabaseBrowser();
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo:
-          typeof window !== "undefined"
-            ? `${window.location.origin}/auth/callback?next=/dashboard`
-            : undefined,
-        queryParams: { prompt: "select_account" },
-      },
-    });
-    setLoading(false);
+    setError("");
+    
+    try {
+      const supabase = supabaseBrowser();
+      await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo:
+            typeof window !== "undefined"
+              ? `${window.location.origin}/auth/callback?next=/dashboard`
+              : undefined,
+          queryParams: { prompt: "select_account" },
+        },
+      });
+    } catch (err) {
+      setError("Access restricted. Only authorized users can sign in.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -43,6 +51,12 @@ export default function AuthButtons() {
           )}
         </button>
       </div>
+      
+      {error && (
+        <p className="mt-3 text-sm text-red-500 text-center">
+          {error}
+        </p>
+      )}
     </section>
   );
 }

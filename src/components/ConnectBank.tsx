@@ -4,8 +4,6 @@ import { useRouter } from "next/navigation";
 import { authedFetch, AuthError } from "@/lib/authedFetch";
 import { usePlaidLink } from "react-plaid-link";
 import type { PlaidLinkError } from "react-plaid-link";
-import bubbleArrow from "public/icons/bubbleArrow.png";
-import Image from "next/image";
 import { useErrorNotifications } from "@/contexts/ErrorContext";
 import { useErrorHandler } from "@/hooks/useErrorHandler";
 
@@ -97,83 +95,131 @@ export default function ConnectBank() {
   );
 
   return (
-    <div className="flex flex-col items-end gap-1 w-[350px]">
-      <button
-        onClick={() => open()}
-        disabled={!shouldInitialize || !ready}
-        className="px-2 py-2 rounded-md text-sm bg-gradient-to-r from-black/40 via-black/20 to-white/70 text-foreground-black shadow w-1/2 hover:brightness-110 hover:bg-black/50 hover:text-white transition-all duration-500 disabled:opacity-50 cursor-pointer w-[150px]">
-        {!shouldInitialize ? (
-          "Loading..."
-        ) : (
-          <span className="flex items-center gap-1">
-            Connect
-            <Image
-              src={bubbleArrow}
-              alt="→"
-              width={12}
-              height={12}
-              className="inline"
-            />
-            Plaid
-          </span>
-        )}
-      </button>
-      <button
-        onClick={async () => {
-          try {
-            // Pass Supabase session token as Bearer to help API identify user
-            const { supabaseBrowser } = await import("@/lib/supabaseClient");
-            const sb = supabaseBrowser();
-            const {
-              data: { session },
-            } = await sb.auth.getSession();
-            if (!session) {
-              setError("Please sign in again, then retry!");
-              return;
+    <div className="w-full max-w-md mx-auto">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <h3 className="text-lg font-medium text-gray-900 mb-2">Connect Your Bank</h3>
+        <p className="text-sm text-gray-600">Choose your preferred connection method</p>
+      </div>
+
+      {/* Connection Options */}
+      <div className="space-y-3">
+        {/* BankID Option */}
+        <button
+          onClick={async () => {
+            try {
+              const { supabaseBrowser } = await import("@/lib/supabaseClient");
+              const sb = supabaseBrowser();
+              const { data: { session } } = await sb.auth.getSession();
+              if (!session) {
+                setError("Please sign in again, then retry!");
+                return;
+              }
+              const res = await authedFetch("/api/bankid/link");
+              if (!res.ok) {
+                let message = "Failed to start BankID";
+                const ct = res.headers.get("content-type") || "";
+                try {
+                  if (ct.includes("application/json")) {
+                    const data = await res.json();
+                    const detail = (data && (data.error || JSON.stringify(data))) || "";
+                    if (detail) message = `${message}: ${detail}`;
+                  } else {
+                    const text = await res.clone().text();
+                    if (text) message = `${message}: ${text}`;
+                  }
+                } catch {}
+                throw new Error(message);
+              }
+              const { url } = await res.json();
+              window.location.href = url;
+            } catch (e) {
+              const msg = e instanceof Error ? e.message : "Failed to start BankID";
+              setError(msg);
+              handleApiError(e, "BankID connection");
             }
-            const res = await authedFetch("/api/bankid/link");
-            if (!res.ok) {
-              let message = "Failed to start BankID";
-              const ct = res.headers.get("content-type") || "";
-              try {
-                if (ct.includes("application/json")) {
-                  const data = await res.json();
-                  const detail =
-                    (data && (data.error || JSON.stringify(data))) || "";
-                  if (detail) message = `${message}: ${detail}`;
-                } else {
-                  const text = await res.clone().text();
-                  if (text) message = `${message}: ${text}`;
-                }
-              } catch {}
-              throw new Error(message);
-            }
-            const { url } = await res.json();
-            window.location.href = url;
-          } catch (e) {
-            const msg =
-              e instanceof Error ? e.message : "Failed to start BankID";
-            setError(msg);
-          }
-        }}
-        className="px-2 py-2 rounded-md text-sm bg-gradient-to-r from-black/40 via-black/20 to-white/70 text-foreground-black shadow w-1/2 hover:brightness-110 hover:bg-black/50 hover:text-white transition-all duration-500 disabled:opacity-50 cursor-pointer w-[150px]">
-        {sessionReady && !shouldInitialize ? (
-          "Loading..."
-        ) : (
-          <span className="flex items-center gap-1">
-            Connect
-            <Image
-              src={bubbleArrow}
-              alt="→"
-              width={12}
-              height={12}
-              className="inline"
-            />
-            BankID
-          </span>
-        )}
-      </button>
-      {error && <p className="text-sm text-red-400">{error}</p>}
+          }}
+          disabled={!sessionReady}
+          className="w-full group relative overflow-hidden bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 hover:shadow-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="text-left">
+                <div className="font-medium text-gray-900">BankID</div>
+                <div className="text-sm text-gray-500">Swedish bank connection</div>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">Recommended</span>
+              <svg className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </div>
+        </button>
+
+        {/* Plaid Option */}
+        <button
+          onClick={() => open()}
+          disabled={!shouldInitialize || !ready}
+          className="w-full group relative overflow-hidden bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 hover:shadow-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+              </div>
+              <div className="text-left">
+                <div className="font-medium text-gray-900">Plaid</div>
+                <div className="text-sm text-gray-500">International bank connection</div>
+              </div>
+            </div>
+            <svg className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </button>
+      </div>
+
+      {/* Loading States */}
+      {(!shouldInitialize || !sessionReady) && (
+        <div className="mt-4 text-center">
+          <div className="inline-flex items-center space-x-2 text-sm text-gray-500">
+            <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+            <span>Initializing connections...</span>
+          </div>
+        </div>
+      )}
+
+      {/* Error Display */}
+      {error && (
+        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <div className="flex items-start space-x-2">
+            <svg className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-sm text-red-700">{error}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Security Notice */}
+      <div className="mt-6 p-3 bg-gray-50 rounded-lg">
+        <div className="flex items-start space-x-2">
+          <svg className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+          <div className="text-xs text-gray-600">
+            <p className="font-medium mb-1">Bank-level security</p>
+            <p>Your data is encrypted and never stored permanently. Read-only access only.</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

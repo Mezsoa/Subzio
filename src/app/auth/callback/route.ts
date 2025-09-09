@@ -40,8 +40,22 @@ export async function GET(req: NextRequest) {
       },
     });
     try {
-      await supabase.auth.exchangeCodeForSession(code);
-    } catch {
+      const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+      
+      // Check if the authenticated user's email is authorized
+      if (data.user && data.user.email?.toLowerCase() !== "johnmessoa@gmail.com") {
+        // Sign out unauthorized user and redirect to signin with error
+        await supabase.auth.signOut();
+        const errorResponse = new Response(null, { status: 302 });
+        errorResponse.headers.set("Location", "/auth/signin?error=unauthorized");
+        return errorResponse;
+      }
+      
+      if (error) {
+        console.error("Auth error:", error);
+      }
+    } catch (error) {
+      console.error("Session exchange error:", error);
       // ignore; redirect proceeds regardless
     }
   }

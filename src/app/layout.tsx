@@ -9,6 +9,8 @@ import "./globals.css";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config as fontawesomeConfig } from "@fortawesome/fontawesome-svg-core";
 import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
+
 fontawesomeConfig.autoAddCss = false;
 
 const geistSans = Geist({
@@ -54,6 +56,7 @@ export default function RootLayout({
             <Analytics />
             <Suspense fallback={null}>
               <AnalyticsListener />
+              <SpeedInsights />
             </Suspense>
           </ErrorProvider>
         </ErrorBoundary>

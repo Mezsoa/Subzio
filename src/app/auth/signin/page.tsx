@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabaseBrowser } from "@/lib/supabaseClient";
 import AuthButtons from "@/components/AuthButtons";
 
@@ -10,10 +10,27 @@ export default function SignInPage() {
   );
   const [msg, setMsg] = useState<string>("");
 
+  // Check for unauthorized error from callback
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("error") === "unauthorized") {
+      setStatus("error");
+      setMsg("Access denied. Only authorized users can sign in.");
+    }
+  }, []);
+
   async function sendMagicLink(e: React.FormEvent) {
     e.preventDefault();
     setMsg("");
     setStatus("loading");
+    
+    // Restrict access to only johnmessoa@gmail.com
+    if (email.toLowerCase() !== "johnmessoa@gmail.com") {
+      setStatus("error");
+      setMsg("Access restricted. Only authorized users can sign in.");
+      return;
+    }
+    
     try {
       const sb = supabaseBrowser();
       const { error } = await sb.auth.signInWithOtp({
@@ -56,8 +73,7 @@ export default function SignInPage() {
               Sign in or create account
             </h1>
             <p className="text-sm text-muted mb-6">
-              No account? We’ll create one when you continue. Use Google or
-              email magic link.
+              Access is currently restricted to authorized users only.
             </p>
 
             <div className="mb-6">
