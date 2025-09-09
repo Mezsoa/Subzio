@@ -15,7 +15,7 @@ function formatTime(ms: number) {
 }
 
 function Fomo() {
-  const [spotsLeft, setSpotsLeft] = useState<number>(73);
+  const [peoplePreordered, setPeoplePreordered] = useState<number>(73);
   const [now, setNow] = useState<number>(Date.now());
   const [mounted, setMounted] = useState<boolean>(false);
 
@@ -33,13 +33,13 @@ function Fomo() {
     return () => clearInterval(tick);
   }, []);
 
-  useEffect(() => {
-    const minSpots = 12;
-    const interval = setInterval(() => {
-      setSpotsLeft((s) => (s > minSpots ? s - 1 : s));
-    }, 45000); // decrease ~every 15s for demo
-    return () => clearInterval(interval);
-  }, []);
+  // useEffect(() => {
+  //   const minSpots = 12;
+  //   const interval = setInterval(() => {
+  //     setSpotsLeft((s) => (s > minSpots ? s - 1 : s));
+  //   }, 45000); // decrease ~every 15s for demo
+  //   return () => clearInterval(interval);
+  // }, []);
 
   // Avoid hydration mismatch by only rendering dynamic countdown on client
   useEffect(() => {
@@ -93,7 +93,7 @@ function Fomo() {
             <div className="mt-5 inline-flex items-center gap-2 rounded-md bg-emerald-500/10 text-emerald-300 px-3 py-1 text-xs">
               <span className="inline-block h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>
-                {spotsLeft} spots left
+                {peoplePreordered} people joined
               </span>
             </div>
           </div>
