@@ -102,6 +102,8 @@ export default function ConnectBank() {
         <p className="text-sm text-gray-600">Choose your preferred connection method</p>
       </div>
 
+
+
       {/* Connection Options */}
       <div className="space-y-3">
         {/* BankID Option */}
