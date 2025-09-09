@@ -1,7 +1,7 @@
 import { getPlanById } from './stripe';
 
 // Plan ID type that matches actual usage (lowercase)
-export type UsagePlanId = 'free' | 'pro' | 'business';
+export type UsagePlanId = 'free' | 'pro' | 'business' | 'preorder';
 
 export interface UsageStats {
   bankAccountsConnected: number;
@@ -91,27 +91,32 @@ export function getUpgradeMessage(planId: UsagePlanId, feature: string): string 
     bankAccounts: {
       free: 'Upgrade to Pro for unlimited bank accounts',
       pro: 'You already have unlimited bank accounts',
-      business: 'You already have unlimited bank accounts'
+      business: 'You already have unlimited bank accounts',
+      preorder: 'You already have unlimited bank accounts'
     },
     subscriptions: {
       free: 'Upgrade to Pro for unlimited subscription detection',
       pro: 'You already have unlimited subscription detection',
-      business: 'You already have unlimited subscription detection'
+      business: 'You already have unlimited subscription detection',
+      preorder: 'You already have unlimited subscription detection'
     },
     alerts: {
       free: 'Upgrade to Pro for unlimited custom alerts',
       pro: 'You already have unlimited custom alerts',
-      business: 'You already have unlimited custom alerts'
+      business: 'You already have unlimited custom alerts',
+      preorder: 'You already have unlimited custom alerts'
     },
     cancellationRequests: {
       free: 'Upgrade to Business for cancel-for-me service',
       pro: 'Upgrade to Business for cancel-for-me service',
-      business: 'You have 5 free cancellation requests per month'
+      business: 'You have 5 free cancellation requests per month',
+      preorder: 'Upgrade to Business for cancel-for-me service'
     },
     dataExports: {
       free: 'Upgrade to Pro for data export capabilities',
       pro: 'You already have unlimited data exports',
-      business: 'You already have unlimited data exports'
+      business: 'You already have unlimited data exports',
+      preorder: 'You already have unlimited data exports'
     }
   };
 
