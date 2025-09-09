@@ -206,3 +206,21 @@ create index if not exists conversions_timestamp_idx on public.conversions(times
 alter table public.conversions enable row level security;
 create policy "Service can manage conversions" on public.conversions for all using (true);
 
+-- Preorders table (for customers who pre-ordered without auth)
+create table if not exists public.preorders (
+  id uuid primary key default gen_random_uuid(),
+  email text not null,
+  stripe_customer_id text,
+  stripe_payment_intent_id text,
+  amount_paid numeric not null,
+  status text not null default 'pending', -- pending, completed, refunded
+  launch_notification_sent boolean default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create unique index if not exists preorders_email_unique on public.preorders(email);
+create index if not exists preorders_status_idx on public.preorders(status);
+create index if not exists preorders_created_at_idx on public.preorders(created_at);
+alter table public.preorders enable row level security;
+create policy "Service can manage preorders" on public.preorders for all using (true);
+

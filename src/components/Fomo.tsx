@@ -84,10 +84,11 @@ function Fomo() {
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-muted">Early access</p>
             <h3 className="mt-2 text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">
-              Lock in free for a lifetime
+              Lock in free
             </h3>
             <p className="mt-3 text-sm sm:text-base text-muted max-w-xl">
-              First 100 people get 50% off for life. Join now and keep your account—cancel anytime.
+              Pre-order now for $19/year (60% off).
+              Or join waitlist for free.
             </p>
             <div className="mt-5 inline-flex items-center gap-2 rounded-md bg-emerald-500/10 text-emerald-300 px-3 py-1 text-xs">
               <span className="inline-block h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -126,7 +127,7 @@ function Fomo() {
                 }
               }}
             >
-              Reserve early access – $5 when we launch
+              Pre-order now – $19/year (60% off)
             </a>
           </div>
         </div>
@@ -146,7 +147,7 @@ function Fomo() {
           </div>
         </div>
 
-        <p className="mt-6 text-xs text-muted">✅ No spam. Cancel anytime. Join 18 others already waiting.</p>
+        <p className="mt-6 text-xs text-muted">✅ No spam. Cancel anytime. Join 34 others already waiting.</p>
         <p className="mt-1 text-xs text-muted">People from 🇸🇪 🇺🇸 🇨🇦 already joined this week.</p>
       </Reveal>
     </SnapSection>

@@ -193,7 +193,7 @@ export default function Hero() {
       </form>
 
       <div className="mt-2 text-xs text-muted">
-        <span className="mr-1">✅</span>No spam. Cancel anytime. Join 18 others already waiting.
+        <span className="mr-1">✅</span>No spam. Cancel anytime. Join 34 others already waiting.
       </div>
       <div className="mt-1 text-xs text-muted">
         People from 🇸🇪 🇺🇸 🇨🇦 already joined this week.

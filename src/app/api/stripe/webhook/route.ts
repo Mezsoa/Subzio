@@ -28,8 +28,47 @@ export async function POST(req: NextRequest) {
       case 'checkout.session.completed': {
         console.log('🎉 Processing checkout.session.completed');
         const session = event.data.object;
-        const { userId, planId } = session.metadata!;
-        console.log('👤 User ID:', userId, 'Plan ID:', planId);
+        const { userId, planId, type, email } = session.metadata!;
+        console.log('👤 User ID:', userId, 'Plan ID:', planId, 'Type:', type, 'Email:', email);
+        
+        // Handle preorders (subscriptions without auth)
+        if (type === 'preorder') {
+          console.log('🛒 Processing preorder subscription');
+          
+          // Get subscription details from Stripe
+          const stripe = getStripeServer();
+          const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+          console.log('📋 Preorder subscription status:', subscription.status);
+          
+          // Store preorder in the preorders table
+          const preorderData = {
+            email: email || session.customer_email,
+            stripe_customer_id: session.customer,
+            stripe_payment_intent_id: session.subscription, // Store subscription ID instead
+            amount_paid: 19.00, // $19/year
+            status: subscription.status === 'active' ? 'completed' : 'pending',
+          };
+          
+          console.log('📊 Preorder data to insert:', preorderData);
+          
+          const { data, error } = await supabase.from('preorders').upsert(preorderData, {
+            onConflict: 'email'
+          });
+          
+          if (error) {
+            console.error('❌ Database error:', error);
+            throw error;
+          }
+          
+          console.log('✅ Preorder saved to database:', data);
+          break;
+        }
+        
+        // Handle regular subscriptions (existing logic)
+        if (!userId) {
+          console.error('❌ No userId found for subscription checkout');
+          break;
+        }
         
         // Get subscription details from Stripe to get proper trial/billing dates
         const stripe = getStripeServer();
@@ -84,9 +123,19 @@ export async function POST(req: NextRequest) {
 
       case 'customer.subscription.updated': {
         const subscription = event.data.object;
-        const userId = subscription.metadata.userId;
+        const userId = subscription.metadata?.userId;
+        const type = subscription.metadata?.type;
         
-        if (userId) {
+        if (type === 'preorder') {
+          // Update preorder status
+          await supabase.from('preorders').update({
+            status: subscription.status === 'active' ? 'completed' : 'pending',
+            updated_at: new Date().toISOString(),
+          }).eq('stripe_payment_intent_id', subscription.id);
+          
+          console.log('Preorder subscription updated:', subscription.id);
+        } else if (userId) {
+          // Update regular subscription
           await supabase.from('user_subscriptions').update({
             status: subscription.status,
             current_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
@@ -100,9 +149,19 @@ export async function POST(req: NextRequest) {
 
       case 'customer.subscription.deleted': {
         const subscription = event.data.object;
-        const userId = subscription.metadata.userId;
+        const userId = subscription.metadata?.userId;
+        const type = subscription.metadata?.type;
         
-        if (userId) {
+        if (type === 'preorder') {
+          // Update preorder status to canceled
+          await supabase.from('preorders').update({
+            status: 'canceled',
+            updated_at: new Date().toISOString(),
+          }).eq('stripe_payment_intent_id', subscription.id);
+          
+          console.log('Preorder subscription canceled:', subscription.id);
+        } else if (userId) {
+          // Update regular subscription
           await supabase.from('user_subscriptions').update({
             status: 'canceled',
             canceled_at: new Date().toISOString(),

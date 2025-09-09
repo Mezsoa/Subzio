@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     // Create Stripe checkout session
     const stripe = getStripeServer();
     
-    // For preorders, we use a different configuration
+    // For preorders, we use subscription mode but without requiring auth
     if (planId === 'preorder') {
       const session = await stripe.checkout.sessions.create({
         customer_email: email,
@@ -69,6 +69,13 @@ export async function POST(req: NextRequest) {
           planId: planId,
           type: 'preorder',
           email: email,
+        },
+        subscription_data: {
+          metadata: {
+            planId: planId,
+            type: 'preorder',
+            email: email,
+          },
         },
       });
       
