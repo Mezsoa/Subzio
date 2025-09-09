@@ -87,8 +87,8 @@ function Fomo() {
               Lock in free
             </h3>
             <p className="mt-3 text-sm sm:text-base text-muted max-w-xl">
-              Pre-order now for $19/year (60% off).
-              Or join waitlist for free.
+              Pre-order now for $19/year(60% off)
+              Or join waitlist for free
             </p>
             <div className="mt-5 inline-flex items-center gap-2 rounded-md bg-emerald-500/10 text-emerald-300 px-3 py-1 text-xs">
               <span className="inline-block h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -98,7 +98,7 @@ function Fomo() {
             </div>
           </div>
 
-          <div className="w-full lg:w-auto">
+          <div className="w-full lg:w-[80%]">
             <div className="grid grid-cols-4 gap-2 items-end text-center">
               <div className="px-3 py-2 rounded-md bg-white/5">
                 <div className="text-2xl font-semibold text-foreground tabular-nums">{days}</div>
@@ -118,17 +118,34 @@ function Fomo() {
               </div>
             </div>
 
-            <a
-              href="#waitlist"
-              className="mt-4 inline-flex w-full items-center justify-center h-11 px-5 rounded-md bg-[linear-gradient(90deg,var(--cta-start),var(--cta-end))] text-[var(--on-primary)] text-sm font-semibold hover:brightness-110 transition shadow-md"
+            <button
+              type="button"
+              className="mt-4 inline-flex w-full items-center justify-center h-11 px-5 rounded-md bg-[linear-gradient(90deg,var(--cta-start),var(--cta-end))] text-[var(--on-primary)] text-sm font-semibold hover:brightness-110 transition shadow-md cursor-pointer"
               onClick={() => {
                 if (typeof window !== 'undefined' && window.gtag) {
                   window.gtag('event', 'cta_click', { location: 'fomo' });
                 }
+                
+                // Scroll to hero form and set preorder option
+                const heroElement = document.getElementById('hero-form');
+                if (heroElement) {
+                  heroElement.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'center'
+                  });
+                  
+                  // Add URL parameter to indicate preorder selection
+                  const url = new URL(window.location.href);
+                  url.searchParams.set('preorder', 'true');
+                  window.history.replaceState({}, '', url.toString());
+                  
+                  // Trigger a custom event to notify Hero component
+                  window.dispatchEvent(new CustomEvent('selectPreorder'));
+                }
               }}
             >
-              Pre-order now – $19/year (60% off)
-            </a>
+              Pre-order now – $19/year(60% off)
+            </button>
           </div>
         </div>
 

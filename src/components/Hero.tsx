@@ -28,6 +28,23 @@ export default function Hero() {
   const { showError, showSuccess } = useErrorNotifications();
   const { handleApiError, clearError } = useErrorHandler();
 
+  // Initialize selected option based on URL parameters
+  useEffect(() => {
+    if (query.preorder === 'true') {
+      setSelectedOption('preorder');
+    }
+  }, [query.preorder]);
+
+  // Listen for custom event from FOMO button
+  useEffect(() => {
+    const handleSelectPreorder = () => {
+      setSelectedOption('preorder');
+    };
+
+    window.addEventListener('selectPreorder', handleSelectPreorder);
+    return () => window.removeEventListener('selectPreorder', handleSelectPreorder);
+  }, []);
+
   const headline = useMemo(() => {
     return query.h || "Stop paying for subscriptions you don’t use";
   }, [query.h]);
@@ -164,7 +181,7 @@ export default function Hero() {
         </p>
       </div>
 
-      <form id="waitlist" onSubmit={onSubmit} className="mt-6 max-w-xl mx-auto flex flex-col sm:flex-row gap-3 border border-border rounded-md p-2 bg-transparent">
+      <form id="hero-form" onSubmit={onSubmit} className="mt-6 max-w-xl mx-auto flex flex-col sm:flex-row gap-3 border border-border rounded-md p-2 bg-transparent">
         <input
           type="email"
           name="email"
