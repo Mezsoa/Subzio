@@ -5,12 +5,11 @@ import { supabaseServer } from "@/lib/supabaseServer";
 export async function POST(req: NextRequest) {
   try {
     const { planId, email } = await req.json();
-    
+      const authorization = req.headers.get('authorization');
+      let user = null;
     // For preorder, we don't require authentication
-    let user = null;
     if (planId !== 'preorder') {
       // Get authenticated user from authorization header for regular plans
-      const authorization = req.headers.get('authorization');
       if (!authorization?.startsWith('Bearer ')) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
           status: 401,
@@ -29,6 +28,11 @@ export async function POST(req: NextRequest) {
         });
       }
       user = authUser;
+    } else {
+      user = {
+        email: email,
+        id: 'preorder',
+      };
     }
 
     const plan = getPlanById(planId);
