@@ -22,6 +22,7 @@ export default function Hero() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState<string>("");
+  const [selectedOption, setSelectedOption] = useState<"waitlist" | "preorder">("waitlist");
   const query = useQuery();
   const ab = useABVariant();
   const { showError, showSuccess } = useErrorNotifications();
@@ -40,8 +41,8 @@ export default function Hero() {
 
   const ctaText = useMemo(() => {
     if (query.cta) return query.cta;
-    return "Reserve early access – $5 when we launch";
-  }, [query.cta]);
+    return selectedOption === "preorder" ? "Pre-order now – $19/year" : "Join waitlist – Free";
+  }, [query.cta, selectedOption]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -58,26 +59,55 @@ export default function Hero() {
     
     setStatus("loading");
     try {
-      const res = await fetch("/api/waitlist", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Something went wrong");
-      
-      setStatus("success");
-      setEmail("");
-      showSuccess("You've been added to our waitlist! We'll notify you when we launch.", "Welcome to KillSub!");
-      
-      if (typeof window !== "undefined" && window.gtag) {
-        window.gtag('event', 'waitlist_submit_success', {
-          form_location: 'hero'
+      if (selectedOption === "preorder") {
+        // For pre-order, redirect to Stripe checkout
+        const res = await fetch("/api/stripe/create-checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            planId: "preorder",
+            email: email
+          }),
         });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error || "Something went wrong");
+        
+        // Redirect to Stripe checkout
+        if (typeof window !== "undefined" && json.sessionId) {
+          // Redirect to Stripe checkout using the session ID
+          const stripe = await import('@stripe/stripe-js').then(m => m.loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!));
+          if (stripe) {
+            const { error } = await stripe.redirectToCheckout({
+              sessionId: json.sessionId,
+            });
+            if (error) {
+              throw new Error(error.message);
+            }
+          }
+        }
+      } else {
+        // Regular waitlist signup
+        const res = await fetch("/api/waitlist", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error || "Something went wrong");
+        
+        setStatus("success");
+        setEmail("");
+        showSuccess("You've been added to our waitlist! We'll notify you when we launch.", "Welcome to KillSub!");
+        
+        if (typeof window !== "undefined" && window.gtag) {
+          window.gtag('event', 'waitlist_submit_success', {
+            form_location: 'hero'
+          });
+        }
       }
     } catch (err: unknown) {
       setStatus("error");
-      handleApiError(err, "Waitlist signup");
+      handleApiError(err, selectedOption === "preorder" ? "Pre-order" : "Waitlist signup");
       const message = err instanceof Error ? err.message : "Failed to submit.";
       setErrorMsg(message);
     }
@@ -98,10 +128,43 @@ export default function Hero() {
       </p>
 
       <p className="mt-2 text-sm text-[color:var(--foreground)]/80">
-        Launching soon — $5/month. First 100 users get 50% off for life.
+        Launching soon. Pre-order now for $19/year (60% off).
       </p>
 
-      <form id="waitlist" onSubmit={onSubmit} className="mt-8 max-w-xl mx-auto flex flex-col sm:flex-row gap-3 border border-border rounded-md p-2 bg-transparent">
+      {/* Option Selector */}
+      <div className="mt-6 max-w-md mx-auto">
+        <div className="flex bg-background/50 border border-border rounded-lg p-1">
+          <button
+            type="button"
+            onClick={() => setSelectedOption("waitlist")}
+            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition ${
+              selectedOption === "waitlist"
+                ? "bg-foreground text-background"
+                : "text-muted hover:text-foreground"
+            }`}
+          >
+            Free Waitlist
+          </button>
+          <button
+            type="button"
+            onClick={() => setSelectedOption("preorder")}
+            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition ${
+              selectedOption === "preorder"
+                ? "bg-foreground text-background"
+                : "text-muted hover:text-foreground"
+            }`}
+          >
+            Pre-order $19/year
+          </button>
+        </div>
+        <p className="mt-2 text-xs text-muted text-center">
+          {selectedOption === "preorder" 
+            ? "🚀 Get lifetime 60% discount + early access" 
+            : "📧 Get notified when we launch"}
+        </p>
+      </div>
+
+      <form id="waitlist" onSubmit={onSubmit} className="mt-6 max-w-xl mx-auto flex flex-col sm:flex-row gap-3 border border-border rounded-md p-2 bg-transparent">
         <input
           type="email"
           name="email"
@@ -117,7 +180,10 @@ export default function Hero() {
           className="whitespace-nowrap inline-flex items-center justify-center h-12 px-5 rounded-md bg-[linear-gradient(90deg,var(--cta-start),var(--cta-end))] text-[var(--on-primary)] text-sm font-semibold hover:brightness-110 shadow-md transition disabled:opacity-60"
           onClick={() => {
             if (typeof window !== 'undefined' && window.gtag) {
-              window.gtag('event', 'waitlist_submit_click', { form_location: 'hero' });
+              window.gtag('event', 'waitlist_submit_click', { 
+                form_location: 'hero',
+                option: selectedOption
+              });
             }
           }}
           disabled={status === "loading"}
@@ -137,7 +203,11 @@ export default function Hero() {
         <p className="mt-2 text-sm text-red-600">{errorMsg}</p>
       )}
       {status === "success" && (
-        <p className="mt-2 text-sm text-green-600">Thanks! You&apos;re on the list.</p>
+        <p className="mt-2 text-sm text-green-600">
+          {selectedOption === "preorder" 
+            ? "Redirecting to secure checkout..." 
+            : "Thanks! You're on the list."}
+        </p>
       )}
 
       <SubscriptionsCard />

@@ -83,6 +83,25 @@ export const STRIPE_PLANS = {
       teamMembers: 5,
       cancelService: 5
     }
+  },
+  PREORDER: {
+    id: 'preorder',
+    name: 'Pre-order Access',
+    price: 1900, // $19.00 in cents
+    priceId: process.env.STRIPE_PREPAY_PRICE_ID || 'price_preorder_placeholder',
+    features: [
+      'Lifetime 60% discount',
+      'Early access to all features',
+      'Unlimited bank accounts',
+      'Unlimited subscription detection',
+      'Advanced AI insights',
+      'Priority support'
+    ],
+    limits: {
+      bankAccounts: -1,
+      subscriptions: -1,
+      alerts: -1
+    }
   }
 } as const;
 
@@ -102,6 +121,7 @@ export function getPlanById(planId: string): typeof STRIPE_PLANS[PlanId] | null 
     envVars: {
       STRIPE_PRO_PRICE_ID: process.env.STRIPE_PRO_PRICE_ID,
       STRIPE_BUSINESS_PRICE_ID: process.env.STRIPE_BUSINESS_PRICE_ID,
+      STRIPE_PREPAY_PRICE_ID: process.env.STRIPE_PREPAY_PRICE_ID,
     }
   });
   

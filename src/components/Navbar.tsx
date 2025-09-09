@@ -43,8 +43,8 @@ export default function Navbar() {
           </span>
         </Link>
         <div className="flex items-center gap-6 w-full justify-end">
-          <input type="text" className="w-48 h-8 rounded-md border border-white/10 text-sm text-foreground" value={email} onChange={(e) => setEmail(e.target.value)}/>          
-          <button className="inline-flex items-center justify-center h-8 px-4 rounded-md border border-white/ 0 text-sm text-foreground hover:bg-white/10" onClick={() => {
+          <input type="text" className="w-48 h-8 rounded-md border border-white/0 text-sm text-foreground" value={email} onChange={(e) => setEmail(e.target.value)}/>          
+          <button className="inline-flex items-center justify-center h-8 px-4 rounded-md border border-white/0 text-sm text-foreground hover:bg-white/10" onClick={() => {
             if (email === authEmails) {
               router.push("/auth/signin");
             } else {
