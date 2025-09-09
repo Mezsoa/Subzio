@@ -28,7 +28,7 @@ interface Account {
         currencyCode?: string;
       };
     };
-    available?: {
+    savingsAvailable?: {
       amount?: {
         value?: {
           unscaledValue?: string;
@@ -808,7 +808,7 @@ export default function DashboardPage() {
                             <p className="text-lg font-semibold text-gray-900">
                               {(() => {
                                 const balance = calculateBalance(account);
-                                const currency = account.balances?.available?.amount?.currencyCode || "SEK";
+                                const currency = account.balances?.savingsAvailable?.amount?.currencyCode || "SEK";
                                 return `${balance.toLocaleString("sv-SE", { style: "currency", currency: currency })}`;
                               })()}
                             </p>

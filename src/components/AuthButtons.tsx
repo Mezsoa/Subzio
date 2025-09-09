@@ -6,11 +6,9 @@ import { faGoogle } from "@fortawesome/free-brands-svg-icons";
 
 export default function AuthButtons() {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string>("");
 
   async function signInWithGoogle() {
     setLoading(true);
-    setError("");
     
     try {
       const supabase = supabaseBrowser();
@@ -25,7 +23,7 @@ export default function AuthButtons() {
         },
       });
     } catch (err) {
-      setError("Access restricted. Only authorized users can sign in.");
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -51,12 +49,6 @@ export default function AuthButtons() {
           )}
         </button>
       </div>
-      
-      {error && (
-        <p className="mt-3 text-sm text-red-500 text-center">
-          {error}
-        </p>
-      )}
     </section>
   );
 }
