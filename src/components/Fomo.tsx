@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import SnapSection from './SnapSection'
 import Image from 'next/image'
 import Reveal from './animations/Reveal'
+import { useScrambleText } from '@/hooks/useScrambleText'
 
 function formatTime(ms: number) {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
@@ -18,7 +19,8 @@ function Fomo() {
   const [peoplePreordered, setPeoplePreordered] = useState<number>(73);
   const [now, setNow] = useState<number>(Date.now());
   const [mounted, setMounted] = useState<boolean>(false);
-
+  const scrambledText = useScrambleText("Launching Soon", 120, true);
+  
   const deadline = useMemo(() => {
     const now = new Date();
     const currentYear = now.getFullYear();
@@ -98,23 +100,10 @@ function Fomo() {
             </div>
           </div>
 
-          <div className="w-full lg:w-[80%]">
-            <div className="grid grid-cols-4 gap-2 items-end text-center">
-              <div className="px-3 py-2 rounded-md bg-white/5">
-                <div className="text-2xl font-semibold text-foreground tabular-nums">{days}</div>
-                <div className="text-[10px] uppercase tracking-wide text-muted">Days</div>
-              </div>
-              <div className="px-3 py-2 rounded-md bg-white/5">
-                <div className="text-2xl font-semibold text-foreground tabular-nums">{hours.toString().padStart(2,'0')}</div>
-                <div className="text-[10px] uppercase tracking-wide text-muted">Hours</div>
-              </div>
-              <div className="px-3 py-2 rounded-md bg-white/5">
-                <div className="text-2xl font-semibold text-foreground tabular-nums">{minutes.toString().padStart(2,'0')}</div>
-                <div className="text-[10px] uppercase tracking-wide text-muted">Minutes</div>
-              </div>
-              <div className="px-3 py-2 rounded-md bg-white/5">
-                <div className="text-2xl font-semibold text-foreground tabular-nums">{seconds.toString().padStart(2,'0')}</div>
-                <div className="text-[10px] uppercase tracking-wide text-muted">Seconds</div>
+          <div className="w-full lg:w-[100%]">
+            <div className="flex items-center justify-center w-full">
+              <div className="px-4 py-2 rounded-lg bg-gradient-to-tl from-white/5 via-blue-500/50 to-white/5 border border-none text-xl font-mono font-regular text-foreground min-w-[350px] text-center tracking-wider">
+                <span className="text-white">{scrambledText}</span>
               </div>
             </div>
 
