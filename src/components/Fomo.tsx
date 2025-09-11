@@ -102,14 +102,14 @@ function Fomo() {
 
           <div className="w-[320px] lg:w-[320px] ">
             <div className="flex items-center justify-center w-[320px]">
-              <div className="px-4 py-2 rounded-lg bg-gradient-to-tl from-[rgba(13,23,41,1)] via-[rgba(207, 211, 219, 0.9)] to-[rgba(13,23,41,0.9)] border border-none text-xl font-mono font-regular text-foreground min-w-[320px] text-center tracking-wider">
-                <span className="text-white">{scrambledText}</span>
+              <div className="px-4 py-2 rounded-lg bg-gradient-to-l from-slate-900 via-slate-950 to-slate-900 text-foreground border border-none text-xl font-mono font-regular min-w-[320px] text-center tracking-wider">
+                <span className="text-foreground">{scrambledText}</span>
               </div>
             </div>
 
             <button
               type="button"
-              className="mt-4 inline-flex w-[320px] items-center justify-center h-11 px-5 rounded-md bg-[linear-gradient(90deg,var(--cta-start),var(--cta-end))] text-[var(--on-primary)] text-sm font-semibold hover:brightness-110 transition shadow-md cursor-pointer"
+              className="mt-4 inline-flex w-[320px] items-center justify-center h-11 px-5 rounded-md bg-[linear-gradient(90deg,var(--cta-start),var(--cta-end))] text-[var(--on-primary)] shadow-xl shadow-slate-950 animate-pulse hover:animate-none hover:shadow-md text-sm font-semibold hover:brightness-110 transition shadow-md cursor-pointer"
               onClick={() => {
                 if (typeof window !== 'undefined' && window.gtag) {
                   window.gtag('event', 'cta_click', { location: 'fomo' });

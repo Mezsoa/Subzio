@@ -7,7 +7,7 @@ export function useScrambleText(target: string, speed = 100, loop = true) {
     "".padStart(target.length, " ")
   );
   const frameRef = useRef(0);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout>(null);
   const isAnimatingRef = useRef(false);
 
   useEffect(() => {
