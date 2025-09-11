@@ -16,7 +16,7 @@ function formatTime(ms: number) {
 }
 
 function Fomo() {
-  const [peoplePreordered, setPeoplePreordered] = useState<number>(73);
+  const [peoplePreordered, setPeoplePreordered] = useState<number>(34);
   const [now, setNow] = useState<number>(Date.now());
   const [mounted, setMounted] = useState<boolean>(false);
   const scrambledText = useScrambleText("Launching Soon", 120, true);
@@ -100,16 +100,16 @@ function Fomo() {
             </div>
           </div>
 
-          <div className="w-full lg:w-[100%]">
-            <div className="flex items-center justify-center w-full">
-              <div className="px-4 py-2 rounded-lg bg-gradient-to-tl from-white/5 via-blue-500/50 to-white/5 border border-none text-xl font-mono font-regular text-foreground min-w-[350px] text-center tracking-wider">
+          <div className="w-[320px] lg:w-[320px] ">
+            <div className="flex items-center justify-center w-[320px]">
+              <div className="px-4 py-2 rounded-lg bg-gradient-to-tl from-[rgba(13,23,41,1)] via-[rgba(207, 211, 219, 0.9)] to-[rgba(13,23,41,0.9)] border border-none text-xl font-mono font-regular text-foreground min-w-[320px] text-center tracking-wider">
                 <span className="text-white">{scrambledText}</span>
               </div>
             </div>
 
             <button
               type="button"
-              className="mt-4 inline-flex w-full items-center justify-center h-11 px-5 rounded-md bg-[linear-gradient(90deg,var(--cta-start),var(--cta-end))] text-[var(--on-primary)] text-sm font-semibold hover:brightness-110 transition shadow-md cursor-pointer"
+              className="mt-4 inline-flex w-[320px] items-center justify-center h-11 px-5 rounded-md bg-[linear-gradient(90deg,var(--cta-start),var(--cta-end))] text-[var(--on-primary)] text-sm font-semibold hover:brightness-110 transition shadow-md cursor-pointer"
               onClick={() => {
                 if (typeof window !== 'undefined' && window.gtag) {
                   window.gtag('event', 'cta_click', { location: 'fomo' });
@@ -154,7 +154,7 @@ function Fomo() {
         </div>
 
         <p className="mt-6 text-xs text-muted">✅ No spam. Cancel anytime. Join 34 others already waiting.</p>
-        <p className="mt-1 text-xs text-muted">People from 🇸🇪 🇺🇸 🇨🇦 already joined this week.</p>
+        <p className="mt-1 text-xs text-muted">People from 🇸🇪 🇺🇸 🇨🇦 already joined this month.</p>
       </Reveal>
     </SnapSection>
   )
