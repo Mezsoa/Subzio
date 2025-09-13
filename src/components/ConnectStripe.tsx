@@ -71,13 +71,13 @@ export default function ConnectStripe() {
 
       if (!res.ok) {
         const text = await res.text();
-        throw new AuthError(text || "Failed to create Stripe Connect account");
+        throw new AuthError(text || "Failed to create Stripe OAuth URL");
       }
 
-      const { onboardingUrl } = await res.json();
+      const { oauthUrl } = await res.json();
 
-      // Redirect to Stripe onboarding
-      window.location.href = onboardingUrl;
+      // Redirect to Stripe OAuth
+      window.location.href = oauthUrl;
     } catch (e) {
       const msg =
         e instanceof Error ? e.message : "Failed to connect Stripe account";

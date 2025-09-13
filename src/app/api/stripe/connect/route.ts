@@ -3,7 +3,7 @@ import { supabaseServer } from "@/lib/supabaseServer";
 import { supabaseService } from "@/lib/supabaseClient";
 import { getStripeServer } from "@/lib/stripe";
 
-async function POST(req: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
     // Get authenticated user
     const supabase = await supabaseServer();
@@ -33,58 +33,24 @@ async function POST(req: NextRequest) {
 
     const stripe = getStripeServer();
 
-    // Step 1: Create Express account (Following Stripe Docs)
-    const account = await stripe.accounts.create({
-      type: "express",
-      country: "US",
-      email: user.email,
-      capabilities: {
-        card_payments: {
-          requested: true,
-        },
-        transfers: {
-          requested: true,
-        },
-      },
-      business_profile: {
-        url: "https://killsub.com",
-      },
+    // Create OAuth URL for stripe connect
+    const oauthUrl = stripe.oauth.authorizeUrl({
+      response_type: "code",
+      scope: "read_write",
+      client_id: process.env.STRIPE_CLIENT_ID || "",
+      redirect_uri: process.env.STRIPE_REDIRECT_URI,
+      state: user.id,
     });
-
-    // Step 2: Create account Link for onboarding (Following Stripe Docs)
-    const accountLink = await stripe.accountLinks.create({
-      account: account.id,
-      refresh_url: `${req.headers.get("origin")}/dashboard?stripe_refresh=true`,
-      return_url: `${req.headers.get("origin")}/dashboard?stripe_success=true`,
-      type: "account_onboarding",
+    return new Response(JSON.stringify({ oauthUrl }), {
+      status: 200,
+      headers: { "content-type": "application/json" },
     });
-
-    //Step 3: Store the account in my database
-    const svc = await supabaseService();
-    await svc.from("stripe_connect_accounts").insert({
-      user_id: user.id,
-      stripe_account_id: account.id,
-      account_type: "express",
-      email: user.email,
-      country: "US",
-    });
-
-    return new Response(
-      JSON.stringify({
-        accountId: account.id,
-        onboardingUrl: accountLink.url,
-      }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
   } catch (error) {
-    console.error("[Stripe Connect] Error:", error);
+    console.error("[Stripe Connect OAuth] Error:", error);
     return new Response(JSON.stringify({ error: "Internal Server Error" }), {
       status: 500,
-      headers: { "Content-Type": "application/json" },
+      headers: { "content-type": "application/json" },
     });
   }
 }
-export default POST;
+

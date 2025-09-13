@@ -1,5 +1,4 @@
 import { NextRequest } from "next/server";
-import { getStripeServer } from "@/lib/stripe";
 import { supabaseServer } from "@/lib/supabaseServer";
 import { supabaseService } from "@/lib/supabaseClient";
 
@@ -42,32 +41,12 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    // Get fresh account details from Stripe
-    const stripe = getStripeServer();
-    const stripeAccount = await stripe.accounts.retrieve(account.stripe_account_id);
-
-    // Update our database with latest status
-    await svc
-      .from("stripe_connect_accounts")
-      .update({
-        charges_enabled: stripeAccount.charges_enabled,
-        payouts_enabled: stripeAccount.payouts_enabled,
-        details_submitted: stripeAccount.details_submitted,
-        country: stripeAccount.country,
-        business_type: stripeAccount.business_type,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", account.id);
-
     return new Response(JSON.stringify({
       connected: true,
       account: {
-        id: stripeAccount.id,
-        charges_enabled: stripeAccount.charges_enabled,
-        payouts_enabled: stripeAccount.payouts_enabled,
-        details_submitted: stripeAccount.details_submitted,
-        country: stripeAccount.country,
-        business_type: stripeAccount.business_type,
+        id: account.stripe_account_id,
+        account_type: account.account_type,
+        connected_at: account.connected_at,
       }
     }), {
       status: 200,
