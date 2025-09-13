@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { getStripeServer } from "@/lib/stripe";
 import { supabaseService } from "@/lib/supabaseClient";
+import { supabaseServer } from "@/lib/supabaseServer";
 
 export async function GET(req: NextRequest) {
   try {
@@ -22,6 +23,27 @@ export async function GET(req: NextRequest) {
         status: 302,
         headers: { Location: "/dashboard?stripe_error=missing_params" },
       });
+    }
+
+    // VERIFY USER SESSION
+    const supabase = await supabaseServer();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+        console.error("No valid user session found");
+        return new Response(null, {
+            status: 302,
+            headers: { Location: "/auth/signin?error=session_required" },
+        });
+    }
+
+    // VERIFY state matches logged-in user
+    if (user.id !== state) {
+        console.error("State mismatch - potential security issue");
+        return new Response(null, {
+            status: 302,
+            headers: { Location: "/auth/signin?error=state_mismatch" },
+        });
     }
 
     const stripe = getStripeServer();
