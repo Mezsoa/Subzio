@@ -100,6 +100,7 @@ export default function ConnectBank() {
       <div className="text-center mb-8">
         <h3 className="text-lg font-medium text-gray-900 mb-2">Connect Your Bank</h3>
         <p className="text-sm text-gray-600">Choose your preferred connection method</p>
+        <p className="text-sm text-gray-600">Start accepting payments through killsub</p>
       </div>
 
 
@@ -142,7 +143,7 @@ export default function ConnectBank() {
             }
           }}
           disabled={!sessionReady}
-          className="w-full group relative overflow-hidden bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 hover:shadow-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+          className="w-full group relative overflow-hidden bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 hover:shadow-sm transition-all duration-200 disabled:opacity-50 cursor-pointer">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
@@ -151,16 +152,13 @@ export default function ConnectBank() {
                 </svg>
               </div>
               <div className="text-left">
-                <div className="font-medium text-gray-900">BankID</div>
-                <div className="text-sm text-gray-500">Swedish bank connection</div>
+                <p className="font-medium text-gray-900 text-sm">BankID</p>
+                <p className="text-sm text-gray-500 text-sm">Swedish bank connection</p>
               </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">Recommended</span>
-              <svg className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
+            <svg className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
           </div>
         </button>
 
@@ -168,7 +166,7 @@ export default function ConnectBank() {
         <button
           onClick={() => open()}
           disabled={!shouldInitialize || !ready}
-          className="w-full group relative overflow-hidden bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 hover:shadow-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+          className="w-full group relative overflow-hidden bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 hover:shadow-sm transition-all duration-200 disabled:opacity-50 cursor-pointer">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center">
@@ -177,8 +175,8 @@ export default function ConnectBank() {
                 </svg>
               </div>
               <div className="text-left">
-                <div className="font-medium text-gray-900">Plaid</div>
-                <div className="text-sm text-gray-500">International bank connection</div>
+                <p className="font-medium text-gray-900 text-sm">Plaid</p>
+                <p className="text-sm text-gray-500 text-sm">International bank connection</p>
               </div>
             </div>
             <svg className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -210,7 +208,7 @@ export default function ConnectBank() {
         </div>
       )}
 
-      {/* Security Notice */}
+      {/* Security Notice 
       <div className="mt-6 p-3 bg-gray-50 rounded-lg">
         <div className="flex items-start space-x-2">
           <svg className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -221,7 +219,7 @@ export default function ConnectBank() {
             <p>Your data is encrypted and never stored permanently. Read-only access only.</p>
           </div>
         </div>
-      </div>
+      </div>*/}
     </div>
   );
 }

@@ -224,3 +224,73 @@ create index if not exists preorders_created_at_idx on public.preorders(created_
 alter table public.preorders enable row level security;
 create policy "Service can manage preorders" on public.preorders for all using (true);
 
+
+
+-- 0) (Endast vid behov) aktivera extension för gen_random_uuid
+create extension if not exists pgcrypto;
+
+-- 1) Tabell
+create table if not exists public.stripe_connect_accounts (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  stripe_account_id text not null unique,
+  account_type text not null check (account_type in ('express','standard','custom')),
+  charges_enabled boolean default false,
+  payouts_enabled boolean default false,
+  details_submitted boolean default false,
+  country text,
+  email text,
+  business_type text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+-- 2) Index för snabba queries på user_id
+create index if not exists idx_stripe_connect_accounts_user_id on public.stripe_connect_accounts(user_id);
+
+-- 3) Trigger för updated_at
+create or replace function public.set_updated_at()
+returns trigger as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$ language plpgsql;
+
+create trigger trg_set_updated_at
+before update on public.stripe_connect_accounts
+for each row execute function public.set_updated_at();
+
+-- 4) RLS: aktivera och policies (Supabase / Postgres-stil)
+alter table public.stripe_connect_accounts enable row level security;
+
+-- Select: endast ägaren kan se sina rader
+create policy "Owner can select own stripe accounts" 
+  on public.stripe_connect_accounts
+  for select
+  to authenticated
+  using ( (select auth.uid()) = user_id );
+
+-- Insert: användaren får bara skapa rader där user_id är deras uid
+create policy "Owner can insert own stripe account" 
+  on public.stripe_connect_accounts
+  for insert
+  to authenticated
+  with check ( (select auth.uid()) = user_id );
+
+-- Update: användaren kan uppdatera sina egna rader, och nya värden måste fortfarande ha samma owner
+create policy "Owner can update own stripe account" 
+  on public.stripe_connect_accounts
+  for update
+  to authenticated
+  using ( (select auth.uid()) = user_id )
+  with check ( (select auth.uid()) = user_id );
+
+-- Delete (valfritt): låt ägaren ta bort sin rad
+create policy "Owner can delete own stripe account"
+  on public.stripe_connect_accounts
+  for delete
+  to authenticated
+  using ( (select auth.uid()) = user_id );
+
+  

@@ -9,6 +9,7 @@ import ConnectBank from "@/components/ConnectBank";
 import OnboardingFlow from "@/components/OnboardingFlow";
 import AIInsights from "@/components/AIInsights";
 import UsageLimitsChecker from "@/components/UsageLimitsChecker";
+import ConnectStripe from "@/components/ConnectStripe";
 
 interface Account {
   name?: string;
@@ -359,6 +360,7 @@ export default function DashboardPage() {
                     <div className="absolute top-16 right-6 w-96 z-50">
                       <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-6">
                         <ConnectBank />
+                        <ConnectStripe />
                       </div>
                     </div>
                   )}
