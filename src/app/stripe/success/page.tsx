@@ -18,12 +18,12 @@ export default function StripeSuccessPage() {
             });
         }, 1000);
 
-        
+
         return () => clearInterval(interval);
     }, [router]);
 
     return (
-        <section className="min-h-screen flex items-center justify-center">
+        <section>
              <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center transform animate-in fade-in-0 zoom-in-95 duration-500">
         {/* Success Icon with Animation */}
