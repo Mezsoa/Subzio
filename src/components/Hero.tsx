@@ -5,6 +5,7 @@ import SubscriptionsCard from "@/components/SubscriptionsCard";
 import { useABVariant } from "@/lib/ab";
 import { useErrorNotifications } from "@/contexts/ErrorContext";
 import { useErrorHandler } from "@/hooks/useErrorHandler";
+import Image from "next/image";
 
 function useQuery() {
   const [query, setQuery] = useState<Record<string, string>>({});
@@ -50,12 +51,12 @@ export default function Hero() {
       window.removeEventListener("selectPreorder", handleSelectPreorder);
   }, []);
 
-  const headline = "Wake up";
-  const headline2 = "your subscriptions";
-  const headline3 = " are killing your wallet";
+  const headline = "Take control";
+  const headline2 = "of your";
+  const headline3 = "subscriptions";
 
   const subhead =
-    "Connects to your bank, detects subscriptions with AI, and guided cancellation.";
+    "Connects to your bank, detects subscriptions with AI, and - guided cancellation.";
 
   const ctaText = useMemo(() => {
     if (query.cta) return query.cta;
@@ -150,17 +151,22 @@ export default function Hero() {
   return (
     <section className="mx-auto h-screen text-center bg-gradient-to-b from-[rgba(29,155,240,0.08)] via-[rgba(11,18,32,1)] to-[rgba(11,18,32,1)] text-foreground flex flex-row">
       <section className="flex-1 h-[calc(100vh-65px)] flex flex-col justify-evenly py-2 px-4">
-        <header className="mb-10 flex flex-col items-center justify-center mt-10">
-          <h1 className="mt-6 text-2xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-foreground leading-tight">
-            {headline} <br /> {headline2} <br /> {headline3}
+        <header className="mb-10 flex flex-col items-center justify-center mt-0">
+          <h1 className="mt-0 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight leading-tight font-orbitron">
+            <span className="block text-white/95">Take control</span>
+            <span className="block text-white/80 mt-1 font-light">of your</span>
+            <span className="block text-white/90 mt-1">subscriptions</span>
           </h1>
-          <p className="mt-3 text-base sm:text-lg text-muted max-w-2xl mx-auto">
+
+          <div className="mt-8 w-16 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+
+          <p className="mt-6 text-base sm:text-lg text-slate-300 max-w-lg mx-auto font-orbitron leading-relaxed">
             {subhead}
           </p>
         </header>
 
         <div>
-          <p className=" text-sm text-[color:var(--foreground)]/80 flex flex-col items-center justify-center">
+          <p className=" text-sm text-[color:var(--foreground)]/80 flex flex-col items-center justify-center font-orbitron mb-4">
             Launching soon. Pre-order now for $19/year (60% off).
           </p>
 
@@ -261,13 +267,15 @@ export default function Hero() {
       </section>
 
       <section className="mb-10 flex-1 items-end relative justify-end h-[calc(100vh-65px)]">
-        <p className="text-xs uppercase tracking-[0.2em] text-black absolute top-16 left-[80%] z-11 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 border border-black/5">
+        <p className="text-xs uppercase tracking-[0.2em] text-black absolute top-16 left-[80%] z-11 bg-gradient-to-r from-indigo-200 via-sky-200/50 to-indigo-200/50 backdrop-blur-sm rounded-lg px-4 py-2 border border-black/5">
           KillSub
         </p>
-        <img
-          src="/login/subscribeOne.webp"
+        <Image
+          src="/connection/dataNet.webp"
+          width={100}
+          height={100}
           alt="KillSub"
-          className="w-full h-full object-cover relative z-10 rounded-tl-xl rounded-bl-xl"
+          className="w-full h-full object-cover relative z-10"
         />
 
         {/* Realistic glass pane in the hole */}
