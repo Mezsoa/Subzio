@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import SubscriptionsCard from "@/components/SubscriptionsCard";
 import { useABVariant } from "@/lib/ab";
 import { useErrorNotifications } from "@/contexts/ErrorContext";
 import { useErrorHandler } from "@/hooks/useErrorHandler";
@@ -55,8 +54,7 @@ export default function Hero() {
   const headline2 = "of your";
   const headline3 = "subscriptions";
 
-  const subhead =
-    "Connects to your bank, detects subscriptions with AI, and - guided cancellation.";
+  const subhead = "One secure overview of your subscriptions.";
 
   const ctaText = useMemo(() => {
     if (query.cta) return query.cta;
@@ -158,20 +156,15 @@ export default function Hero() {
             <span className="block text-white/90 mt-1">subscriptions</span>
           </h1>
 
-          <div className="mt-8 w-16 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+          <div className="mt-2 w-16 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
 
           <p className="mt-6 text-base sm:text-lg text-slate-300 max-w-lg mx-auto font-orbitron leading-relaxed">
             {subhead}
           </p>
         </header>
-
         <div>
-          <p className=" text-sm text-[color:var(--foreground)]/80 flex flex-col items-center justify-center font-orbitron mb-4">
-            Launching soon. Pre-order now for $19/year (60% off).
-          </p>
-
           {/* Option Selector */}
-          <div className=" max-w-md mx-auto mb-36">
+          <div className=" max-w-md mx-auto mb-8">
             <div className="flex bg-background/50 border border-border rounded-lg p-1">
               <button
                 type="button"
@@ -194,6 +187,7 @@ export default function Hero() {
                 Pre-order $19/year
               </button>
             </div>
+
             <p className="mt-3 text-xs text-muted text-center">
               {selectedOption === "preorder"
                 ? "🚀 Get lifetime 60% discount + early access"
@@ -217,7 +211,7 @@ export default function Hero() {
             />
             <button
               type="submit"
-              className="whitespace-nowrap inline-flex items-center justify-center h-12 px-5 rounded-md bg-[linear-gradient(90deg,var(--cta-start),var(--cta-end))] text-[var(--on-primary)] text-sm font-semibold hover:brightness-110 shadow-md transition disabled:opacity-60 animate-pulse hover:animate-none cursor-pointer"
+              className="whitespace-nowrap inline-flex items-center justify-center h-12 px-5 rounded-md text-sm text-black bg-foreground/80 font-semibold hover:brightness-110 shadow-md transition disabled:opacity-60 animate-pulse hover:animate-none cursor-pointer"
               onClick={() => {
                 if (typeof window !== "undefined" && window.gtag) {
                   window.gtag("event", "waitlist_submit_click", {
@@ -230,8 +224,20 @@ export default function Hero() {
               {status === "loading" ? "Joining…" : ctaText}
             </button>
           </form>
-
-          <div className="mt-6 text-xs text-muted">
+          <div className="mt-4 text-xs text-muted flex items-center justify-center gap-2">
+            <span className="inline-flex items-center gap-1">
+              <span
+                className="inline-block h-2 w-2 rounded-full"
+                style={{ background: "var(--primary)" }}
+              />
+              Privacy‑first, bank‑grade security
+            </span>
+            <span aria-hidden>•</span>
+            <span>Powered by Plaid / BankID</span>
+            <span aria-hidden>•</span>
+            <span>Cancel anytime</span>
+          </div>
+          <div className="mt-2 text-xs text-muted">
             <span className="mr-1">✅</span>No spam. Cancel anytime. Join 34
             others already waiting.
           </div>
@@ -249,20 +255,18 @@ export default function Hero() {
                 : "Thanks! You're on the list."}
             </p>
           )}
+        </div>
 
-          <div className="mt-10 text-xs text-muted flex items-center justify-center gap-2">
-            <span className="inline-flex items-center gap-1">
-              <span
-                className="inline-block h-2 w-2 rounded-full"
-                style={{ background: "var(--primary)" }}
-              />
-              Privacy‑first, bank‑grade security
-            </span>
-            <span aria-hidden>•</span>
-            <span>Powered by Plaid / BankID</span>
-            <span aria-hidden>•</span>
-            <span>Cancel anytime</span>
-          </div>
+        <div className="absolute bottom-0 left-8 opacity-60 hover:opacity-100 transition-opacity z-50">
+          <a href="https://tinylaunch.com" target="_blank" rel="noopener">
+            <Image
+              src="https://tinylaunch.com/tinylaunch_badge_launching_soon.svg"
+              alt="TinyLaunch Badge"
+              width={100}
+              height={100}
+              className="w-28 h-28"
+            />
+          </a>
         </div>
       </section>
 
