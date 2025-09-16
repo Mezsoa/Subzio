@@ -9,16 +9,6 @@ interface ConsentPreferences {
   functional: boolean;
 }
 
-// Extend the Window interface to include gtag with consent support
-declare global {
-  interface Window {
-    gtag?: (
-      command: 'config' | 'event' | 'js' | 'consent',
-      targetId: string,
-      config?: Record<string, any>
-    ) => void;
-  }
-}
 
 export default function ConsentManager() {
   const [showBanner, setShowBanner] = useState(false);
