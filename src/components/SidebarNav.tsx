@@ -57,21 +57,40 @@ export default function SidebarNav() {
   }, []);
 
   return (
-    <nav
-      className={`flex flex-col justify-start gap-2 bg-background border-r border-border h-screen p-4 absolute top-0 left-0 transition-all duration-300 ease-in-out ${
-        isCollapsed ? "w-16" : "w-64"
-      }`}>
-      {/* Toggle Button */}
-      <button
-        onClick={toggleSidebar}
-        className="absolute -right-3 top-6 w-6 h-6 bg-background border border-border rounded-full flex items-center justify-center hover:bg-card-hover transition-colors z-10"
-        title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}>
-        {isCollapsed ? (
-          <ChevronRightIcon className="w-3 h-3 text-muted" />
-        ) : (
+    <>
+      {/* Mobile overlay */}
+      {!isCollapsed && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={toggleSidebar}
+        />
+      )}
+      
+      <nav
+        className={`flex flex-col justify-start gap-2 bg-background border-r border-border h-screen p-4 absolute top-0 left-0 transition-all duration-300 ease-in-out z-50 ${
+          isCollapsed ? "w-16" : "w-64"
+        } ${
+          isCollapsed ? "-translate-x-full md:translate-x-0" : "translate-x-0"
+        }`}>
+      {/* Toggle Button - only visible when sidebar is expanded */}
+      {!isCollapsed && (
+        <button
+          onClick={toggleSidebar}
+          className="absolute -right-3 top-6 w-6 h-6 bg-background border border-border rounded-full flex items-center justify-center hover:bg-card-hover transition-colors z-10"
+          title="Collapse sidebar">
           <ChevronLeftIcon className="w-3 h-3 text-muted" />
-        )}
-      </button>
+        </button>
+      )}
+
+      {/* Mobile Menu Button - only visible when sidebar is collapsed on mobile */}
+      {isCollapsed && (
+        <button
+          onClick={toggleSidebar}
+          className="fixed top-4 left-18 w-10 h-10 bg-background border border-border rounded-lg flex items-center justify-center hover:bg-card-hover transition-colors z-50 md:hidden"
+          title="Open menu">
+          <MenuIcon className="w-5 h-5 text-muted" />
+        </button>
+      )}
 
       {/* User Info */}
       <div
@@ -184,5 +203,6 @@ export default function SidebarNav() {
         <SignOut />
       </div>
     </nav>
+    </>
   );
 }

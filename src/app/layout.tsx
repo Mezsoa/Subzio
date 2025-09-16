@@ -4,6 +4,7 @@ import Script from "next/script";
 import AnalyticsListener from "@/components/AnalyticsListener";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { ErrorProvider } from "@/contexts/ErrorContext";
+import AppProviders from "@/components/AppProviders";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "@fortawesome/fontawesome-svg-core/styles.css";
@@ -40,24 +41,26 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ErrorBoundary>
           <ErrorProvider>
-            <Script
-              src="https://www.googletagmanager.com/gtag/js?id=G-P6J457HR70"
-              strategy="afterInteractive"
-            />
-            <Script id="gtag-init" strategy="afterInteractive">
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', 'G-P6J457HR70');
-              `}
-            </Script>
-            {children}
-            <Analytics />
-            <Suspense fallback={null}>
-              <AnalyticsListener />
-              <SpeedInsights />
-            </Suspense>
+            <AppProviders>
+              <Script
+                src="https://www.googletagmanager.com/gtag/js?id=G-P6J457HR70"
+                strategy="afterInteractive"
+              />
+              <Script id="gtag-init" strategy="afterInteractive">
+                {`
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', 'G-P6J457HR70');
+                `}
+              </Script>
+              {children}
+              <Analytics />
+              <Suspense fallback={null}>
+                <AnalyticsListener />
+                <SpeedInsights />
+              </Suspense>
+            </AppProviders>
           </ErrorProvider>
         </ErrorBoundary>
       </body>
