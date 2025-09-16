@@ -2,7 +2,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabaseClient";
-import { authedFetch } from "@/lib/authedFetch";
 import {
   LayoutDashboardIcon,
   ChevronLeftIcon,
@@ -10,36 +9,12 @@ import {
   MenuIcon,
 } from "lucide-react";
 import SignOut from "./ui/signOut";
-import ConnectBank from "./ConnectBank";
 import { useSidebar } from "@/contexts/SidebarContext";
 
 export default function SidebarNav() {
   const [displayName, setDisplayName] = useState<string>("");
-  const [bankidConnected, setBankidConnected] = useState<boolean | null>(null);
-  const [plaidConnected, setPlaidConnected] = useState<boolean | null>(null);
-  const [showConnect, setShowConnect] = useState(false);
   const { isCollapsed, toggleSidebar } = useSidebar();
 
-  useEffect(() => {
-    (async () => {
-      try {
-        // Check both providers separately
-        const [tinkRes, plaidRes] = await Promise.all([
-          authedFetch("/api/bankid/accounts").catch(
-            () => new Response(null, { status: 500 })
-          ),
-          authedFetch("/api/plaid/accounts").catch(
-            () => new Response(null, { status: 500 })
-          ),
-        ]);
-        setBankidConnected(tinkRes?.ok ?? false);
-        setPlaidConnected(plaidRes?.ok ?? false);
-      } catch {
-        setBankidConnected(false);
-        setPlaidConnected(false);
-      }
-    })();
-  }, []);
 
   useEffect(() => {
     const sb = supabaseBrowser();
@@ -67,7 +42,7 @@ export default function SidebarNav() {
       )}
       
       <nav
-        className={`flex flex-col justify-start gap-2 bg-background border-r border-border h-screen p-4 absolute top-0 left-0 transition-all duration-300 ease-in-out z-50 fixed top-0 left-0 ${
+        className={`flex flex-col justify-start gap-2 bg-background border-r border-border h-screen p-4 fixed top-0 left-0 transition-all duration-300 ease-in-out z-50 ${
           isCollapsed ? "w-16" : "w-64"
         } ${
           isCollapsed ? "-translate-x-full md:translate-x-0" : "translate-x-0"

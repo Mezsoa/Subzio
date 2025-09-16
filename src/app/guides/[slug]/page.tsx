@@ -9,7 +9,6 @@ import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import { getPostBySlug, getAllPosts, getRelatedPosts } from '@/lib/blog'
 import BlogCard from '@/components/blog/BlogCard'
 import BlogCta from '@/components/blog/BlogCta'
-import { useMDXComponents } from '../../../../mdx-components'
 
 export async function generateStaticParams() {
   const guides = getAllPosts('guides')
@@ -61,13 +60,11 @@ export default async function GuideDetailPage({ params }: { params: Promise<{ sl
   const relatedGuides = getRelatedPosts(slug, 3, 'guides')
   
   const mdxOptions = {
-    mdxOptions: {
-      remarkPlugins: [remarkGfm],
-      rehypePlugins: [
-        rehypeSlug,
-        [rehypeAutolinkHeadings, { behavior: 'wrap' }],
-      ],
-    },
+    remarkPlugins: [remarkGfm],
+    rehypePlugins: [
+      rehypeSlug,
+      [rehypeAutolinkHeadings, { behavior: 'wrap' }],
+    ],
   }
   
   const jsonLd = {
@@ -180,8 +177,7 @@ export default async function GuideDetailPage({ params }: { params: Promise<{ sl
         <div className="prose prose-lg prose-invert max-w-none mb-12">
           <MDXRemote 
             source={guide.content} 
-            options={mdxOptions}
-            components={useMDXComponents({})}
+            components={{}}
           />
         </div>
         

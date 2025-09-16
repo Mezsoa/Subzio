@@ -9,7 +9,6 @@ import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import { getPostBySlug, getAllPosts, getRelatedPosts } from '@/lib/blog'
 import BlogCard from '@/components/blog/BlogCard'
 import BlogCta from '@/components/blog/BlogCta'
-import { useMDXComponents } from '../../../../mdx-components'
 
 export async function generateStaticParams() {
   const posts = getAllPosts('blog')
@@ -61,13 +60,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const relatedPosts = getRelatedPosts(slug, 3, 'blog')
   
   const mdxOptions = {
-    mdxOptions: {
-      remarkPlugins: [remarkGfm],
-      rehypePlugins: [
-        rehypeSlug,
-        [rehypeAutolinkHeadings, { behavior: 'wrap' }],
-      ],
-    },
+    remarkPlugins: [remarkGfm],
+    rehypePlugins: [
+      rehypeSlug,
+      [rehypeAutolinkHeadings, { behavior: 'wrap' }],
+    ],
   }
   
   const jsonLd = {
@@ -186,8 +183,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         <div className="prose prose-lg prose-invert max-w-none mb-12">
           <MDXRemote 
             source={post.content} 
-            options={mdxOptions}
-            components={useMDXComponents({})}
+            components={{}}
           />
         </div>
         

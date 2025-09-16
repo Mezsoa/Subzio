@@ -8,8 +8,6 @@ import FounderMessage from "@/components/FounderMessage";
 import SnapSection from "@/components/SnapSection";
 import GlassFeature from "@/components/GlassFeature";
 import Reveal from "@/components/animations/Reveal";
-import BlogPreview from "@/components/BlogPreview";
-import Image from "next/image";
 
 export default function Home() {
   return (

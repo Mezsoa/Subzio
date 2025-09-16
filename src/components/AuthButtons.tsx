@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import { supabaseBrowser } from "@/lib/supabaseClient";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
 
