@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Mail, Send, Shield, FileText, Cookie, Globe, Twitter, Linkedin, Github, Clock } from "lucide-react";
+import { Mail, Send, Shield, FileText, Cookie, Globe, Twitter, Linkedin, Github, Clock, Users } from "lucide-react";
 
 export default function Footer() {
   const [email, setEmail] = useState("");
@@ -146,6 +146,10 @@ export default function Footer() {
                 <Link href="/data-retention-policy" className="block text-xs sm:text-sm text-muted hover:text-foreground transition-colors duration-200 flex items-center space-x-2">
                   <Clock className="w-3 h-3" />
                   <span>Data Retention</span>
+                </Link>
+                <Link href="/access-control-policy" className="block text-xs sm:text-sm text-muted hover:text-foreground transition-colors duration-200 flex items-center space-x-2">
+                  <Users className="w-3 h-3" />
+                  <span>Access Controls</span>
                 </Link>
               </div>
             </div>
