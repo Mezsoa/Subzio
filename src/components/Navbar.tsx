@@ -36,7 +36,7 @@ export default function Navbar() {
   return (
     <header className="w-full border-b border-border bg-background">
       <nav className="mx-auto max-w-screen w-[90%] px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-4 sm:gap-8">
+        <div className="flex items-center gap-4 sm:gap-8 md:hidden hidden">
           <Link
             href="/"
             className="text-xs sm:text-sm font-semibold tracking-tight text-foreground">
@@ -98,7 +98,7 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="sm:hidden fixed inset-x-0 top-16 z-50 bg-background border-b border-border">
+        <div className="sm:hidden fixed inset-x-0 top-16 z-50 bg-background border-b border-border hidden md:hidden">
           <div className="flex flex-col space-y-1 px-4 py-3">
             <Link 
               href="/blog" 
