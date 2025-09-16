@@ -43,7 +43,7 @@ export default function Navbar() {
               the last subscription killer
             </span>
           </Link>
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-6 hidden md:hidden">
             <Link
               href="/blog"
               className="text-sm text-muted hover:text-foreground transition">

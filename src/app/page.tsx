@@ -156,8 +156,10 @@ export default function Home() {
           </div>
         </SnapSection>
         
-        {/* Blog Preview */}
+        {/* Blog Preview 
         <BlogPreview />
+
+        */}
        
         <Fomo />
 
