@@ -11,6 +11,7 @@ import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config as fontawesomeConfig } from "@fortawesome/fontawesome-svg-core";
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import ConsentManager from "@/components/ConsentManager"
 
 fontawesomeConfig.autoAddCss = false;
 
@@ -60,6 +61,7 @@ export default function RootLayout({
                 <AnalyticsListener />
                 <SpeedInsights />
               </Suspense>
+              <ConsentManager />
             </AppProviders>
           </ErrorProvider>
         </ErrorBoundary>
