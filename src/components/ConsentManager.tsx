@@ -9,6 +9,17 @@ interface ConsentPreferences {
   functional: boolean;
 }
 
+// Extend the Window interface to include gtag with consent support
+declare global {
+  interface Window {
+    gtag?: (
+      command: 'config' | 'event' | 'js' | 'consent',
+      targetId: string,
+      config?: Record<string, any>
+    ) => void;
+  }
+}
+
 export default function ConsentManager() {
   const [showBanner, setShowBanner] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -44,7 +55,7 @@ export default function ConsentManager() {
     
     // Trigger analytics if accepted
     if (typeof window !== 'undefined' && window.gtag) {
-      window.gtag('consent', 'update', {
+      (window.gtag as any)('consent', 'update', {
         analytics_storage: 'granted',
         ad_storage: 'granted',
         functionality_storage: 'granted',
@@ -66,7 +77,7 @@ export default function ConsentManager() {
     
     // Disable analytics
     if (typeof window !== 'undefined' && window.gtag) {
-      window.gtag('consent', 'update', {
+      (window.gtag as any)('consent', 'update', {
         analytics_storage: 'denied',
         ad_storage: 'denied',
         functionality_storage: 'denied',
@@ -81,7 +92,7 @@ export default function ConsentManager() {
     
     // Update Google Analytics consent
     if (typeof window !== 'undefined' && window.gtag) {
-      window.gtag('consent', 'update', {
+      (window.gtag as any)('consent', 'update', {
         analytics_storage: preferences.analytics ? 'granted' : 'denied',
         ad_storage: preferences.marketing ? 'granted' : 'denied',
         functionality_storage: preferences.functional ? 'granted' : 'denied',
