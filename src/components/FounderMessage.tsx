@@ -3,7 +3,7 @@ import Reveal from "./animations/Reveal";
 
 export default function FounderMessage() {
   return (
-    <div className="rounded-2xl bg-transparent p-6 sm:p-10 shadow-xl">
+    <div className="rounded-2xl bg-transparent p-6 sm:p-10 shadow-xl sm:mt-28 mt-48">
       <h3 className="text-lg sm:text-xl font-semibold tracking-tight text-foreground text-center mb-16">Founder’s message</h3>
       <div className="mt-4 flex flex-col items-center gap-4">
         <div className="flex-shrink-0 w-20 h-20 rounded-full bg-white/10 text-white/80 flex items-center justify-center text-sm font-semibold overflow-hidden">

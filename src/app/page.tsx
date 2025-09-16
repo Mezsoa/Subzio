@@ -46,16 +46,16 @@ export default function Home() {
         </section>
 
         {/* Why KillSub */}
-        <SnapSection className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16 bg-transparent flex flex-col items-center justify-center text-center">
-          <div className="mb-16">
-            <h2 className="text-xl sm:text-2xl font-regular tracking-tight text-foreground text-center">
+        <SnapSection className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10 sm:py-16 bg-transparent flex flex-col items-center justify-center text-center">
+          <div className="mb-8 sm:mb-16">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-regular tracking-tight text-foreground text-center">
               Why KillSub
             </h2>
-            <p className="mt-3 text-sm text-muted max-w-2xl mx-auto">
+            <p className="mt-2 sm:mt-3 text-xs sm:text-sm text-muted max-w-2xl mx-auto px-4 sm:px-0">
               Cut waste, avoid surprise renewals, and cancel with guided steps.
             </p>
           </div>
-          <div className="w-full grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-6">
+          <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
             <GlassFeature
               title="Hidden charges"
               description="Find sneaky recurring charges buried in statements before they drain your balance."
@@ -104,11 +104,11 @@ export default function Home() {
         </SnapSection>
 
         {/* How it works */}
-        <SnapSection className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16 bg-transparent flex flex-col items-center justify-center text-center">
-          <h2 className="text-xl sm:text-2xl font-regular tracking-tight text-foreground text-center mb-16">
+        <SnapSection className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10 sm:py-16 bg-transparent flex flex-col items-center justify-center text-center">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-regular tracking-tight text-foreground text-center mb-8 sm:mb-16">
             How it works
           </h2>
-          <div className="w-full grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-6">
+          <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
             <GlassFeature
               title="Connect securely"
               description="Link your bank via Plaid or BankID (where supported). We never see or store your credentials."

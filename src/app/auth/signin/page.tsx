@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabaseClient";
 import AuthButtons from "@/components/AuthButtons";
 
@@ -9,6 +10,16 @@ export default function SignInPage() {
     "idle"
   );
   const [msg, setMsg] = useState<string>("");
+  const searchParams = useSearchParams();
+
+  // Check for error parameters
+  useEffect(() => {
+    const error = searchParams.get("error");
+    if (error === "unauthorized") {
+      setStatus("error");
+      setMsg("Only authorized users can access this application. Please contact support if you believe this is an error.");
+    }
+  }, [searchParams]);
 
   async function sendMagicLink(e: React.FormEvent) {
     e.preventDefault();
@@ -36,9 +47,10 @@ export default function SignInPage() {
 
   return (
     <main className="min-h-[100dvh] w-full flex items-center justify-center">
-      <section className="w-full flex flex-row">
+      <section className="w-full flex flex-col md:flex-row">
+        {/* Background image - full screen on mobile, half screen on desktop */}
         <div
-          className="min-h-[100dvh] flex items-center justify-center px-0 w-1/2 bg-white"
+          className="fixed inset-0 md:relative md:min-h-[100dvh] md:flex md:items-center md:justify-center md:px-0 md:w-1/2 bg-white"
           style={{
             backgroundImage: "url('/login/subscribeTwo.webp')",
             backgroundSize: "cover",
@@ -50,13 +62,15 @@ export default function SignInPage() {
           }}>
          
         </div>
-        <div className="relative min-h-[100dvh] flex items-center justify-center px-4 w-1/2" style={{ backgroundColor: "var(--background)" }}>
-          <div className="max-w-md w-full rounded-2xl border border-white/10 backdrop-blur p-8" style={{ background: "rgba(15,23,42,0.9)" }}>
-            <h1 className="text-xl font-medium mb-2">
+        
+        {/* Form container - overlay on mobile, side-by-side on desktop */}
+        <div className="relative z-10 md:relative md:min-h-[100dvh] flex items-center justify-center px-4 md:w-1/2 bg-background/60">
+          <div className="max-w-md w-full rounded-2xl border border-white/10 backdrop-blur p-6 sm:p-8" style={{ background: "rgba(15, 23, 42, 0.8)" }}>
+            <h1 className="text-lg sm:text-xl font-medium mb-2">
               Sign in or create account
             </h1>
-            <p className="text-sm text-muted mb-6">
-              No account? We’ll create one when you continue. Use Google or
+            <p className="text-xs sm:text-sm text-muted mb-6">
+              No account? We'll create one when you continue. Use Google or
               email magic link.
             </p>
 
@@ -79,13 +93,13 @@ export default function SignInPage() {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full h-10 px-3 rounded-md border border-white/10 bg-background text-foreground placeholder:opacity-60 focus:outline-none focus:ring-2 focus:ring-foreground/10"
+                className="w-full h-10 sm:h-12 px-3 rounded-md border border-white/10 bg-background text-foreground placeholder:opacity-60 focus:outline-none focus:ring-2 focus:ring-foreground/10 text-sm sm:text-base"
                 disabled={status === "loading"}
                 required
               />
               <button
                 type="submit"
-                className="w-full h-10 rounded-md bg-[linear-gradient(90deg,var(--cta-start),var(--cta-end))] text-[var(--on-primary)] text-sm font-semibold hover:brightness-110 disabled:opacity-60"
+                className="w-full h-10 sm:h-12 rounded-md bg-[linear-gradient(90deg,var(--cta-start),var(--cta-end))] text-[var(--on-primary)] text-sm font-semibold hover:brightness-110 disabled:opacity-60"
                 disabled={status === "loading"}>
                 {status === "loading" ? "Sending…" : "Email me a magic link"}
               </button>
@@ -93,7 +107,7 @@ export default function SignInPage() {
 
             {msg && (
               <p
-                className={`mt-3 text-sm ${
+                className={`mt-3 text-xs sm:text-sm ${
                   status === "error" ? "text-red-500" : "text-emerald-400"
                 }`}>
                 {msg}

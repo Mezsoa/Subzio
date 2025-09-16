@@ -54,7 +54,7 @@ function Fomo() {
   if (!mounted) return null;
 
   return (
-    <SnapSection className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-14 h-[100vh] flex items-center justify-center mt-48">
+    <SnapSection className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-14 h-[100vh] flex items-center justify-center mt-[40dvh]">
        <Reveal threshold={0.5} offsetPx={150} durationMs={1000} className="flex max-w-4xl mx-auto items-center justify-center w-full mb-24">
           <Image
             src="/laurel/left.webp"

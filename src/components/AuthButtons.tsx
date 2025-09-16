@@ -11,21 +11,28 @@ export default function AuthButtons() {
     setLoading(true);
     
     try {
-      const supabase = supabaseBrowser();
-      await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo:
-            typeof window !== "undefined"
-              ? `${window.location.origin}/auth/callback?next=/dashboard`
-              : undefined,
-          queryParams: { prompt: "select_account" },
-        },
-      });
+      // Use direct redirect for ALL devices to avoid X-Frame-Options issues
+      console.log("Using direct redirect to avoid iframe/popup issues");
+      
+      // Direct redirect to Supabase OAuth endpoint
+      const redirectUrl = encodeURIComponent(`${window.location.origin}/auth/callback?next=/dashboard`);
+      const oauthUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${redirectUrl}`;
+      
+      console.log("Redirecting to:", oauthUrl);
+      
+      // Force a full page redirect and prevent any iframe/popup behavior
+      // Use setTimeout to ensure the redirect happens after the current execution
+      setTimeout(() => {
+        window.location.replace(oauthUrl);
+      }, 100);
+      
     } catch (err) {
-      console.error(err);
-    } finally {
+      console.error("Google OAuth error:", err);
       setLoading(false);
+      
+      // Show user-friendly error message
+      const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      alert(`Unable to sign in with Google: ${errorMessage}. Please try again or use the email magic link option.`);
     }
   }
 
@@ -40,8 +47,13 @@ export default function AuthButtons() {
         <button
           onClick={signInWithGoogle}
           disabled={loading}
-          className="px-4 py-2 rounded-md bg-white/10 hover:bg-white/20 border border-white/20 w-full">
-          {loading ? "..." : (
+          className="px-4 py-2 rounded-md bg-white/10 hover:bg-white/20 border border-white/20 w-full disabled:opacity-50">
+          {loading ? (
+            <span className="inline-flex items-center justify-center gap-2">
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              <span>Connecting...</span>
+            </span>
+          ) : (
             <span className="inline-flex items-center justify-center gap-2">
               <FontAwesomeIcon icon={faGoogle} className="w-4 h-4" />
               <span>Continue with Google</span>
@@ -49,6 +61,7 @@ export default function AuthButtons() {
           )}
         </button>
       </div>
+      
     </section>
   );
 }

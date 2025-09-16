@@ -75,67 +75,67 @@ export default function Footer() {
   }
 
   return (
-    <footer className="relative w-full mt-32 overflow-hidden">
+    <footer className="relative w-full mt-16 sm:mt-24 lg:mt-32 overflow-hidden">
       {/* Background with gradient and glassmorphism effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background/90" />
       <div className="absolute inset-0 bg-gradient-to-t from-primary/5 via-transparent to-transparent" />
       
       {/* Decorative elements */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl opacity-20 animate-pulse" />
-      <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-cta-end/10 rounded-full blur-3xl opacity-30" />
+      <div className="absolute top-0 left-1/4 w-48 sm:w-80 lg:w-96 h-48 sm:h-80 lg:h-96 bg-primary/10 rounded-full blur-3xl opacity-20 animate-pulse" />
+      <div className="absolute bottom-0 right-1/4 w-40 sm:w-64 lg:w-80 h-40 sm:h-64 lg:h-80 bg-cta-end/10 rounded-full blur-3xl opacity-30" />
       
       <div className="relative">
         {/* Main footer content */}
-        <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12 pt-20 pb-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-12 pt-12 sm:pt-16 lg:pt-20 pb-8 sm:pb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-12">
             
             {/* Brand section */}
-            <div className="lg:col-span-4 space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-primary to-cta-end rounded-xl flex items-center justify-center">
-                    <Shield className="w-5 h-5 text-white" />
+            <div className="sm:col-span-2 lg:col-span-4 space-y-4 sm:space-y-6">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="flex items-center space-x-2 sm:space-x-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-primary to-cta-end rounded-lg sm:rounded-xl flex items-center justify-center">
+                    <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   </div>
-                  <span className="text-2xl font-bold bg-gradient-to-r from-primary to-cta-end bg-clip-text text-transparent">
+                  <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary to-cta-end bg-clip-text text-transparent">
                     KillSub
                   </span>
                 </div>
-                <p className="text-muted text-sm leading-relaxed max-w-sm">
+                <p className="text-muted text-xs sm:text-sm leading-relaxed max-w-sm">
                   AI-powered subscription management that helps you find hidden recurring charges and cancel unwanted subscriptions with ease.
                 </p>
               </div>
               
               {/* Social links */}
-              <div className="flex items-center space-x-4">
-                <a href="#" className="w-10 h-10 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg flex items-center justify-center hover:bg-white/20 transition-all duration-300 group">
-                  <Twitter className="w-4 h-4 text-muted group-hover:text-foreground transition-colors" />
+              <div className="flex items-center space-x-3 sm:space-x-4">
+                <a href="#" className="w-8 h-8 sm:w-10 sm:h-10 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg flex items-center justify-center hover:bg-white/20 transition-all duration-300 group">
+                  <Twitter className="w-3 h-3 sm:w-4 sm:h-4 text-muted group-hover:text-foreground transition-colors" />
                 </a>
-                <a href="#" className="w-10 h-10 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg flex items-center justify-center hover:bg-white/20 transition-all duration-300 group">
-                  <Linkedin className="w-4 h-4 text-muted group-hover:text-foreground transition-colors" />
+                <a href="#" className="w-8 h-8 sm:w-10 sm:h-10 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg flex items-center justify-center hover:bg-white/20 transition-all duration-300 group">
+                  <Linkedin className="w-3 h-3 sm:w-4 sm:h-4 text-muted group-hover:text-foreground transition-colors" />
                 </a>
-                <a href="#" className="w-10 h-10 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg flex items-center justify-center hover:bg-white/20 transition-all duration-300 group">
-                  <Github className="w-4 h-4 text-muted group-hover:text-foreground transition-colors" />
+                <a href="#" className="w-8 h-8 sm:w-10 sm:h-10 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg flex items-center justify-center hover:bg-white/20 transition-all duration-300 group">
+                  <Github className="w-3 h-3 sm:w-4 sm:h-4 text-muted group-hover:text-foreground transition-colors" />
                 </a>
               </div>
             </div>
 
             {/* Quick Links */}
-            <div className="lg:col-span-2 space-y-6">
-              <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">Legal</h3>
-              <div className="space-y-3">
-                <Link href="/privacy" className="block text-sm text-muted hover:text-foreground transition-colors duration-200 flex items-center space-x-2">
+            <div className="sm:col-span-1 lg:col-span-2 space-y-4 sm:space-y-6">
+              <h3 className="text-xs sm:text-sm font-semibold text-foreground uppercase tracking-wider">Legal</h3>
+              <div className="space-y-2 sm:space-y-3">
+                <Link href="/privacy" className="block text-xs sm:text-sm text-muted hover:text-foreground transition-colors duration-200 flex items-center space-x-2">
                   <Shield className="w-3 h-3" />
                   <span>Privacy Policy</span>
                 </Link>
-                <Link href="/terms" className="block text-sm text-muted hover:text-foreground transition-colors duration-200 flex items-center space-x-2">
+                <Link href="/terms" className="block text-xs sm:text-sm text-muted hover:text-foreground transition-colors duration-200 flex items-center space-x-2">
                   <FileText className="w-3 h-3" />
                   <span>Terms of Service</span>
                 </Link>
-                <Link href="/cookies" className="block text-sm text-muted hover:text-foreground transition-colors duration-200 flex items-center space-x-2">
+                <Link href="/cookies" className="block text-xs sm:text-sm text-muted hover:text-foreground transition-colors duration-200 flex items-center space-x-2">
                   <Cookie className="w-3 h-3" />
                   <span>Cookie Policy</span>
                 </Link>
-                <Link href="/gdpr" className="block text-sm text-muted hover:text-foreground transition-colors duration-200 flex items-center space-x-2">
+                <Link href="/gdpr" className="block text-xs sm:text-sm text-muted hover:text-foreground transition-colors duration-200 flex items-center space-x-2">
                   <Globe className="w-3 h-3" />
                   <span>GDPR Compliance</span>
                 </Link>
@@ -143,67 +143,67 @@ export default function Footer() {
             </div>
 
             {/* Contact Form with Glassmorphism */}
-            <div className="lg:col-span-3 space-y-6">
-              <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">Get in Touch</h3>
+            <div className="sm:col-span-1 lg:col-span-3 space-y-4 sm:space-y-6">
+              <h3 className="text-xs sm:text-sm font-semibold text-foreground uppercase tracking-wider">Get in Touch</h3>
               <div className="bg-transparent backdrop-blur-md py-2 shadow-xl">
-                <form onSubmit={onContactSubmit} className="space-y-4">
+                <form onSubmit={onContactSubmit} className="space-y-3 sm:space-y-4">
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-3 sm:w-4 h-3 sm:h-4 text-muted" />
                     <input
                       type="email"
                       placeholder="Your email address"
                       value={contactEmail}
                       onChange={(e) => setContactEmail(e.target.value)}
-                      className="w-full h-12 pl-10 pr-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-foreground placeholder:text-muted/70 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300"
+                      className="w-full h-10 sm:h-12 pl-9 sm:pl-10 pr-3 sm:pr-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg sm:rounded-xl text-xs sm:text-sm text-foreground placeholder:text-muted/70 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300"
                       disabled={contactStatus === "loading"}
                     />
                   </div>
                   <button
                     type="submit"
                     disabled={contactStatus === "loading"}
-                    className="w-full h-12 bg-gradient-to-r from-primary to-cta-end text-white rounded-xl font-medium hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 flex items-center justify-center space-x-2 disabled:opacity-50"
+                    className="w-full h-10 sm:h-12 bg-gradient-to-r from-primary to-cta-end text-white rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 flex items-center justify-center space-x-2 disabled:opacity-50"
                   >
-                    <Send className="w-4 h-4" />
+                    <Send className="w-3 sm:w-4 h-3 sm:h-4" />
                     <span>{contactStatus === "loading" ? "Sending..." : "Get in Touch "}</span>
                   </button>
                   {contactStatus === "success" && (
-                    <p className="text-sm text-green-400 text-center">Message sent successfully!</p>
+                    <p className="text-xs sm:text-sm text-green-400 text-center">Message sent successfully!</p>
                   )}
                   {contactStatus === "error" && (
-                    <p className="text-sm text-red-400 text-center">{contactErrorMsg}</p>
+                    <p className="text-xs sm:text-sm text-red-400 text-center">{contactErrorMsg}</p>
                   )}
                 </form>
               </div>
             </div>
 
             {/* Waitlist Form with Glassmorphism */}
-            <div className="lg:col-span-3 space-y-6">
-              <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">Join Waitlist</h3>
+            <div className="sm:col-span-2 lg:col-span-3 space-y-4 sm:space-y-6">
+              <h3 className="text-xs sm:text-sm font-semibold text-foreground uppercase tracking-wider">Join Waitlist</h3>
               <div className="bg-transparent backdrop-blur-md py-2 shadow-xl">
-                <form onSubmit={onWaitlistSubmit} className="space-y-4">
+                <form onSubmit={onWaitlistSubmit} className="space-y-3 sm:space-y-4">
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-3 sm:w-4 h-3 sm:h-4 text-muted" />
                     <input
                       type="email"
                       placeholder="Enter your email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full h-12 pl-10 pr-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-foreground placeholder:text-muted/70 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300"
+                      className="w-full h-10 sm:h-12 pl-9 sm:pl-10 pr-3 sm:pr-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg sm:rounded-xl text-xs sm:text-sm text-foreground placeholder:text-muted/70 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300"
                       disabled={status === "loading"}
                     />
                   </div>
                   <button
                     type="submit"
                     disabled={status === "loading"}
-                    className="w-full h-12 bg-gradient-to-r from-cta-start to-cta-end text-white rounded-xl font-medium hover:shadow-lg hover:shadow-cta-start/25 transition-all duration-300 flex items-center justify-center space-x-2 disabled:opacity-50"
+                    className="w-full h-10 sm:h-12 bg-gradient-to-r from-cta-start to-cta-end text-white rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium hover:shadow-lg hover:shadow-cta-start/25 transition-all duration-300 flex items-center justify-center space-x-2 disabled:opacity-50"
                   >
                     <span>{status === "loading" ? "Joining..." : "Join Waitlist"}</span>
                   </button>
                   {status === "success" && (
-                    <p className="text-sm text-green-400 text-center">Thanks! You&apos;re on the list.</p>
+                    <p className="text-xs sm:text-sm text-green-400 text-center">Thanks! You&apos;re on the list.</p>
                   )}
                   {status === "error" && (
-                    <p className="text-sm text-red-400 text-center">{errorMsg}</p>
+                    <p className="text-xs sm:text-sm text-red-400 text-center">{errorMsg}</p>
                   )}
                 </form>
               </div>
@@ -213,12 +213,12 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="border-t border-white/10 bg-black/20 backdrop-blur-sm">
-          <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12 py-6">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="text-sm text-muted">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-12 py-4 sm:py-6">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4">
+              <div className="text-xs sm:text-sm text-muted text-center sm:text-left">
                 © {new Date().getFullYear()} KillSub. All rights reserved.
               </div>
-              <div className="text-sm text-muted">
+              <div className="text-xs sm:text-sm text-muted text-center sm:text-right">
                 Made with ❤️ for financial freedom
               </div>
             </div>

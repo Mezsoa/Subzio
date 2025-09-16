@@ -147,10 +147,10 @@ export default function Hero() {
   }`;
 
   return (
-    <section className="mx-auto h-screen text-center bg-gradient-to-b from-[rgba(29,155,240,0.08)] via-[rgba(11,18,32,1)] to-[rgba(11,18,32,1)] text-foreground flex flex-row">
-      <section className="flex-1 h-[calc(100vh-65px)] flex flex-col justify-evenly py-2 px-4">
+    <section className="mx-auto min-h-screen lg:h-screen text-center bg-gradient-to-b from-[rgba(29,155,240,0.08)] via-[rgba(11,18,32,1)] to-[rgba(11,18,32,1)] text-foreground flex flex-col lg:flex-row">
+      <section className="flex-1 min-h-[80vh] lg:h-[calc(100vh-65px)] flex flex-col justify-evenly py-4 lg:py-2 px-4">
         <header className="mb-10 flex flex-col items-center justify-center mt-0">
-          <h1 className="mt-0 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight leading-tight font-orbitron">
+          <h1 className="mt-0 text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-semibold tracking-tight leading-tight font-orbitron">
             <span className="block text-white/95">Take control</span>
             <span className="block text-white/80 mt-1 font-light">of your</span>
             <span className="block text-white/90 mt-1">subscriptions</span>
@@ -158,18 +158,18 @@ export default function Hero() {
 
           <div className="mt-2 w-16 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
 
-          <p className="mt-6 text-base sm:text-lg text-slate-300 max-w-lg mx-auto font-orbitron leading-relaxed">
+          <p className="mt-4 lg:mt-6 text-sm sm:text-base lg:text-lg text-slate-300 max-w-lg mx-auto font-orbitron leading-relaxed px-4 lg:px-0">
             {subhead}
           </p>
         </header>
         <div>
           {/* Option Selector */}
-          <div className=" max-w-md mx-auto mb-8">
+          <div className="max-w-sm sm:max-w-md mx-auto mb-6 lg:mb-8 px-4 lg:px-0">
             <div className="flex bg-background/50 border border-border rounded-lg p-1">
               <button
                 type="button"
                 onClick={() => setSelectedOption("waitlist")}
-                className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition cursor-pointer ${
+                className={`flex-1 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md transition cursor-pointer ${
                   selectedOption === "waitlist"
                     ? "bg-foreground text-background"
                     : "text-muted hover:text-foreground"
@@ -179,7 +179,7 @@ export default function Hero() {
               <button
                 type="button"
                 onClick={() => setSelectedOption("preorder")}
-                className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition cursor-pointer ${
+                className={`flex-1 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md transition cursor-pointer ${
                   selectedOption === "preorder"
                     ? "bg-foreground text-background"
                     : "text-muted hover:text-foreground"
@@ -188,7 +188,7 @@ export default function Hero() {
               </button>
             </div>
 
-            <p className="mt-3 text-xs text-muted text-center">
+            <p className="mt-3 text-[10px] sm:text-xs text-muted text-center">
               {selectedOption === "preorder"
                 ? "🚀 Get lifetime 60% discount + early access"
                 : "📧 Get notified when we launch"}
@@ -198,7 +198,7 @@ export default function Hero() {
           <form
             id="hero-form"
             onSubmit={onSubmit}
-            className="mt-8 max-w-xl mx-auto flex flex-col sm:flex-row gap-3  rounded-md p-2 bg-transparent">
+            className="mt-6 lg:mt-8 max-w-xl mx-auto flex flex-col sm:flex-row gap-3 rounded-md p-2 bg-transparent px-4 lg:px-2">
             <input
               type="email"
               name="email"
@@ -211,7 +211,7 @@ export default function Hero() {
             />
             <button
               type="submit"
-              className="whitespace-nowrap inline-flex items-center justify-center h-12 px-5 rounded-md text-sm text-black bg-foreground/80 font-semibold hover:brightness-110 shadow-md transition disabled:opacity-60 animate-pulse hover:animate-none cursor-pointer"
+              className="whitespace-nowrap inline-flex items-center justify-center h-10 sm:h-12 px-4 sm:px-5 rounded-md text-xs sm:text-sm text-black bg-foreground/80 font-semibold hover:brightness-110 shadow-md transition disabled:opacity-60 animate-pulse hover:animate-none cursor-pointer"
               onClick={() => {
                 if (typeof window !== "undefined" && window.gtag) {
                   window.gtag("event", "waitlist_submit_click", {
@@ -224,32 +224,32 @@ export default function Hero() {
               {status === "loading" ? "Joining…" : ctaText}
             </button>
           </form>
-          <div className="mt-4 text-xs text-muted flex items-center justify-center gap-2">
-            <span className="inline-flex items-center gap-1">
+          <div className="mt-4 text-[10px] sm:text-xs text-muted flex flex-wrap items-center justify-center gap-1 sm:gap-2 px-4 lg:px-0">
+            <span className="inline-flex items-center gap-1 whitespace-nowrap">
               <span
-                className="inline-block h-2 w-2 rounded-full"
+                className="inline-block h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full"
                 style={{ background: "var(--primary)" }}
               />
               Privacy‑first, bank‑grade security
             </span>
-            <span aria-hidden>•</span>
-            <span>Powered by Plaid / BankID</span>
-            <span aria-hidden>•</span>
-            <span>Cancel anytime</span>
+            <span aria-hidden className="hidden sm:inline">•</span>
+            <span className="whitespace-nowrap">Powered by Plaid / BankID</span>
+            <span aria-hidden className="hidden sm:inline">•</span>
+            <span className="whitespace-nowrap">Cancel anytime</span>
           </div>
-          <div className="mt-2 text-xs text-muted">
+          <div className="mt-2 text-[10px] sm:text-xs text-muted px-4 lg:px-0">
             <span className="mr-1">✅</span>No spam. Cancel anytime. Join 34
             others already waiting.
           </div>
-          <div className="mt-2 text-xs text-muted">
+          <div className="mt-2 text-[10px] sm:text-xs text-muted px-4 lg:px-0">
             People from 🇸🇪 🇺🇸 🇨🇦 already joined this week.
           </div>
 
           {status === "error" && (
-            <p className="mt-4 text-sm text-red-600">{errorMsg}</p>
+            <p className="mt-4 text-xs sm:text-sm text-red-600 px-4 lg:px-0">{errorMsg}</p>
           )}
           {status === "success" && (
-            <p className="mt-4 text-sm text-green-600">
+            <p className="mt-4 text-xs sm:text-sm text-green-600 px-4 lg:px-0">
               {selectedOption === "preorder"
                 ? "Redirecting to secure checkout..."
                 : "Thanks! You're on the list."}
@@ -257,21 +257,21 @@ export default function Hero() {
           )}
         </div>
 
-        <div className="absolute bottom-0 left-8 opacity-60 hover:opacity-100 transition-opacity z-50">
+        <div className="hidden lg:block absolute bottom-0 left-4 lg:left-8 opacity-60 hover:opacity-100 transition-opacity z-50">
           <a href="https://tinylaunch.com" target="_blank" rel="noopener">
             <Image
               src="https://tinylaunch.com/tinylaunch_badge_launching_soon.svg"
               alt="TinyLaunch Badge"
               width={100}
               height={100}
-              className="w-28 h-28"
+              className="w-20 h-20 lg:w-28 lg:h-28"
             />
           </a>
         </div>
       </section>
 
-      <section className="mb-10 flex-1 items-end relative justify-end h-[calc(100vh-65px)]">
-        <p className="text-xs uppercase tracking-[0.2em] text-black absolute top-16 left-[80%] z-11 bg-gradient-to-r from-indigo-200 via-sky-200/50 to-indigo-200/50 backdrop-blur-sm rounded-lg px-4 py-2 border border-black/5">
+      <section className="mb-10 flex-1 items-end relative justify-end h-[40vh] lg:h-[calc(100vh-65px)]">
+        <p className="text-[10px] sm:text-xs uppercase tracking-[0.1em] sm:tracking-[0.2em] text-black absolute top-8 lg:top-16 left-[60%] lg:left-[80%] z-11 bg-gradient-to-r from-indigo-200 via-sky-200/50 to-indigo-200/50 backdrop-blur-sm rounded-lg px-2 sm:px-4 py-1 sm:py-2 border border-black/5">
           KillSub
         </p>
         <Image
@@ -286,8 +286,8 @@ export default function Hero() {
         <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-white/10 pointer-events-none z-20 rounded-3xl"></div>
 
         {/* Light reflection on glass */}
-        <div className="absolute top-6 left-6 w-20 h-20 bg-white/30 rounded-full blur-2xl pointer-events-none z-30"></div>
-        <div className="absolute top-12 right-8 w-12 h-12 bg-white/20 rounded-full blur-xl pointer-events-none z-30"></div>
+        <div className="absolute top-3 lg:top-6 left-3 lg:left-6 w-10 lg:w-20 h-10 lg:h-20 bg-white/30 rounded-full blur-xl lg:blur-2xl pointer-events-none z-30"></div>
+        <div className="absolute top-6 lg:top-12 right-4 lg:right-8 w-6 lg:w-12 h-6 lg:h-12 bg-white/20 rounded-full blur-lg lg:blur-xl pointer-events-none z-30"></div>
       </section>
     </section>
   );

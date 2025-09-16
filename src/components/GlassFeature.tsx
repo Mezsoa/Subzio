@@ -34,26 +34,26 @@ function GlassFeature({
         threshold={0.5}
         offsetPx={200}
         durationMs={1000}
-        className={`relative rounded-2xl border border-white/10 backdrop-blur-md shadow-xl transition-colors ${className}`}>
-        <div className="pointer-events-none absolute rounded-2xl inset-0 [mask-image:radial-gradient(100%_60%_at_0%_0%,_white,_transparent)]">
+        className={`relative rounded-xl sm:rounded-2xl border border-white/10 backdrop-blur-md shadow-xl transition-colors ${className}`}>
+        <div className="pointer-events-none absolute rounded-xl sm:rounded-2xl inset-0 [mask-image:radial-gradient(100%_60%_at_0%_0%,_white,_transparent)]">
           <div
-            className={`absolute -top-12 -left-12 h-48 w-48 rounded-full bg-gradient-to-br ${accentClasses}`}
+            className={`absolute -top-8 sm:-top-12 -left-8 sm:-left-12 h-32 sm:h-48 w-32 sm:w-48 rounded-full bg-gradient-to-br ${accentClasses}`}
           />
         </div>
 
         <div
-          className="relative p-6 sm:p-8"
+          className="relative p-4 sm:p-6 lg:p-8"
           style={{
             background:
               "linear-gradient(135deg, rgba(0,0,0,0.35), rgba(255,255,255,0.04))",
           }}>
           {icon && (
-            <div className="mb-4 text-2xl text-foreground/85">{icon}</div>
+            <div className="mb-3 sm:mb-4 text-xl sm:text-2xl text-foreground/85">{icon}</div>
           )}
-          <h3 className="text-lg font-medium text-foreground tracking-tight">
+          <h3 className="text-sm sm:text-lg font-medium text-foreground tracking-tight">
             {title}
           </h3>
-          <p className="mt-2 text-sm text-muted leading-relaxed">
+          <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-muted leading-relaxed">
             {description}
           </p>
           
