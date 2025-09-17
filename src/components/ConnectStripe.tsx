@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { authedFetch, AuthError } from "@/lib/authedFetch";
 import { useErrorNotifications } from "@/contexts/ErrorContext";
@@ -42,9 +42,9 @@ export default function ConnectStripe() {
     }
     // Check if user already has Stripe connected
     checkStripeStatus();
-  }, []);
+  }, [showSuccess, showError]);
 
-  const checkStripeStatus = async () => {
+  const checkStripeStatus = useCallback(async () => {
     try {
       const res = await authedFetch("/api/stripe/connect/status");
       if (res.ok) {
@@ -54,7 +54,7 @@ export default function ConnectStripe() {
     } catch (error) {
       // Ignore errors for status check
     }
-  };
+  }, []);
 
   const handleConnectStripe = async () => {
     if (!sessionReady) {

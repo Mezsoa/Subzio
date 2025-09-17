@@ -33,6 +33,11 @@ export async function POST(req: NextRequest) {
 
     const stripe = getStripeServer();
 
+      // Debug logging
+    console.log("STRIPE_CLIENT_ID:", process.env.STRIPE_CLIENT_ID);
+    console.log("STRIPE_REDIRECT_URI:", process.env.STRIPE_REDIRECT_URI);
+    console.log("User ID:", user.id);
+
     // Create OAuth URL for stripe connect
     const oauthUrl = stripe.oauth.authorizeUrl({
       response_type: "code",
@@ -41,6 +46,8 @@ export async function POST(req: NextRequest) {
       redirect_uri: process.env.STRIPE_REDIRECT_URI,
       state: user.id,
     });
+
+    console.log("Generated OAuth URL:", oauthUrl);
     return new Response(JSON.stringify({ oauthUrl }), {
       status: 200,
       headers: { "content-type": "application/json" },
@@ -53,4 +60,3 @@ export async function POST(req: NextRequest) {
     });
   }
 }
-

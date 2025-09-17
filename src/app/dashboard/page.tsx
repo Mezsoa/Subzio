@@ -327,13 +327,13 @@ export default function DashboardPage() {
                   {/* Connection Status */}
                   <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-1">
+                     {/* BankID Option  <div className="flex items-center gap-1">
                         <span className="text-xs font-medium text-gray-600">BankID</span>
                         <div className={`w-2 h-2 rounded-full ${
                           bankidConnected === null ? "bg-gray-300 animate-pulse" :
                           bankidConnected ? "bg-green-500" : "bg-red-400"
                         }`} />
-                      </div>
+                      </div>*/}
                       <div className="w-px h-3 bg-gray-300" />
                       <div className="flex items-center gap-1">
                         <span className="text-xs font-medium text-gray-600">Plaid</span>

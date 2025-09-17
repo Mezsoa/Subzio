@@ -44,7 +44,7 @@ export default function ConnectBank() {
         return () => sub.subscription.unsubscribe();
       } catch {}
     })();
-  }, []);
+  }, [ handleApiError ]);
 
   const onSuccess = useCallback(
     async (public_token: string) => {
@@ -72,7 +72,7 @@ export default function ConnectBank() {
         handleApiError(e, "Plaid bank connection");
       }
     },
-    [router]
+    [router, handleApiError, showSuccess]
   );
 
   const config = {
@@ -100,14 +100,14 @@ export default function ConnectBank() {
       <div className="text-center mb-8">
         <h3 className="text-lg font-medium text-gray-900 mb-2">Connect Your Bank</h3>
         <p className="text-sm text-gray-600">Choose your preferred connection method</p>
-        <p className="text-sm text-gray-600">Start accepting payments through killsub</p>
+        <p className="text-sm text-gray-600">Start scanning your your recurring charges through killsub</p>
       </div>
 
 
 
       {/* Connection Options */}
       <div className="space-y-3">
-        {/* BankID Option */}
+        {/* BankID Option 
         <button
           onClick={async () => {
             try {
@@ -161,6 +161,8 @@ export default function ConnectBank() {
             </svg>
           </div>
         </button>
+
+        */}
 
         {/* Plaid Option */}
         <button
