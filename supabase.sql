@@ -234,19 +234,28 @@ create table if not exists public.stripe_connect_accounts (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
   stripe_account_id text not null unique,
-  account_type text not null check (account_type in ('express','standard','custom')),
+  access_token text,
+  account_type text not null check (account_type in ('express','standard','custom','oauth')),
   charges_enabled boolean default false,
   payouts_enabled boolean default false,
   details_submitted boolean default false,
   country text,
   email text,
   business_type text,
+  connected_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
 -- 2) Index för snabba queries på user_id
 create index if not exists idx_stripe_connect_accounts_user_id on public.stripe_connect_accounts(user_id);
+
+-- 2.1) Add missing columns if they don't exist (for existing databases)
+alter table public.stripe_connect_accounts add column if not exists access_token text;
+alter table public.stripe_connect_accounts add column if not exists connected_at timestamptz;
+alter table public.stripe_connect_accounts drop constraint if exists stripe_connect_accounts_account_type_check;
+alter table public.stripe_connect_accounts add constraint stripe_connect_accounts_account_type_check 
+  check (account_type in ('express','standard','custom','oauth'));
 
 -- 3) Trigger för updated_at
 create or replace function public.set_updated_at()
@@ -292,5 +301,13 @@ create policy "Owner can delete own stripe account"
   for delete
   to authenticated
   using ( (select auth.uid()) = user_id );
+
+-- Service policy for server-side operations
+create policy "Service can manage stripe connect accounts"
+  on public.stripe_connect_accounts
+  for all
+  to service_role
+  using (true)
+  with check (true);
 
   

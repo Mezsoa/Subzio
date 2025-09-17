@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
 
     return new Response(null, {
       status: 302,
-      headers: { Location: "/stripe/success" },
+      headers: { Location: "/dashboard?stripe_success=true" },
     });
   } catch (error) {
     console.error("Stripe OAuth callback error:", error);

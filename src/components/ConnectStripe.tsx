@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import { authedFetch, AuthError } from "@/lib/authedFetch";
 import { useErrorNotifications } from "@/contexts/ErrorContext";
 import { useErrorHandler } from "@/hooks/useErrorHandler";
@@ -10,9 +9,20 @@ export default function ConnectStripe() {
   const [sessionReady, setSessionReady] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
-  const router = useRouter();
   const { showError, showSuccess } = useErrorNotifications();
   const { handleApiError } = useErrorHandler();
+
+  const checkStripeStatus = useCallback(async () => {
+    try {
+      const res = await authedFetch("/api/stripe/connect/status");
+      if (res.ok) {
+        const data = await res.json();
+        setIsConnected(data.connected);
+      }
+    } catch {
+      // Ignore errors for status check
+    }
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -35,26 +45,29 @@ export default function ConnectStripe() {
         "Connection Successful"
       );
       window.history.replaceState({}, document.title, window.location.pathname);
+      // Refresh the connection status after successful connection
+      setTimeout(() => {
+        checkStripeStatus();
+      }, 1000);
     }
     if (urlParams.get("stripe_refresh") === "true") {
       showError("Please complete your stripe account setup");
       window.history.replaceState({}, document.title, window.location.pathname);
     }
+    if (urlParams.get("stripe_error")) {
+      const errorType = urlParams.get("stripe_error");
+      let errorMessage = "Failed to connect Stripe account";
+      if (errorType === "missing_params") {
+        errorMessage = "Missing required parameters for Stripe connection";
+      } else if (errorType === "callback_failed") {
+        errorMessage = "Stripe connection callback failed";
+      }
+      showError(errorMessage);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
     // Check if user already has Stripe connected
     checkStripeStatus();
-  }, [showSuccess, showError]);
-
-  const checkStripeStatus = useCallback(async () => {
-    try {
-      const res = await authedFetch("/api/stripe/connect/status");
-      if (res.ok) {
-        const data = await res.json();
-        setIsConnected(data.connected);
-      }
-    } catch (error) {
-      // Ignore errors for status check
-    }
-  }, []);
+  }, [showSuccess, showError, checkStripeStatus]);
 
   const handleConnectStripe = async () => {
     if (!sessionReady) {
@@ -90,6 +103,37 @@ export default function ConnectStripe() {
 
   if (!mounted) return null;
 
+  const handleDisconnectStripe = async () => {
+    if (!sessionReady) {
+      showError("Please sign in to disconnect your Stripe account");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await authedFetch("/api/stripe/disconnect", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new AuthError(text || "Failed to disconnect Stripe account");
+      }
+
+      const data = await res.json();
+      showSuccess(data.message || "Stripe account disconnected successfully");
+      setIsConnected(false);
+    } catch (e) {
+      const msg =
+        e instanceof Error ? e.message : "Failed to disconnect Stripe account";
+      showError(msg);
+      handleApiError(e, "Stripe Disconnect");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (isConnected) {
     return (
       <div className="w-full max-w-md mx-auto">
@@ -102,7 +146,7 @@ export default function ConnectStripe() {
           </p>
         </div>
 
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
               <svg
@@ -126,6 +170,20 @@ export default function ConnectStripe() {
             </div>
           </div>
         </div>
+
+        {/* Disconnect Button */}
+        <button
+          onClick={handleDisconnectStripe}
+          disabled={!sessionReady || loading}
+          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          {loading && (
+            <div className="w-4 h-4 border-2 border-red-300 border-t-red-600 rounded-full animate-spin"></div>
+          )}
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          Disconnect Stripe Account
+        </button>
       </div>
     );
   }

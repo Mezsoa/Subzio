@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
       headers["Authorization"] = authHeader;
     }
 
-    const [plaidRes, bankidRes] = await Promise.allSettled([
+    const [plaidRes, bankidRes, stripeRes] = await Promise.allSettled([
       fetch(`${baseUrl}/api/plaid/disconnect`, { 
         method: "POST", 
         headers,
@@ -25,12 +25,18 @@ export async function POST(req: NextRequest) {
         method: "POST", 
         headers,
         credentials: 'include'
+      }),
+      fetch(`${baseUrl}/api/stripe/disconnect`, { 
+        method: "POST", 
+        headers,
+        credentials: 'include'
       })
     ]);
 
     const results = {
       plaid: { success: false, message: "", error: null as any },
-      bankid: { success: false, message: "", error: null as any }
+      bankid: { success: false, message: "", error: null as any },
+      stripe: { success: false, message: "", error: null as any }
     };
 
     // Process Plaid result
@@ -61,12 +67,26 @@ export async function POST(req: NextRequest) {
       results.bankid.error = bankidRes.reason?.message || "Network error";
     }
 
+    // Process Stripe result
+    if (stripeRes.status === 'fulfilled') {
+      if (stripeRes.value.ok) {
+        const data = await stripeRes.value.json();
+        results.stripe.success = true;
+        results.stripe.message = data.message || "Disconnected successfully";
+      } else {
+        const errorData = await stripeRes.value.json().catch(() => ({}));
+        results.stripe.error = errorData.error || "Disconnect failed";
+      }
+    } else {
+      results.stripe.error = stripeRes.reason?.message || "Network error";
+    }
+
     console.log("[Disconnect All] Results:", results);
 
     return new Response(JSON.stringify({
       ok: true,
       results,
-      summary: `Plaid: ${results.plaid.success ? 'OK' : 'Failed'}, BankID: ${results.bankid.success ? 'OK' : 'Failed'}`
+      summary: `Plaid: ${results.plaid.success ? 'OK' : 'Failed'}, BankID: ${results.bankid.success ? 'OK' : 'Failed'}, Stripe: ${results.stripe.success ? 'OK' : 'Failed'}`
     }), {
       status: 200,
       headers: { "content-type": "application/json" },

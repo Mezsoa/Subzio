@@ -80,6 +80,8 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_CLIENT_ID=ca_... # Stripe Connect client ID
+STRIPE_REDIRECT_URI=http://localhost:3000/api/stripe/connect/callback
 STRIPE_PRO_PRICE_ID=price_...
 STRIPE_BUSINESS_PRICE_ID=price_...
 
@@ -114,7 +116,9 @@ Visit [http://localhost:3000](http://localhost:3000)
 - [ ] Create live Stripe products and prices
 - [ ] Update price IDs in environment variables
 - [ ] Configure webhook endpoint
-- [ ] Test payment flows
+- [ ] Set up Stripe Connect application
+- [ ] Update STRIPE_CLIENT_ID and STRIPE_REDIRECT_URI for production
+- [ ] Test payment flows and Stripe Connect integration
 
 ### Database
 - [ ] Run `supabase.sql` in production database

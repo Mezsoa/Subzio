@@ -58,11 +58,38 @@ export async function POST(request: NextRequest) {
       console.error("[GDPR] Error during BankID cleanup:", e);
     }
 
-    // Step 3: Delete all user data from our database
+    // Step 3: Disconnect Stripe Connect account
+    try {
+      const { data: stripeAccount } = await svc
+        .from("stripe_connect_accounts")
+        .select("stripe_account_id")
+        .eq("user_id", userId)
+        .single();
+
+      if (stripeAccount) {
+        // Try to deauthorize the Stripe Connect account
+        try {
+          const { getStripeServer } = await import("@/lib/stripe");
+          const stripe = getStripeServer();
+          await stripe.oauth.deauthorize({
+            client_id: process.env.STRIPE_CLIENT_ID || "",
+            stripe_user_id: stripeAccount.stripe_account_id,
+          });
+          console.log(`[GDPR] Deauthorized Stripe Connect account: ${stripeAccount.stripe_account_id}`);
+        } catch (e) {
+          console.error(`[GDPR] Error deauthorizing Stripe Connect account:`, e);
+        }
+      }
+    } catch (e) {
+      console.error("[GDPR] Error during Stripe Connect cleanup:", e);
+    }
+
+    // Step 4: Delete all user data from our database
     const tablesToClean = [
       'plaid_items',
       'bankid_items', 
       'bank_accounts',
+      'stripe_connect_accounts',
       'subscriptions',
       'alerts',
       'cancellation_requests',
