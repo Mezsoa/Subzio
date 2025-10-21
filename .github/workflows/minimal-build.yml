@@ -26,4 +26,4 @@ jobs:
       run: pnpm install
       
     - name: Build project
-      run: NEXT_PUBLIC_SUPABASE_URL=dummy NEXT_PUBLIC_SUPABASE_ANON_KEY=dummy pnpm build
+      run: NEXT_PUBLIC_SUPABASE_URL=https://dummy.supabase.co NEXT_PUBLIC_SUPABASE_ANON_KEY=dummy_key pnpm build
