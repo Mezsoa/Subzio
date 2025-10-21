@@ -12,8 +12,8 @@ export default function StripeSuccessPage() {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
-          // Always go to dashboard with from_stripe parameter
-          router.push("/dashboard?from_stripe=true");
+          // Redirect to signin with a message about Stripe connection
+          router.push("/auth/signin?message=stripe_connected_please_signin");
           return 0;
         }
         return prev - 1;
