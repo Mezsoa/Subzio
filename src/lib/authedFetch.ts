@@ -18,16 +18,10 @@ export async function authedFetch(input: string, init?: RequestInit): Promise<Re
     const fromStripe = document.referrer.includes('/stripe/success') || urlParams.get('from_stripe') === 'true';
     
     if (fromStripe) {
-      console.log("User coming from Stripe, attempting to refresh session...");
-      // Try to refresh the session
-      const { data: { session: refreshedSession } } = await sb.auth.refreshSession();
-      
-      if (refreshedSession) {
-        console.log("Session refreshed successfully in authedFetch");
-        const headers = new Headers(init?.headers || {});
-        headers.set("authorization", `Bearer ${refreshedSession.access_token}`);
-        return fetch(input, { ...init, headers });
-      }
+      console.log("User coming from Stripe, bypassing authentication for API calls...");
+      // For users coming from Stripe, make the API call without authentication
+      // The server-side API routes will handle authentication differently
+      return fetch(input, { ...init });
     }
     
     throw new AuthError();
