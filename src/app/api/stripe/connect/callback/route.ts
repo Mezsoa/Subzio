@@ -132,12 +132,21 @@ export async function GET(req: NextRequest) {
 
     console.log("Stripe account stored successfully for user:", userId);
     
-    // If session is not valid, we still want to show success but redirect to signin
+    // If session is not valid, redirect to signin with a message
     if (!isSessionValid) {
-      console.log("Session expired but Stripe account connected successfully. User will need to sign in again.");
+      console.log("Session expired but Stripe account connected successfully. Redirecting to signin.");
+      return new Response(null, {
+        status: 302,
+        headers: { 
+          Location: "/auth/signin?message=stripe_connected_please_signin",
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          "Pragma": "no-cache",
+          "Expires": "0"
+        },
+      });
     }
 
-    // Always redirect to success page first, then let the success page handle the redirect
+    // Session is valid, redirect to success page
     const redirectUrl = `/stripe/success?connected=true&user_id=${userId}`;
     
     console.log("🔥🔥🔥 STRIPE CALLBACK HIT! 🔥🔥🔥");
