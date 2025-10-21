@@ -1,11 +1,8 @@
-name: Simple Build
+name: Minimal Build
 
-# Temporarily disabled
-# on:
-#   push:
-#     branches: [ main ]
-#   pull_request:
-#     branches: [ main ]
+on:
+  push:
+    branches: [ main ]
 
 jobs:
   build:
@@ -27,9 +24,6 @@ jobs:
         
     - name: Install dependencies
       run: pnpm install
-      
-    - name: Run linting
-      run: pnpm lint
       
     - name: Build project
       run: pnpm build
