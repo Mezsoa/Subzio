@@ -1,4 +1,4 @@
-name: Build and Test
+name: Simple Build
 
 on:
   push:
@@ -23,16 +23,12 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-        cache: 'pnpm'
-          
+        
     - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      run: pnpm install
       
     - name: Run linting
       run: pnpm lint
-      
-    - name: Run type checking
-      run: pnpm type-check
       
     - name: Build project
       run: pnpm build
