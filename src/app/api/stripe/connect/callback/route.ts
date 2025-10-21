@@ -95,53 +95,24 @@ export async function GET(req: NextRequest) {
     // Store connected account in the database
     const svc = supabaseService();
     
-    // First, check if this Stripe account is already connected to another user
-    const { data: existingAccount, error: checkError } = await svc
-      .from("stripe_connect_accounts")
-      .select("user_id")
-      .eq("stripe_account_id", connectedAccountId)
-      .single();
-
-    if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = no rows found
-      console.error("Error checking existing Stripe account:", checkError);
-      return new Response(null, {
-        status: 302,
-        headers: { 
-          Location: "/dashboard?stripe_error=database_error",
-          "Cache-Control": "no-cache, no-store, must-revalidate",
-          "Pragma": "no-cache",
-          "Expires": "0"
-        },
-      });
-    }
-
-    // If account exists and belongs to a different user, show error
-    if (existingAccount && existingAccount.user_id !== userId) {
-      console.error("Stripe account already connected to another user:", existingAccount.user_id);
-      return new Response(null, {
-        status: 302,
-        headers: { 
-          Location: "/dashboard?stripe_error=account_already_connected",
-          "Cache-Control": "no-cache, no-store, must-revalidate",
-          "Pragma": "no-cache",
-          "Expires": "0"
-        },
-      });
-    }
-
-    // Use upsert to handle both insert and update cases
-    const { error: dbError } = await svc.from("stripe_connect_accounts").upsert({
+    console.log("🔥 CALLBACK: Attempting to store Stripe account for user:", userId);
+    console.log("🔥 CALLBACK: Stripe account ID:", connectedAccountId);
+    
+    // Simple insert first - let the database handle duplicates
+    const { error: dbError } = await svc.from("stripe_connect_accounts").insert({
       user_id: userId,
       stripe_account_id: connectedAccountId,
       access_token: accessToken,
       account_type: "oauth",
       connected_at: new Date().toISOString(),
-    }, {
-      onConflict: 'user_id,stripe_account_id'
     });
 
     if (dbError) {
-      console.error("Database error storing Stripe account:", dbError);
+      console.error("🔥 CALLBACK: Database error storing Stripe account:", dbError);
+      console.error("🔥 CALLBACK: Error code:", dbError.code);
+      console.error("🔥 CALLBACK: Error message:", dbError.message);
+      console.error("🔥 CALLBACK: Error details:", dbError.details);
+      console.error("🔥 CALLBACK: Error hint:", dbError.hint);
       return new Response(null, {
         status: 302,
         headers: { 
