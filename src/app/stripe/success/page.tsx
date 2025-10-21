@@ -8,19 +8,12 @@ export default function StripeSuccessPage() {
   const [countdown, setCountdown] = useState(3);
 
   useEffect(() => {
-    // Check if session is valid from URL params
-    const urlParams = new URLSearchParams(window.location.search);
-    const sessionValid = urlParams.get("session_valid") === "true";
-    
     const interval = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
-          if (sessionValid) {
-            router.push("/dashboard");
-          } else {
-            router.push("/auth/signin?message=stripe_connected_please_signin");
-          }
+          // Always go to dashboard - let the dashboard handle session validation
+          router.push("/dashboard");
           return 0;
         }
         return prev - 1;

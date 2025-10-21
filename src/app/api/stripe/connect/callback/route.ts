@@ -132,8 +132,8 @@ export async function GET(req: NextRequest) {
 
     console.log("Stripe account stored successfully for user:", userId);
     
-    // Always redirect to success page, regardless of session status
-    const redirectUrl = `/stripe/success?connected=true&user_id=${userId}&session_valid=${isSessionValid}`;
+    // Always redirect to success page - let the dashboard handle session validation
+    const redirectUrl = `/stripe/success?connected=true&user_id=${userId}`;
     
     if (!isSessionValid) {
       console.log("Session expired during OAuth flow, but Stripe account connected successfully.");
