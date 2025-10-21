@@ -98,7 +98,7 @@ export async function GET(req: NextRequest) {
     console.log("🔥 CALLBACK: Attempting to store Stripe account for user:", userId);
     console.log("🔥 CALLBACK: Stripe account ID:", connectedAccountId);
     
-    // Simple insert first - let the database handle duplicates
+    // Try to insert the Stripe account
     const { error: dbError } = await svc.from("stripe_connect_accounts").insert({
       user_id: userId,
       stripe_account_id: connectedAccountId,
@@ -113,15 +113,21 @@ export async function GET(req: NextRequest) {
       console.error("🔥 CALLBACK: Error message:", dbError.message);
       console.error("🔥 CALLBACK: Error details:", dbError.details);
       console.error("🔥 CALLBACK: Error hint:", dbError.hint);
-      return new Response(null, {
-        status: 302,
-        headers: { 
-          Location: "/dashboard?stripe_error=database_error",
-          "Cache-Control": "no-cache, no-store, must-revalidate",
-          "Pragma": "no-cache",
-          "Expires": "0"
-        },
-      });
+      
+      // If it's a duplicate key error, that's actually OK - account already exists
+      if (dbError.code === '23505') { // Unique constraint violation
+        console.log("🔥 CALLBACK: Stripe account already exists, continuing...");
+      } else {
+        return new Response(null, {
+          status: 302,
+          headers: { 
+            Location: "/dashboard?stripe_error=database_error",
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0"
+          },
+        });
+      }
     }
 
     console.log("Stripe account stored successfully for user:", userId);
