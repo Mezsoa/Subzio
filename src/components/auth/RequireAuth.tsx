@@ -10,9 +10,19 @@ export default function RequireAuth({ children, redirectTo = "/auth/signin" }: P
         (async () => {
           const sb = supabaseBrowser();
           const { data: { session } } = await sb.auth.getSession();
+          
           if(!session) {
-            window.location.href = redirectTo;
-            return;
+            // Try to refresh the session first
+            console.log("No session found, attempting to refresh...");
+            const { data: { session: refreshedSession } } = await sb.auth.refreshSession();
+            
+            if (!refreshedSession) {
+              console.log("Session refresh failed, redirecting to signin");
+              window.location.href = redirectTo;
+              return;
+            }
+            
+            console.log("Session refreshed successfully");
           }
           setReady(true);
         })();
