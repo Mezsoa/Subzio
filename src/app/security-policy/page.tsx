@@ -219,6 +219,48 @@ export default function SecurityPolicyPage() {
               </div>
             </section>
 
+            {/* Section 6 - Plaid Compliance */}
+            <section className="bg-card border border-border rounded-xl p-8">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                  <CheckCircle className="w-4 h-4 text-primary" />
+                </div>
+                <h2 className="text-2xl font-semibold text-foreground">6. Plaid Compliance Implementation</h2>
+              </div>
+              
+              <div className="space-y-4 text-muted text-sm">
+                <div>
+                  <h3 className="text-lg font-medium text-foreground mb-3">Multi-Factor Authentication</h3>
+                  <ul className="space-y-2">
+                    <li>• <strong>Consumer MFA:</strong> TOTP-based authentication for all users</li>
+                    <li>• <strong>Plaid Link Integration:</strong> MFA required for bank connections</li>
+                    <li>• <strong>Admin MFA:</strong> Enhanced MFA for administrative systems</li>
+                    <li>• <strong>Implementation:</strong> Supabase Auth with TOTP support</li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-medium text-foreground mb-3">Vulnerability Scanning</h3>
+                  <ul className="space-y-2">
+                    <li>• <strong>Automated Scanning:</strong> GitHub Actions security workflows</li>
+                    <li>• <strong>Dependency Monitoring:</strong> Dependabot for vulnerability updates</li>
+                    <li>• <strong>EOL Tracking:</strong> End-of-life software monitoring</li>
+                    <li>• <strong>Continuous Monitoring:</strong> Weekly security assessments</li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-medium text-foreground mb-3">Zero Trust Architecture</h3>
+                  <ul className="space-y-2">
+                    <li>• <strong>Per-Request Auth:</strong> Every request authenticated and authorized</li>
+                    <li>• <strong>Row-Level Security:</strong> Database-level access controls</li>
+                    <li>• <strong>Rate Limiting:</strong> Advanced request rate limiting</li>
+                    <li>• <strong>Access Reviews:</strong> Quarterly access review procedures</li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+
             {/* Contact section */}
             <section className="bg-gradient-to-r from-primary/5 to-cta-end/5 border border-primary/20 rounded-xl p-8">
               <div className="text-center space-y-4">
@@ -233,6 +275,13 @@ export default function SecurityPolicyPage() {
                   >
                     <FileText className="w-4 h-4" />
                     <span>security@killsub.com</span>
+                  </a>
+                  <a 
+                    href="/compliance" 
+                    className="inline-flex items-center space-x-2 px-6 py-3 border border-border text-foreground rounded-lg hover:bg-muted/50 transition-colors"
+                  >
+                    <Shield className="w-4 h-4" />
+                    <span>Compliance Hub</span>
                   </a>
                 </div>
                 <p className="text-xs text-muted">

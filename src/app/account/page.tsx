@@ -5,6 +5,7 @@ import { STRIPE_PLANS, formatPrice } from '@/lib/stripe';
 import { getStripe } from '@/lib/stripe';
 import { authedFetch } from '@/lib/authedFetch';
 import RequireAuth from '@/components/auth/RequireAuth';
+import MFAManagement from '@/components/auth/MFAManagement';
 import SidebarNav from '@/components/SidebarNav';
 import { useSidebar } from '@/contexts/SidebarContext';
 import AppProviders from '@/components/AppProviders';
@@ -155,6 +156,18 @@ export default function AccountPage() {
                     </div>
                   </div>
                 </div>
+              </section>
+
+              {/* Security Settings */}
+              <section className="bg-gradient-to-br from-card-bg-start-light to-card-bg-end-light border border-border-light rounded-xl p-6 shadow-sm">
+                <div className="flex items-center space-x-3 mb-6">
+                  <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <Settings className="w-4 h-4 text-primary" />
+                  </div>
+                  <h2 className="text-xl font-semibold text-foreground-black">Security Settings</h2>
+                </div>
+                
+                <MFAManagement />
               </section>
 
               {/* Current Plan */}

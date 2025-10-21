@@ -1,7 +1,113 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
+// Rate limiting store (in production, use Redis or similar)
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+
+// Rate limiting configuration
+const RATE_LIMIT = {
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  maxRequests: 100, // 100 requests per window
+  maxApiRequests: 200, // 200 API requests per window
+  maxAuthRequests: 10, // 10 auth requests per window
+};
+
+function getRateLimitKey(request: NextRequest): string {
+  const ip = request.ip || request.headers.get('x-forwarded-for') || 'unknown';
+  const userAgent = request.headers.get('user-agent') || 'unknown';
+  return `${ip}-${userAgent}`;
+}
+
+function checkRateLimit(request: NextRequest, maxRequests: number): boolean {
+  const key = getRateLimitKey(request);
+  const now = Date.now();
+  const windowStart = now - RATE_LIMIT.windowMs;
+  
+  const current = rateLimitStore.get(key);
+  
+  if (!current || current.resetTime < windowStart) {
+    rateLimitStore.set(key, { count: 1, resetTime: now });
+    return true;
+  }
+  
+  if (current.count >= maxRequests) {
+    return false;
+  }
+  
+  current.count++;
+  rateLimitStore.set(key, current);
+  return true;
+}
+
+function isApiRoute(pathname: string): boolean {
+  return pathname.startsWith('/api/');
+}
+
+function isAuthRoute(pathname: string): boolean {
+  // Only apply restrictive rate limiting to API auth routes, not public auth pages
+  return pathname.startsWith('/api/auth/');
+}
+
+function isSensitiveRoute(pathname: string): boolean {
+  const sensitiveRoutes = [
+    '/api/user/',
+    '/api/plaid/',
+    '/api/stripe/',
+    '/api/bankid/',
+    '/dashboard',
+    '/account',
+    '/export'
+  ];
+  return sensitiveRoutes.some(route => pathname.startsWith(route));
+}
+
 export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  
+  // Rate limiting
+  let maxRequests = RATE_LIMIT.maxRequests;
+  if (isApiRoute(pathname)) {
+    maxRequests = RATE_LIMIT.maxApiRequests;
+  }
+  if (isAuthRoute(pathname)) {
+    maxRequests = RATE_LIMIT.maxAuthRequests;
+  }
+  
+  if (!checkRateLimit(request, maxRequests)) {
+    return new NextResponse('Too Many Requests', { 
+      status: 429,
+      headers: {
+        'Retry-After': '900', // 15 minutes
+        'X-RateLimit-Limit': maxRequests.toString(),
+        'X-RateLimit-Remaining': '0',
+        'X-RateLimit-Reset': new Date(Date.now() + RATE_LIMIT.windowMs).toISOString(),
+      }
+    });
+  }
+
+  // Request validation for sensitive routes
+  if (isSensitiveRoute(pathname)) {
+    // Validate request method
+    const allowedMethods = ['GET', 'POST', 'PUT', 'DELETE'];
+    if (!allowedMethods.includes(request.method)) {
+      return new NextResponse('Method Not Allowed', { status: 405 });
+    }
+    
+    // Validate content type for POST/PUT requests
+    if (['POST', 'PUT'].includes(request.method)) {
+      const contentType = request.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        return new NextResponse('Invalid Content Type', { status: 400 });
+      }
+    }
+    
+    // Validate request size (max 1MB for API routes)
+    const contentLength = request.headers.get('content-length');
+    if (contentLength && parseInt(contentLength) > 1024 * 1024) {
+      return new NextResponse('Request Too Large', { status: 413 });
+    }
+  }
+
   // Create response
   const response = NextResponse.next()
 

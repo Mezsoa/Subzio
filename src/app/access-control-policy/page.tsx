@@ -490,6 +490,48 @@ export default function AccessControlPolicyPage() {
               </div>
             </section>
 
+            {/* Section 9 - Recent Implementations */}
+            <section className="bg-card border border-border rounded-xl p-8">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                  <CheckCircle className="w-4 h-4 text-primary" />
+                </div>
+                <h2 className="text-2xl font-semibold text-foreground">9. Recent Security Enhancements</h2>
+              </div>
+              
+              <div className="space-y-4 text-muted text-sm">
+                <div>
+                  <h3 className="text-lg font-medium text-foreground mb-3">Multi-Factor Authentication (MFA)</h3>
+                  <ul className="space-y-2">
+                    <li>• <strong>Consumer MFA:</strong> TOTP-based MFA for all user accounts</li>
+                    <li>• <strong>MFA Enrollment:</strong> User-friendly setup process in account settings</li>
+                    <li>• <strong>Plaid Integration:</strong> MFA required for bank account connections</li>
+                    <li>• <strong>Admin MFA:</strong> Enhanced MFA for administrative access</li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-medium text-foreground mb-3">Enhanced Zero Trust Controls</h3>
+                  <ul className="space-y-2">
+                    <li>• <strong>Rate Limiting:</strong> Per-user and per-IP request limiting</li>
+                    <li>• <strong>Request Validation:</strong> Enhanced API request validation</li>
+                    <li>• <strong>Security Headers:</strong> Comprehensive security headers for all responses</li>
+                    <li>• <strong>Access Monitoring:</strong> Real-time access pattern monitoring</li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-medium text-foreground mb-3">Automated Security Scanning</h3>
+                  <ul className="space-y-2">
+                    <li>• <strong>GitHub Actions:</strong> Automated vulnerability scanning</li>
+                    <li>• <strong>Dependabot:</strong> Automated dependency updates</li>
+                    <li>• <strong>EOL Monitoring:</strong> End-of-life software tracking</li>
+                    <li>• <strong>Security Alerts:</strong> Automated security notifications</li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+
             {/* Contact section */}
             <section className="bg-gradient-to-r from-primary/5 to-cta-end/5 border border-primary/20 rounded-xl p-8">
               <div className="text-center space-y-4">
@@ -506,18 +548,18 @@ export default function AccessControlPolicyPage() {
                     <span>security@killsub.com</span>
                   </a>
                   <a 
+                    href="/compliance" 
+                    className="inline-flex items-center space-x-2 px-6 py-3 border border-border text-foreground rounded-lg hover:bg-muted/50 transition-colors"
+                  >
+                    <Shield className="w-4 h-4" />
+                    <span>Compliance Hub</span>
+                  </a>
+                  <a 
                     href="/api/access-control-policy/pdf" 
                     className="inline-flex items-center space-x-2 px-6 py-3 border border-border text-foreground rounded-lg hover:bg-muted/50 transition-colors"
                   >
                     <FileText className="w-4 h-4" />
                     <span>Download PDF</span>
-                  </a>
-                  <a 
-                    href="/security-policy" 
-                    className="inline-flex items-center space-x-2 px-6 py-3 border border-border text-foreground rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <Shield className="w-4 h-4" />
-                    <span>Security Policy</span>
                   </a>
                 </div>
                 <p className="text-xs text-muted">
