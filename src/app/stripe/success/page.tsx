@@ -12,8 +12,8 @@ export default function StripeSuccessPage() {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
-          // Always go to dashboard - let the dashboard handle session validation
-          router.push("/dashboard");
+          // Always go to dashboard with from_stripe parameter
+          router.push("/dashboard?from_stripe=true");
           return 0;
         }
         return prev - 1;
