@@ -38,18 +38,9 @@ export default function ConnectStripe() {
         return () => sub.subscription.unsubscribe();
       } catch {}
     })();
+    // Note: stripe_success handling moved to success page
+    // The callback now redirects directly to /stripe/success?connected=true
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get("stripe_success") === "true") {
-      showSuccess(
-        "Stripe account connected successfully!",
-        "Connection Successful"
-      );
-      window.history.replaceState({}, document.title, window.location.pathname);
-      // Refresh the connection status after successful connection
-      setTimeout(() => {
-        checkStripeStatus();
-      }, 1000);
-    }
     if (urlParams.get("stripe_refresh") === "true") {
       showError("Please complete your stripe account setup");
       window.history.replaceState({}, document.title, window.location.pathname);
@@ -61,6 +52,10 @@ export default function ConnectStripe() {
         errorMessage = "Missing required parameters for Stripe connection";
       } else if (errorType === "callback_failed") {
         errorMessage = "Stripe connection callback failed";
+      } else if (errorType === "account_already_connected") {
+        errorMessage = "This Stripe account is already connected to another user";
+      } else if (errorType === "database_error") {
+        errorMessage = "Database error occurred during Stripe connection";
       }
       showError(errorMessage);
       window.history.replaceState({}, document.title, window.location.pathname);
@@ -77,6 +72,16 @@ export default function ConnectStripe() {
 
     setLoading(true);
     try {
+      // Refresh session before starting OAuth flow
+      const { supabaseBrowser } = await import("@/lib/supabaseClient");
+      const sb = supabaseBrowser();
+      const { data: { session } } = await sb.auth.getSession();
+      
+      if (!session) {
+        showError("Your session has expired. Please sign in again.");
+        return;
+      }
+
       const res = await authedFetch("/api/stripe/connect", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -215,7 +220,7 @@ export default function ConnectStripe() {
               <p className="font-medium text-gray-900 text-sm">
                 Connect with Stripe
               </p>
-              <p className="text-sm text-gray-500 text-sm">
+              <p className="text-sm text-gray-500">
                 Accept payments & manage payouts
               </p>
             </div>

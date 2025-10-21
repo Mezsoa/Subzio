@@ -13,7 +13,7 @@ const RATE_LIMIT = {
 };
 
 function getRateLimitKey(request: NextRequest): string {
-  const ip = request.ip || request.headers.get('x-forwarded-for') || 'unknown';
+  const ip = request.headers.get('x-real-ip') || 'unknown';
   const userAgent = request.headers.get('user-agent') || 'unknown';
   return `${ip}-${userAgent}`;
 }
@@ -52,12 +52,25 @@ function isSensitiveRoute(pathname: string): boolean {
   const sensitiveRoutes = [
     '/api/user/',
     '/api/plaid/',
-    '/api/stripe/',
     '/api/bankid/',
     '/dashboard',
     '/account',
     '/export'
   ];
+  
+  // Only include specific Stripe routes that need protection, not the callback
+  if (pathname.startsWith('/api/stripe/')) {
+    // Only protect these specific Stripe routes, not the callback
+    const protectedStripeRoutes = [
+      '/api/stripe/connect',
+      '/api/stripe/status',
+      '/api/stripe/disconnect',
+      '/api/stripe/create-checkout',
+      '/api/stripe/cancel-subscription'
+    ];
+    return protectedStripeRoutes.some(route => pathname.startsWith(route));
+  }
+  
   return sensitiveRoutes.some(route => pathname.startsWith(route));
 }
 

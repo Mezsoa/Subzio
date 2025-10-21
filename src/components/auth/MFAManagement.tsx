@@ -18,11 +18,19 @@ export default function MFAManagement({ onMFAChange }: MFAManagementProps) {
 
   const checkMFAStatus = async () => {
     try {
-      // This would typically check the user's MFA status
-      // For now, we'll assume it's not enabled
-      setMfaEnabled(false);
+      // Check if user has MFA factors enrolled
+      const response = await fetch('/api/user/mfa-status');
+      if (response.ok) {
+        const data = await response.json();
+        setMfaEnabled(data.enabled);
+      } else {
+        // If API fails, assume MFA is not enabled
+        setMfaEnabled(false);
+      }
     } catch (err) {
       console.error('Error checking MFA status:', err);
+      // If there's an error, assume MFA is not enabled
+      setMfaEnabled(false);
     }
   };
 
@@ -70,9 +78,49 @@ export default function MFAManagement({ onMFAChange }: MFAManagementProps) {
           </button>
         </div>
         <div className="p-4 bg-muted/50 rounded-lg">
-          <p className="text-sm text-muted">
-            MFA setup component would be rendered here. This is a placeholder for the actual setup flow.
-          </p>
+          <div className="space-y-4">
+            <div>
+              <h4 className="font-medium text-foreground mb-2">Set up Two-Factor Authentication</h4>
+              <p className="text-sm text-muted mb-4">
+                To enable MFA, you'll need to set up an authenticator app like Google Authenticator or Authy.
+              </p>
+            </div>
+            
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-sm text-blue-800">
+                <strong>Note:</strong> MFA setup is currently in development. The full implementation will be available soon with QR code scanning and verification.
+              </p>
+            </div>
+            
+            <button
+              onClick={async () => {
+                setLoading(true);
+                try {
+                  const response = await fetch('/api/user/enable-mfa', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                  });
+                  const data = await response.json();
+                  if (response.ok) {
+                    alert('MFA setup initiated! The full MFA implementation will be available in the next update.');
+                    setMfaEnabled(true);
+                    setShowSetup(false);
+                    onMFAChange?.(true);
+                  } else {
+                    setError(data.message || 'Failed to enable MFA');
+                  }
+                } catch (err) {
+                  setError('An error occurred while enabling MFA');
+                } finally {
+                  setLoading(false);
+                }
+              }}
+              disabled={loading}
+              className="w-full bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 disabled:opacity-50"
+            >
+              {loading ? 'Setting up...' : 'Enable MFA (Coming Soon)'}
+            </button>
+          </div>
         </div>
       </div>
     );

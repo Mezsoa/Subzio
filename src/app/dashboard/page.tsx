@@ -64,6 +64,7 @@ interface Subscription {
 type DataSource = "auto" | "bankid" | "plaid";
 
 export default function DashboardPage() {
+
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [tx, setTx] = useState<Transaction[]>([]);
   const [subs, setSubs] = useState<Subscription[]>([]);
@@ -77,6 +78,8 @@ export default function DashboardPage() {
   const { refreshSubscription } = useSubscription();
   const [bankidConnected, setBankidConnected] = useState<boolean | null>(null);
   const [plaidConnected, setPlaidConnected] = useState<boolean | null>(null);
+  const [stripeConnected, setStripeConnected] = useState<boolean | null>(null);
+  const [stripeData, setStripeData] = useState<any>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingChecked, setOnboardingChecked] = useState(false);
   const { isCollapsed } = useSidebar();
@@ -113,13 +116,25 @@ export default function DashboardPage() {
         const plaidCheck = authedFetch("/api/plaid/accounts")
           .then((res) => res.ok)
           .catch(() => false);
+        const stripeCheck = authedFetch("/api/stripe/connect/status")
+          .then(async (res) => {
+            if (res.ok) {
+              const data = await res.json();
+              setStripeData(data.account);
+              return data.connected;
+            }
+            return false;
+          })
+          .catch(() => false);
 
-        const [bankidStatus, plaidStatus] = await Promise.all([
+        const [bankidStatus, plaidStatus, stripeStatus] = await Promise.all([
           bankidCheck,
           plaidCheck,
+          stripeCheck,
         ]);
         setBankidConnected(bankidStatus);
         setPlaidConnected(plaidStatus);
+        setStripeConnected(stripeStatus);
 
         if (source === "auto") {
           // Try BankID first; fall back to Plaid
@@ -276,6 +291,7 @@ export default function DashboardPage() {
     }
   }, [accounts.length, isLoading, onboardingChecked]);
 
+
   return (
     <>
       <RequireAuth>
@@ -342,6 +358,14 @@ export default function DashboardPage() {
                           plaidConnected ? "bg-green-500" : "bg-red-400"
                         }`} />
                       </div>
+                      <div className="w-px h-3 bg-gray-300" />
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs font-medium text-gray-600">Stripe</span>
+                        <div className={`w-2 h-2 rounded-full ${
+                          stripeConnected === null ? "bg-gray-300 animate-pulse" :
+                          stripeConnected ? "bg-green-500" : "bg-red-400"
+                        }`} />
+                      </div>
                     </div>
                   </div>
 
@@ -371,6 +395,48 @@ export default function DashboardPage() {
 
           {/* Main Content */}
           <main className="max-w-7xl mx-auto px-6 py-8">
+            
+            {/* Stripe Connection Status */}
+            {stripeConnected && stripeData && (
+              <div className="mb-8">
+                <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <svg className="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.274 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.573-2.354 1.573-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.591-7.305z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">Stripe Account Connected</h3>
+                        <p className="text-sm text-gray-600">Ready to accept payments</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span className="text-sm text-green-600 font-medium">Connected</span>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <div className="text-sm text-gray-600 mb-1">Account ID</div>
+                      <div className="font-mono text-sm text-gray-900">{stripeData.id}</div>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <div className="text-sm text-gray-600 mb-1">Account Type</div>
+                      <div className="text-sm text-gray-900 capitalize">{stripeData.account_type}</div>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <div className="text-sm text-gray-600 mb-1">Connected</div>
+                      <div className="text-sm text-gray-900">
+                        {new Date(stripeData.connected_at).toLocaleDateString()}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             {error && (
               <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
                 <div className="flex items-start space-x-2">
