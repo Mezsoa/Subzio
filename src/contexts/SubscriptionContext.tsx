@@ -42,11 +42,9 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   const fetchSubscription = useCallback(async () => {
     try {
       setLoading(true);
-      console.log('SubscriptionContext: Starting to fetch subscription data...');
       
       // Check if we're on the client side and user is authenticated
       if (typeof window === 'undefined') {
-        console.log('SubscriptionContext: Server side, skipping fetch');
         setLoading(false);
         return;
       }
@@ -58,11 +56,9 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       
       if (subRes.ok && 'json' in subRes) {
         const { subscription: sub } = await subRes.json();
-        console.log('SubscriptionContext: Subscription data received:', sub);
         setSubscription(sub);
       } else {
         // Set default free subscription if API fails
-        console.log('SubscriptionContext: Subscription API failed, setting default free plan');
         setSubscription({
           user_id: 'unknown',
           plan_id: 'free' as UsagePlanId,
@@ -97,7 +93,6 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
         cancellation_requests: 0,
       });
     } finally {
-      console.log('SubscriptionContext: Finished loading, setting loading to false');
       setLoading(false);
     }
   }, []);

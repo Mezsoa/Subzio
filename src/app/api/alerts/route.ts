@@ -35,28 +35,11 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = await supabaseServer();
     
-    // Debug: Log cookies
-    const cookies = request.headers.get('cookie');
-    console.log('🔍 POST /api/alerts - Cookies received:', cookies ? 'Yes' : 'No');
-    console.log('🔍 Cookie details:', cookies);
-    
     // Get the authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
-    // Debug: Log auth details
-    console.log('🔍 Auth error:', authError);
-    console.log('🔍 User found:', user ? `Yes (${user.id})` : 'No');
-    
     if (authError || !user) {
-      console.log('❌ 401 Unauthorized - authError:', authError, 'user:', user);
-      return NextResponse.json({ 
-        error: 'Unauthorized',
-        debug: {
-          authError: authError?.message,
-          hasUser: !!user,
-          hasCookies: !!cookies
-        }
-      }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();

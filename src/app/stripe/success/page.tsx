@@ -2,33 +2,40 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { supabaseBrowser } from "@/lib/supabaseClient";
 
 export default function StripeSuccessPage() {
   const router = useRouter();
   const [countdown, setCountdown] = useState(3);
-  const supabase = createClientComponentClient();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const supabase = supabaseBrowser();
 
+  // Check authentication status on mount
   useEffect(() => {
-    const interval = setInterval(async () => {
+    const checkAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setIsAuthenticated(!!session);
+      } catch {
+        setIsAuthenticated(false);
+      }
+    };
+    checkAuth();
+  }, [supabase]);
+
+  // Handle countdown and redirect
+  useEffect(() => {
+    if (isAuthenticated === null) return; // Wait for auth check to complete
+
+    const interval = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
-          // Check if user is still authenticated using Supabase
-          const checkAuth = async () => {
-            try {
-              const { data: { user } } = await supabase.auth.getUser();
-              if (user) {
-                router.push("/dashboard?stripe_connected=true");
-              } else {
-                router.push("/auth/signin?message=stripe_connected_please_signin");
-              }
-            } catch (error) {
-              console.error("Auth check failed:", error);
-              router.push("/auth/signin?message=stripe_connected_please_signin");
-            }
-          };
-          checkAuth();
+          if (isAuthenticated) {
+            router.push("/dashboard?stripe_connected=true");
+          } else {
+            router.push("/auth/signin?message=stripe_connected_please_signin");
+          }
           return 0;
         }
         return prev - 1;
@@ -36,7 +43,7 @@ export default function StripeSuccessPage() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [router]);
+  }, [isAuthenticated, router]);
 
   return (
     <div className="min-h-screen flex bg-slate-50">
@@ -96,16 +103,10 @@ export default function StripeSuccessPage() {
 
             {/* Manual redirect button */}
             <button
-              onClick={async () => {
-                try {
-                  const { data: { user } } = await supabase.auth.getUser();
-                  if (user) {
-                    router.push("/dashboard?stripe_connected=true");
-                  } else {
-                    router.push("/auth/signin?message=stripe_connected_please_signin");
-                  }
-                } catch (error) {
-                  console.error("Auth check failed:", error);
+              onClick={() => {
+                if (isAuthenticated) {
+                  router.push("/dashboard?stripe_connected=true");
+                } else {
                   router.push("/auth/signin?message=stripe_connected_please_signin");
                 }
               }}

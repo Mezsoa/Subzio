@@ -5,17 +5,8 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = await supabaseServer();
     
-    // Debug: Log cookies
-    const cookies = request.headers.get('cookie');
-    console.log('🔍 GET /api/auth-test - Cookies received:', cookies ? 'Yes' : 'No');
-    console.log('🔍 Cookie details:', cookies);
-    
     // Get the authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    // Debug: Log auth details
-    console.log('🔍 Auth error:', authError);
-    console.log('🔍 User found:', user ? `Yes (${user.id})` : 'No');
     
     return NextResponse.json({
       authenticated: !!user,
@@ -24,12 +15,9 @@ export async function GET(request: NextRequest) {
         email: user.email,
         created_at: user.created_at
       } : null,
-      authError: authError?.message || null,
-      hasCookies: !!cookies,
-      cookieCount: cookies ? cookies.split(';').length : 0
+      authError: authError?.message || null
     });
   } catch (error) {
-    console.error('Unexpected error in auth-test:', error);
     return NextResponse.json({ 
       error: 'Internal server error',
       details: error instanceof Error ? error.message : 'Unknown error'
