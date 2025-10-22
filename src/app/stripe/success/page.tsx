@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { supabase } from "@/lib/supabaseClient";
+import { supabaseServer } from "@/lib/supabaseServer";
 
 export default function StripeSuccessPage() {
   const router = useRouter();
@@ -16,6 +16,7 @@ export default function StripeSuccessPage() {
           // Check if user is still authenticated using Supabase
           const checkAuth = async () => {
             try {
+              const supabase = await supabaseServer();
               const { data: { user } } = await supabase.auth.getUser();
               if (user) {
                 router.push("/dashboard?stripe_connected=true");
@@ -97,6 +98,7 @@ export default function StripeSuccessPage() {
             <button
               onClick={async () => {
                 try {
+                  const supabase = await supabaseServer();
                   const { data: { user } } = await supabase.auth.getUser();
                   if (user) {
                     router.push("/dashboard?stripe_connected=true");
