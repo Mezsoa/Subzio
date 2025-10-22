@@ -260,7 +260,7 @@ export default function DashboardPage() {
     fetchData();
   }, [fetchData]);
 
-  // Handle Stripe checkout success
+  // Handle Stripe checkout success and Stripe Connect success
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('success') === 'true') {
@@ -273,7 +273,16 @@ export default function DashboardPage() {
       // Clean up URL
       window.history.replaceState({}, document.title, window.location.pathname);
     }
-  }, [refreshSubscription]);
+    
+    if (urlParams.get('stripe_connected') === 'true') {
+      console.log('[Dashboard] Stripe Connect success detected, refreshing connection status...');
+      // Refresh connection status after successful Stripe Connect
+      fetchData();
+      
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [refreshSubscription, fetchData]);
 
   // Check if user needs onboarding
   useEffect(() => {
