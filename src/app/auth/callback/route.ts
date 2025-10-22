@@ -20,6 +20,10 @@ export async function GET(req: NextRequest) {
 
   if (code) {
     const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        // Use the same storage key as other clients
+        storageKey: "killsub-auth",
+      },
       cookies: {
         get(name: string) {
           return req.cookies.get(name)?.value;
