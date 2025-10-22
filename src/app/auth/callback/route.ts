@@ -46,22 +46,24 @@ export async function GET(req: NextRequest) {
     try {
       const { data, error } = await supabase.auth.exchangeCodeForSession(code);
       
-      // Check if the authenticated user's email is authorized
-      // TODO: Remove this hardcoded email check and implement proper authorization
-      // if (data.user && data.user.email?.toLowerCase() !== "johnmessoa@gmail.com") {
-      //   // Sign out unauthorized user and redirect to signin with error
-      //   await supabase.auth.signOut();
-      //   const errorResponse = new Response(null, { status: 302 });
-      //   errorResponse.headers.set("Location", "/auth/signin?error=unauthorized");
-      //   return errorResponse;
-      // }
-      
       if (error) {
         console.error("Auth error:", error);
+        // Redirect to signin with error
+        response.headers.set("Location", "/auth/signin?error=auth_failed");
+        return response;
       }
+      
+      if (!data.session) {
+        console.error("No session created");
+        response.headers.set("Location", "/auth/signin?error=no_session");
+        return response;
+      }
+      
+      console.log("Session created successfully for user:", data.user?.id);
     } catch (error) {
       console.error("Session exchange error:", error);
-      // ignore; redirect proceeds regardless
+      response.headers.set("Location", "/auth/signin?error=session_error");
+      return response;
     }
   }
 
