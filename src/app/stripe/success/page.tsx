@@ -2,11 +2,12 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { supabaseServer } from "@/lib/supabaseServer";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 export default function StripeSuccessPage() {
   const router = useRouter();
   const [countdown, setCountdown] = useState(3);
+  const supabase = createClientComponentClient();
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -16,7 +17,6 @@ export default function StripeSuccessPage() {
           // Check if user is still authenticated using Supabase
           const checkAuth = async () => {
             try {
-              const supabase = await supabaseServer();
               const { data: { user } } = await supabase.auth.getUser();
               if (user) {
                 router.push("/dashboard?stripe_connected=true");
@@ -98,7 +98,6 @@ export default function StripeSuccessPage() {
             <button
               onClick={async () => {
                 try {
-                  const supabase = await supabaseServer();
                   const { data: { user } } = await supabase.auth.getUser();
                   if (user) {
                     router.push("/dashboard?stripe_connected=true");
