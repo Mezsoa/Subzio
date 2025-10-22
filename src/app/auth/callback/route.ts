@@ -10,7 +10,6 @@ export async function GET(req: NextRequest) {
     return new Response("Missing Supabase env", { status: 500 });
   }
 
-  // Exchange ?code for a session cookie on the server
   const { searchParams } = new URL(req.url);
   const code = searchParams.get("code");
   const next = searchParams.get("next") || "/dashboard";
@@ -20,10 +19,6 @@ export async function GET(req: NextRequest) {
 
   if (code) {
     const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-      auth: {
-        // Use the same storage key as other clients
-        storageKey: "killsub-auth",
-      },
       cookies: {
         get(name: string) {
           return req.cookies.get(name)?.value;
@@ -43,30 +38,14 @@ export async function GET(req: NextRequest) {
         },
       },
     });
-    try {
-      const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-      
-      if (error) {
-        console.error("Auth error:", error);
-        // Redirect to signin with error
-        response.headers.set("Location", "/auth/signin?error=auth_failed");
-        return response;
-      }
-      
-      if (!data.session) {
-        console.error("No session created");
-        response.headers.set("Location", "/auth/signin?error=no_session");
-        return response;
-      }
-      
-      console.log("Session created successfully for user:", data.user?.id);
-    } catch (error) {
-      console.error("Session exchange error:", error);
-      response.headers.set("Location", "/auth/signin?error=session_error");
+    
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    
+    if (error) {
+      response.headers.set("Location", "/auth/signin?error=auth_failed");
       return response;
     }
   }
 
   return response;
 }
-

@@ -12,13 +12,44 @@ function SignInForm() {
   const [msg, setMsg] = useState<string>("");
   const searchParams = useSearchParams();
 
-  // Check for error parameters
+  // Check for error parameters and handle session from URL hash
   useEffect(() => {
     const error = searchParams.get("error");
     if (error === "unauthorized") {
       setStatus("error");
       setMsg("Only authorized users can access this application. Please contact support if you believe this is an error.");
     }
+
+    // Handle session from URL hash (when OAuth redirects back with session)
+    const handleSessionFromHash = async () => {
+      if (typeof window !== "undefined" && window.location.hash) {
+        const hash = window.location.hash.substring(1);
+        const params = new URLSearchParams(hash);
+        const accessToken = params.get("access_token");
+        const refreshToken = params.get("refresh_token");
+        
+        if (accessToken && refreshToken) {
+          console.log("Processing session from URL hash");
+          const supabase = supabaseBrowser();
+          
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+          
+          if (error) {
+            console.error("Error setting session:", error);
+            setStatus("error");
+            setMsg("Failed to complete sign in. Please try again.");
+          } else {
+            console.log("Session set successfully, redirecting to dashboard");
+            window.location.href = "/dashboard";
+          }
+        }
+      }
+    };
+
+    handleSessionFromHash();
   }, [searchParams]);
 
   async function sendMagicLink(e: React.FormEvent) {
