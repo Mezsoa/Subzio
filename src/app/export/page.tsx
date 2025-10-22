@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from 'react';
-import RequireAuth from "@/components/auth/RequireAuth";
 import SidebarNav from "@/components/SidebarNav";
 import DataExport from "@/components/DataExport";
 import { useSidebar } from "@/contexts/SidebarContext";
@@ -42,7 +41,7 @@ export default function ExportPage() {
   }, []);
 
   return (
-    <RequireAuth>
+    
       <SubscriptionProvider>
         <div className={`min-h-screen bg-background-light transition-all duration-300 ${
           isCollapsed ? 'ml-16' : 'ml-64'
@@ -77,6 +76,6 @@ export default function ExportPage() {
         </div>
         <SidebarNav />
       </SubscriptionProvider>
-    </RequireAuth>
+    
   );
 }

@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from 'react';
-import RequireAuth from "@/components/auth/RequireAuth";
 import SidebarNav from "@/components/SidebarNav";
 import CancelForMeService from "@/components/CancelForMeService";
 import { useSidebar } from "@/contexts/SidebarContext";
@@ -31,7 +30,7 @@ export default function CancelServicePage() {
   }, []);
 
   return (
-    <RequireAuth>
+    
       <SubscriptionProvider>
         <div className={`min-h-screen bg-background-light transition-all duration-300 ${
           isCollapsed ? 'ml-16' : 'ml-64'
@@ -63,6 +62,6 @@ export default function CancelServicePage() {
         </div>
         <SidebarNav />
       </SubscriptionProvider>
-    </RequireAuth>
+    
   );
 }

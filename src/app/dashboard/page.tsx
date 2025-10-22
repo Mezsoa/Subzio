@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { authedFetch, AuthError } from "@/lib/authedFetch";
-import RequireAuth from "@/components/auth/RequireAuth";
 import SidebarNav from "@/components/SidebarNav";
 import { useSidebar } from "@/contexts/SidebarContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
@@ -294,18 +293,17 @@ export default function DashboardPage() {
 
   return (
     <>
-      <RequireAuth>
-        {/* Onboarding Overlay */}
-        {showOnboarding && (
-          <div className="fixed inset-0 bg-background-light z-50 overflow-auto">
-            <OnboardingFlow onComplete={() => {
-              setShowOnboarding(false);
-              localStorage.setItem('onboarding_completed', 'true');
-              // Refresh data after onboarding
-              fetchData();
-            }} />
-          </div>
-        )}
+      {/* Onboarding Overlay */}
+      {showOnboarding && (
+        <div className="fixed inset-0 bg-background-light z-50 overflow-auto">
+          <OnboardingFlow onComplete={() => {
+            setShowOnboarding(false);
+            localStorage.setItem('onboarding_completed', 'true');
+            // Refresh data after onboarding
+            fetchData();
+          }} />
+        </div>
+      )}
         
         <div
           className={`min-h-screen bg-gray-50 transition-all duration-300 ${
@@ -1056,7 +1054,6 @@ export default function DashboardPage() {
           </main>
         </div>
         <SidebarNav />
-      </RequireAuth>
     </>
   );
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { supabaseServer } from '@/lib/supabaseServer'
 
 // Rate limiting store (in production, use Redis or similar)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
@@ -74,7 +75,7 @@ function isSensitiveRoute(pathname: string): boolean {
   return sensitiveRoutes.some(route => pathname.startsWith(route));
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
   // Rate limiting
@@ -96,6 +97,25 @@ export function middleware(request: NextRequest) {
         'X-RateLimit-Reset': new Date(Date.now() + RATE_LIMIT.windowMs).toISOString(),
       }
     });
+  }
+
+  // Authentication check for protected routes
+  const protectedRoutes = ['/dashboard', '/analytics', '/export', '/account', '/alerts', '/cancel-service', '/cancellation-requests', '/onboarding'];
+  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+  
+  if (isProtectedRoute) {
+    try {
+      const supabase = await supabaseServer();
+      const { data: { user }, error } = await supabase.auth.getUser();
+      
+      if (error || !user) {
+        // Redirect to signin if not authenticated
+        return NextResponse.redirect(new URL('/auth/signin', request.url));
+      }
+    } catch (error) {
+      // If there's an error checking auth, redirect to signin
+      return NextResponse.redirect(new URL('/auth/signin', request.url));
+    }
   }
 
   // Request validation for sensitive routes

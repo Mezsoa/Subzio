@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from 'react';
-import RequireAuth from "@/components/auth/RequireAuth";
 import SidebarNav from "@/components/SidebarNav";
 import AdvancedAnalytics from "@/components/AdvancedAnalytics";
 import { useSidebar } from "@/contexts/SidebarContext";
@@ -42,8 +41,7 @@ export default function AnalyticsPage() {
   }, []);
 
   return (
-    <RequireAuth>
-      <SubscriptionProvider>
+    <SubscriptionProvider>
         <div className={`min-h-screen bg-background-light transition-all duration-300 ${
           isCollapsed ? 'ml-16' : 'ml-64'
         }`}>
@@ -77,6 +75,5 @@ export default function AnalyticsPage() {
         </div>
         <SidebarNav />
       </SubscriptionProvider>
-    </RequireAuth>
   );
 }

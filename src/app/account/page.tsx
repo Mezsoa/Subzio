@@ -4,7 +4,6 @@ import { useSubscription } from '@/contexts/SubscriptionContext';
 import { STRIPE_PLANS, formatPrice } from '@/lib/stripe';
 import { getStripe } from '@/lib/stripe';
 import { authedFetch } from '@/lib/authedFetch';
-import RequireAuth from '@/components/auth/RequireAuth';
 import MFAManagement from '@/components/auth/MFAManagement';
 import SidebarNav from '@/components/SidebarNav';
 import { useSidebar } from '@/contexts/SidebarContext';
@@ -95,7 +94,7 @@ export default function AccountPage() {
 
   if (loading) {
     return (
-      <RequireAuth>
+      
         <AppProviders>
           <div className={`min-h-screen bg-background-light transition-all duration-300 ${
             isCollapsed ? 'ml-16' : 'ml-64'
@@ -106,12 +105,12 @@ export default function AccountPage() {
           </div>
           <SidebarNav />
         </AppProviders>
-      </RequireAuth>
+      
     );
   }
 
   return (
-    <RequireAuth>
+    
       <AppProviders>
       <div className={`min-h-screen bg-background-light transition-all duration-300 ${
         isCollapsed ? 'ml-16' : 'ml-64'
@@ -336,6 +335,6 @@ export default function AccountPage() {
       </div>
       <SidebarNav />
       </AppProviders>
-    </RequireAuth>
+    
   );
 }

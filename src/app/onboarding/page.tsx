@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import RequireAuth from '@/components/auth/RequireAuth';
 import OnboardingFlow from '@/components/OnboardingFlow';
 import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
 
@@ -36,10 +35,10 @@ export default function OnboardingPage() {
   }
 
   return (
-    <RequireAuth>
+    
       <SubscriptionProvider>
         <OnboardingFlow />
       </SubscriptionProvider>
-    </RequireAuth>
+    
   );
 }

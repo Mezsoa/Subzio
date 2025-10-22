@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from 'react';
-import RequireAuth from '@/components/auth/RequireAuth';
 import SidebarNav from '@/components/SidebarNav';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { authedFetch } from '@/lib/authedFetch';
@@ -103,7 +102,7 @@ export default function CancellationRequestsPage() {
 
   if (loading) {
     return (
-      <RequireAuth>
+      
         <AppProviders>
           <div className={`min-h-screen bg-background-light transition-all duration-300 ${
             isCollapsed ? 'ml-16' : 'ml-64'
@@ -114,12 +113,12 @@ export default function CancellationRequestsPage() {
           </div>
           <SidebarNav />
         </AppProviders>
-      </RequireAuth>
+      
     );
   }
 
   return (
-    <RequireAuth>
+    
       <AppProviders>
       <div className={`min-h-screen bg-background-light transition-all duration-300 ${
         isCollapsed ? 'ml-16' : 'ml-64'
@@ -257,6 +256,6 @@ export default function CancellationRequestsPage() {
       </div>
       <SidebarNav />
       </AppProviders>
-    </RequireAuth>
+    
   );
 }
