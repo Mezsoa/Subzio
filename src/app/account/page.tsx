@@ -196,18 +196,18 @@ export default function AccountPage() {
                     </p>
                   </div>
                   
-                  {subscription?.trial_end && subscription?.status === 'trialing' ? (
+                  {subscription && 'trial_end' in subscription && subscription.trial_end && subscription?.status === 'trialing' ? (
                     <div className="text-right">
                       <div className="text-sm text-orange-600">Trial ends on</div>
                       <div className="font-medium text-foreground-black">
-                        {new Date(subscription.trial_end as string).toLocaleDateString()}
+                        {new Date(subscription.trial_end).toLocaleDateString()}
                       </div>
                     </div>
-                  ) : subscription?.current_period_end && (
+                  ) : subscription && 'current_period_end' in subscription && subscription?.current_period_end && (
                     <div className="text-right">
                       <div className="text-sm text-muted-light">Renews on</div>
                       <div className="font-medium text-foreground-black">
-                        {new Date(subscription.current_period_end as string).toLocaleDateString()}
+                        {new Date(subscription.current_period_end).toLocaleDateString()}
                       </div>
                     </div>
                   )}
