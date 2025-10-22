@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo, useCallback } from 'react';
 import { getPlanById, isFeatureAllowed } from '@/lib/stripe';
 import { UsagePlanId } from '@/lib/usageLimits';
 import { authedFetch } from '@/lib/authedFetch';
@@ -39,7 +39,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   const [usage, setUsage] = useState<UserUsage | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchSubscription = async () => {
+  const fetchSubscription = useCallback(async () => {
     try {
       setLoading(true);
       console.log('SubscriptionContext: Starting to fetch subscription data...');
@@ -100,67 +100,76 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       console.log('SubscriptionContext: Finished loading, setting loading to false');
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchSubscription();
-  }, []);
+  }, [fetchSubscription]);
 
-  const currentPlan = subscription ? getPlanById(subscription.plan_id) : getPlanById('free');
+  // Memoize currentPlan to prevent unnecessary recalculations
+  const currentPlan = useMemo(() => {
+    return subscription ? getPlanById(subscription.plan_id) : getPlanById('free');
+  }, [subscription]);
   
-  const checkFeatureAllowed = (feature: string) => {
+  const checkFeatureAllowed = useCallback((feature: string) => {
     if (!subscription) return false;
     // Allow access to features if subscription is active OR trialing
     if (subscription.status !== 'active' && subscription.status !== 'trialing') return false;
     return isFeatureAllowed(subscription.plan_id.toUpperCase() as 'FREE' | 'PRO' | 'BUSINESS', feature);
-  };
+  }, [subscription]);
 
-  const checkLimitReached = (limit: keyof UserUsage) => {
+  const checkLimitReached = useCallback((limit: keyof UserUsage) => {
     if (!usage || !currentPlan?.limits) return false;
     
     const planLimit = currentPlan.limits[limit as keyof typeof currentPlan.limits];
     if (planLimit === -1) return false; // unlimited
     
     return usage[limit] >= planLimit;
-  };
+  }, [usage, currentPlan]);
+
+  // Memoize the context value to prevent unnecessary re-renders
+  const contextValue = useMemo(() => ({
+    subscription,
+    usage,
+    loading,
+    plan: currentPlan,
+    isFeatureAllowed: checkFeatureAllowed,
+    isLimitReached: checkLimitReached,
+    refreshSubscription: fetchSubscription,
+  }), [subscription, usage, loading, currentPlan, checkFeatureAllowed, checkLimitReached, fetchSubscription]);
 
   return (
-    <SubscriptionContext.Provider value={{
-      subscription,
-      usage,
-      loading,
-      plan: currentPlan,
-      isFeatureAllowed: checkFeatureAllowed,
-      isLimitReached: checkLimitReached,
-      refreshSubscription: fetchSubscription,
-    }}>
+    <SubscriptionContext.Provider value={contextValue}>
       {children}
     </SubscriptionContext.Provider>
   );
+};
+
+// Memoize the default context to prevent recreating it on every call
+const defaultContext = {
+  subscription: {
+    user_id: 'unknown',
+    plan_id: 'free' as UsagePlanId,
+    status: 'active',
+  },
+  usage: {
+    bank_accounts_connected: 0,
+    subscriptions_detected: 0,
+    alerts_created: 0,
+    cancellation_requests: 0,
+  },
+  loading: false,
+  plan: getPlanById('free'),
+  isFeatureAllowed: () => false,
+  isLimitReached: () => false,
+  refreshSubscription: async () => {},
 };
 
 export const useSubscription = () => {
   const context = useContext(SubscriptionContext);
   if (context === undefined) {
     // Provide default values instead of throwing an error
-    return {
-      subscription: {
-        user_id: 'unknown',
-        plan_id: 'free' as UsagePlanId,
-        status: 'active',
-      },
-      usage: {
-        bank_accounts_connected: 0,
-        subscriptions_detected: 0,
-        alerts_created: 0,
-        cancellation_requests: 0,
-      },
-      loading: false,
-      plan: getPlanById('free'),
-      isFeatureAllowed: () => false,
-      isLimitReached: () => false,
-      refreshSubscription: async () => {},
-    };
+    return defaultContext;
   }
   return context;
 };

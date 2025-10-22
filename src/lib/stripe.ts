@@ -113,18 +113,6 @@ export function getPlanById(planId: string): typeof STRIPE_PLANS[PlanId] | null 
   const upperPlanId = planId.toUpperCase() as PlanId;
   const plan = STRIPE_PLANS[upperPlanId] || null;
   
-  // Debug logging to see what's happening
-  console.log('getPlanById debug:', {
-    planId,
-    upperPlanId,
-    plan: plan ? { ...plan, priceId: plan.priceId } : null,
-    envVars: {
-      STRIPE_PRO_PRICE_ID: process.env.STRIPE_PRO_PRICE_ID,
-      STRIPE_BUSINESS_PRICE_ID: process.env.STRIPE_BUSINESS_PRICE_ID,
-      STRIPE_PREPAY_PRICE_ID: process.env.STRIPE_PREPAY_PRICE_ID,
-    }
-  });
-  
   return plan;
 }
 
