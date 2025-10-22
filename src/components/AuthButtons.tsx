@@ -14,7 +14,7 @@ export default function AuthButtons() {
       console.log("Using direct redirect to avoid iframe/popup issues");
       
       // Direct redirect to Supabase OAuth endpoint
-      const redirectUrl = encodeURIComponent(`${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.killsub.com'}/auth/callback?next=/dashboard`);
+      const redirectUrl = encodeURIComponent(`${window.location.origin}/auth/callback?next=/dashboard`);
       const oauthUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${redirectUrl}`;
       
       console.log("Redirecting to:", oauthUrl);
