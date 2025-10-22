@@ -79,33 +79,31 @@ export async function GET(req: NextRequest) {
     const connectedAccountId = responseToken.stripe_user_id;
     const accessToken = responseToken.access_token;
 
-    // Store connected account in the database
+    // Store connected account in the database (upsert on stripe_account_id)
     const svc = supabaseService();
-    
-    // Try to insert the Stripe account
-    const { error: dbError } = await svc.from("stripe_connect_accounts").insert({
-      user_id: userId,
-      stripe_account_id: connectedAccountId,
-      access_token: accessToken,
-      account_type: "oauth",
-      connected_at: new Date().toISOString(),
-    });
+    const { error: dbError } = await svc
+      .from("stripe_connect_accounts")
+      .upsert(
+        {
+          user_id: userId,
+          stripe_account_id: connectedAccountId,
+          access_token: accessToken,
+          account_type: "oauth",
+          connected_at: new Date().toISOString(),
+        },
+        { onConflict: "stripe_account_id" }
+      );
 
     if (dbError) {
-      // If it's a duplicate key error, that's actually OK - account already exists
-      if (dbError.code === '23505') { // Unique constraint violation
-        // Account already exists, continue
-      } else {
-        return new Response(null, {
-          status: 302,
-          headers: { 
-            Location: "/dashboard?stripe_error=database_error",
-            "Cache-Control": "no-cache, no-store, must-revalidate",
-            "Pragma": "no-cache",
-            "Expires": "0"
-          },
-        });
-      }
+      return new Response(null, {
+        status: 302,
+        headers: { 
+          Location: "/dashboard?stripe_error=database_error",
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          "Pragma": "no-cache",
+          "Expires": "0"
+        },
+      });
     }
     
     // Redirect to success page

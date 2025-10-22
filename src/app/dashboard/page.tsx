@@ -117,14 +117,22 @@ export default function DashboardPage() {
           .catch(() => false);
         const stripeCheck = authedFetch("/api/stripe/connect/status")
           .then(async (res) => {
+            console.log("[Dashboard] Stripe status response:", res.status);
             if (res.ok) {
               const data = await res.json();
+              console.log("[Dashboard] Stripe status data:", data);
               setStripeData(data.account);
               return data.connected;
+            } else {
+              const errorText = await res.text();
+              console.log("[Dashboard] Stripe status error:", errorText);
             }
             return false;
           })
-          .catch(() => false);
+          .catch((error) => {
+            console.log("[Dashboard] Stripe status catch:", error);
+            return false;
+          });
 
         const [bankidStatus, plaidStatus, stripeStatus] = await Promise.all([
           bankidCheck,
