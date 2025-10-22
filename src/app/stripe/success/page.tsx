@@ -2,18 +2,32 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function StripeSuccessPage() {
   const router = useRouter();
   const [countdown, setCountdown] = useState(3);
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    const interval = setInterval(async () => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
-          // Redirect to signin with a message about Stripe connection
-          router.push("/auth/signin?message=stripe_connected_please_signin");
+          // Check if user is still authenticated using Supabase
+          const checkAuth = async () => {
+            try {
+              const { data: { user } } = await supabase.auth.getUser();
+              if (user) {
+                router.push("/dashboard?stripe_connected=true");
+              } else {
+                router.push("/auth/signin?message=stripe_connected_please_signin");
+              }
+            } catch (error) {
+              console.error("Auth check failed:", error);
+              router.push("/auth/signin?message=stripe_connected_please_signin");
+            }
+          };
+          checkAuth();
           return 0;
         }
         return prev - 1;
@@ -81,7 +95,19 @@ export default function StripeSuccessPage() {
 
             {/* Manual redirect button */}
             <button
-              onClick={() => router.push("/dashboard")}
+              onClick={async () => {
+                try {
+                  const { data: { user } } = await supabase.auth.getUser();
+                  if (user) {
+                    router.push("/dashboard?stripe_connected=true");
+                  } else {
+                    router.push("/auth/signin?message=stripe_connected_please_signin");
+                  }
+                } catch (error) {
+                  console.error("Auth check failed:", error);
+                  router.push("/auth/signin?message=stripe_connected_please_signin");
+                }
+              }}
               className="w-full bg-gradient-to-r from-slate-900 to-slate-800 text-white py-4 px-8 rounded-2xl hover:from-slate-800 hover:to-slate-700 transition-all duration-200 transform hover:scale-[1.02] font-semibold text-lg shadow-lg hover:shadow-xl">
               Continue to Dashboard
             </button>
