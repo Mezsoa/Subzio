@@ -32,7 +32,7 @@ function SignInForm() {
         options: {
           emailRedirectTo:
             typeof window !== "undefined"
-              ? `${window.location.origin}/auth/callback?next=/dashboard`
+              ? `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.killsub.com'}/auth/callback?next=/dashboard`
               : undefined,
         },
       });
