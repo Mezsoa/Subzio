@@ -28,11 +28,15 @@ export async function GET(req: NextRequest) {
 
     // Get user's Stripe account from database
     const svc = supabaseService();
-    const { data: account, error } = await svc
+    const { data: accounts, error } = await svc
       .from("stripe_connect_accounts")
       .select("*")
       .eq("user_id", user.id)
-      .single();
+      .order("connected_at", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    const account = accounts && accounts.length > 0 ? accounts[0] : null;
 
     if (error || !account) {
       return new Response(JSON.stringify({ connected: false }), {

@@ -7,7 +7,7 @@ import { authedFetch } from '@/lib/authedFetch';
 import MFAManagement from '@/components/auth/MFAManagement';
 import SidebarNav from '@/components/SidebarNav';
 import { useSidebar } from '@/contexts/SidebarContext';
-import AppProviders from '@/components/AppProviders';
+// AppProviders is already applied at layout level; avoid wrapping again
 import { 
   User, 
   CreditCard, 
@@ -94,24 +94,21 @@ export default function AccountPage() {
 
   if (loading) {
     return (
-      
-        <AppProviders>
-          <div className={`min-h-screen bg-background-light transition-all duration-300 ${
-            isCollapsed ? 'ml-16' : 'ml-64'
-          }`}>
-            <div className="flex items-center justify-center h-screen">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            </div>
+      <>
+        <div className={`min-h-screen bg-background-light transition-all duration-300 ${
+          isCollapsed ? 'ml-16' : 'ml-64'
+        }`}>
+          <div className="flex items-center justify-center h-screen">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
-          <SidebarNav />
-        </AppProviders>
-      
+        </div>
+        <SidebarNav />
+      </>
     );
   }
 
   return (
-    
-      <AppProviders>
+    <>
       <div className={`min-h-screen bg-background-light transition-all duration-300 ${
         isCollapsed ? 'ml-16' : 'ml-64'
       }`}>
@@ -334,7 +331,6 @@ export default function AccountPage() {
         </main>
       </div>
       <SidebarNav />
-      </AppProviders>
-    
+    </>
   );
 }

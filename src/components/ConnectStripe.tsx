@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { authedFetch, AuthError } from "@/lib/authedFetch";
+import { authedFetch } from "@/lib/authedFetch";
 import { useErrorNotifications } from "@/contexts/ErrorContext";
 import { useErrorHandler } from "@/hooks/useErrorHandler";
 
@@ -89,7 +89,7 @@ export default function ConnectStripe() {
 
       if (!res.ok) {
         const text = await res.text();
-        throw new AuthError(text || "Failed to create Stripe OAuth URL");
+        throw new Error(text || "Failed to create Stripe OAuth URL");
       }
 
       const { oauthUrl } = await res.json();
@@ -123,12 +123,18 @@ export default function ConnectStripe() {
 
       if (!res.ok) {
         const text = await res.text();
-        throw new AuthError(text || "Failed to disconnect Stripe account");
+        throw new Error(text || "Failed to disconnect Stripe account");
       }
 
       const data = await res.json();
       showSuccess(data.message || "Stripe account disconnected successfully");
       setIsConnected(false);
+      // Notify dashboard to refresh connection status
+      try {
+        window.dispatchEvent(
+          new CustomEvent("stripe-status-changed", { detail: { connected: false } })
+        );
+      } catch {}
     } catch (e) {
       const msg =
         e instanceof Error ? e.message : "Failed to disconnect Stripe account";
@@ -141,54 +147,40 @@ export default function ConnectStripe() {
 
   if (isConnected) {
     return (
-      <div className="w-full max-w-md mx-auto">
-        <div className="text-center mb-8">
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Stripe Account Connected
-          </h3>
-          <p className="text-sm text-gray-600">
-            Your Stripe account is ready to accept payments
-          </p>
-        </div>
-
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <svg
-                className="w-5 h-5 text-green-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            </div>
-            <div>
-              <div className="font-medium text-green-900">Connected</div>
-              <div className="text-sm text-green-700">
-                Ready to accept payments
+      <div className="w-full max-w-md mx-auto mt-4">
+        <div className="group rounded-2xl border border-gray-200 bg-white/80 backdrop-blur-sm shadow-sm overflow-hidden transition-all duration-200 will-change-transform hover:shadow-md hover:border-gray-300 hover:-translate-y-0.5 focus-within:shadow-md focus-within:border-gray-300">
+          <div className="flex items-center justify-between px-5 py-4 bg-linear-to-r from-purple-50 to-white transition-colors duration-200 group-hover:from-purple-100">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 bg-purple-100 rounded-lg flex items-center justify-center">
+                <svg className="w-4 h-4 text-purple-600 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.274 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.573-2.354 1.573-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.591-7.305z" />
+                </svg>
               </div>
+              <div>
+                <div className="text-[13px] font-regular text-gray-900">Stripe Connect</div>
+              </div>
+            </div>
+            <div className="inline-flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-green-700 bg-green-50 border border-green-200 px-2 py-1 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                Connected
+              </span>
+              <button
+                onClick={handleDisconnectStripe}
+                disabled={!sessionReady || loading}
+                aria-label="Disconnect Stripe account"
+                className="group/disconnect inline-flex items-center gap-1 px-2 py-1 text-[10px] font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer">
+                {loading && (
+                  <div className="w-3.5 h-3.5 border-2 border-red-300 border-t-red-600 rounded-full animate-spin"></div>
+                )}
+                <svg className="w-3 h-3 transition-transform duration-200 group-hover/disconnect:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Disconnect
+              </button>
             </div>
           </div>
         </div>
-
-        {/* Disconnect Button */}
-        <button
-          onClick={handleDisconnectStripe}
-          disabled={!sessionReady || loading}
-          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-          {loading && (
-            <div className="w-4 h-4 border-2 border-red-300 border-t-red-600 rounded-full animate-spin"></div>
-          )}
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-          Disconnect Stripe Account
-        </button>
       </div>
     );
   }
@@ -254,7 +246,7 @@ export default function ConnectStripe() {
       <div className="mt-6 p-3 bg-gray-50 rounded-lg">
         <div className="flex items-start space-x-2">
           <svg
-            className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0"
+            className="w-4 h-4 text-gray-500 mt-0.5 shrink-0"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24">

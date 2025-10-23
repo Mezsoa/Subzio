@@ -11,9 +11,9 @@ export async function POST(req: NextRequest) {
     let user = userData?.user;
     let userId = user?.id;
 
-    // Fallback to Bearer token if no cookie session
+    // Fallback to Bearer token if no cookie session (case-insensitive header)
     if (!userId) {
-      const authHeader = req.headers.get("Authorization");
+      const authHeader = req.headers.get("authorization") || req.headers.get("Authorization");
       if (authHeader?.startsWith("Bearer ")) {
         const token = authHeader.slice(7);
         const svc = supabaseService();
@@ -31,12 +31,15 @@ export async function POST(req: NextRequest) {
 
     const svc = supabaseService();
     
-    // Get user's Stripe Connect account
-    const { data: stripeAccount, error: fetchError } = await svc
+    // Get user's latest Stripe Connect account
+    const { data: accounts, error: fetchError } = await svc
       .from("stripe_connect_accounts")
-      .select("stripe_account_id, access_token")
+      .select("stripe_account_id, access_token, connected_at, created_at")
       .eq("user_id", userId)
-      .single();
+      .order("connected_at", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false })
+      .limit(1);
+    const stripeAccount = accounts && accounts.length > 0 ? accounts[0] : null;
 
     if (fetchError && !fetchError.message.includes("No rows returned")) {
       console.error("[Stripe] Error fetching account:", fetchError);
@@ -58,7 +61,15 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Try to deauthorize the Stripe Connect account
+    // Validate required env
+    if (!process.env.STRIPE_CLIENT_ID) {
+      return new Response(JSON.stringify({ error: "Missing STRIPE_CLIENT_ID server configuration" }), {
+        status: 500,
+        headers: { "content-type": "application/json" },
+      });
+    }
+
+    // Try to deauthorize the Stripe Connect account (revokes OAuth)
     try {
       const stripe = getStripeServer();
       await stripe.oauth.deauthorize({

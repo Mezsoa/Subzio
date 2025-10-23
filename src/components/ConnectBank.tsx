@@ -19,9 +19,10 @@ export default function ConnectBank() {
   const [error, setError] = useState<string | null>(null);
   const [sessionReady, setSessionReady] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
   const router = useRouter();
-  const { showError, showSuccess } = useErrorNotifications();
-  const { handleApiError, clearError } = useErrorHandler();
+  const { showSuccess } = useErrorNotifications();
+  const { handleApiError } = useErrorHandler();
 
   
   useEffect(() => {
@@ -44,6 +45,16 @@ export default function ConnectBank() {
         return () => sub.subscription.unsubscribe();
       } catch {}
     })();
+    // Check Plaid connection status
+    (async () => {
+      try {
+        const res = await authedFetch("/api/plaid/status");
+        if (res.ok) {
+          const data = await res.json();
+          setIsConnected(!!data.connected);
+        }
+      } catch {}
+    })();
   }, [ handleApiError ]);
 
   const onSuccess = useCallback(
@@ -64,6 +75,12 @@ export default function ConnectBank() {
         }
         console.log("[Plaid] Exchange completed OK");
         showSuccess("Bank account connected successfully!", "Connection Successful");
+        // Notify dashboard to refresh connection status
+        try {
+          window.dispatchEvent(
+            new CustomEvent("plaid-status-changed", { detail: { connected: true } })
+          );
+        } catch {}
         // Navigate to dashboard after successful link
         router.replace("/dashboard");
       } catch (e) {
@@ -93,6 +110,63 @@ export default function ConnectBank() {
       ? config
       : { token: "", onSuccess: () => {}, onExit: () => {} }
   );
+
+  if (isConnected) {
+    return (
+      <div className="w-full max-w-md mx-auto">
+        <div className="group rounded-2xl border border-gray-200 bg-white/80 backdrop-blur-sm shadow-sm overflow-hidden transition-all duration-200 will-change-transform hover:shadow-md hover:border-gray-300 hover:-translate-y-0.5 focus-within:shadow-md focus-within:border-gray-300">
+          <div className="flex items-center justify-between px-5 py-4 bg-linear-to-r from-blue-50 to-white transition-colors duration-200 group-hover:from-blue-100">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 bg-blue-100 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <div className="text-[13px] font-regular text-gray-900">Bank via Plaid</div>
+              </div>
+            </div>
+            <div className="inline-flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-green-700 bg-green-50 border border-green-200 px-2 py-1 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                Connected
+              </span>
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await authedFetch("/api/plaid/disconnect", {
+                      method: "POST",
+                      headers: { "content-type": "application/json" },
+                    });
+                    if (!res.ok) {
+                      const text = await res.text();
+                      throw new AuthError(text || "Failed to disconnect Plaid");
+                    }
+                    showSuccess("Disconnected Plaid accounts");
+                    setIsConnected(false);
+                try {
+                  window.dispatchEvent(
+                    new CustomEvent("plaid-status-changed", { detail: { connected: false } })
+                  );
+                } catch {}
+                  } catch (e) {
+                    handleApiError(e, "Plaid disconnect");
+                  }
+                }}
+                disabled={!sessionReady}
+                aria-label="Disconnect Plaid accounts"
+                className="group/disconnect inline-flex items-center gap-1 px-2 py-1 text-[10px] font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer">
+                <svg className="w-3 h-3 transition-transform duration-200 group-hover/disconnect:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Disconnect
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-md mx-auto">
@@ -178,7 +252,7 @@ export default function ConnectBank() {
               </div>
               <div className="text-left">
                 <p className="font-medium text-gray-900 text-sm">Plaid</p>
-                <p className="text-sm text-gray-500 text-sm">International bank connection</p>
+                <p className="text-sm text-gray-500">International bank connection</p>
               </div>
             </div>
             <svg className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -202,7 +276,7 @@ export default function ConnectBank() {
       {error && (
         <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
           <div className="flex items-start space-x-2">
-            <svg className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-red-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <p className="text-sm text-red-700">{error}</p>
