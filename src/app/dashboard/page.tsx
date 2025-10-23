@@ -267,7 +267,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, [fetchData,]);
 
   // Ensure selected account index stays in range when accounts change
   useEffect(() => {

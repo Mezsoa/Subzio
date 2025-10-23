@@ -1,14 +1,14 @@
 import { LogOutIcon } from 'lucide-react'
 import { supabaseBrowser } from '@/lib/supabaseClient'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authedFetch } from '@/lib/authedFetch';
-
+import { useSidebar } from '@/contexts/SidebarContext';
 
 const SignOut = () => {
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
-
+    const { isCollapsed } = useSidebar();
     const handleSignOut = async () => {
         setIsLoading(true);
         
@@ -34,13 +34,28 @@ const SignOut = () => {
         router.replace('/');
     }
 
+    useEffect(() => {
+      console.log("sidebar collapsed", isCollapsed);
+    }, [isCollapsed]);
+
   return (
+    <>
+    {!isCollapsed && (
     <div className="flex flex-row gap-2 items-center justify-center">
             <button className="text-sm font-medium text-foreground hover:text-primary hover:bg-primary/10 rounded-full p-2 flex flex-row gap-2 items-center" onClick={handleSignOut}>
               <LogOutIcon className="w-4 h-4" /> {isLoading ? "Signing out..." : "Sign out"}
             </button>
           </div>
-  )
+    )}
+    {isCollapsed && (
+      <div className="flex flex-col gap-2 items-center justify-center">
+        <button className="text-sm font-medium text-foreground hover:text-primary hover:bg-primary/10 rounded-full p-2 flex flex-col gap-2 items-center" onClick={handleSignOut}>
+          <LogOutIcon className="w-4 h-4" /> {isLoading ? "Signing out..." : "Sign out"}
+        </button>
+      </div>
+    )}
+  </>
+  );
 }
 
 export default SignOut
