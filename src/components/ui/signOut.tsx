@@ -35,7 +35,7 @@ const SignOut = () => {
     }
 
   return (
-    <div className="flex flex-row gap-2 items-center">
+    <div className="flex flex-row gap-2 items-center justify-center">
             <button className="text-sm font-medium text-foreground hover:text-primary hover:bg-primary/10 rounded-full p-2 flex flex-row gap-2 items-center" onClick={handleSignOut}>
               <LogOutIcon className="w-4 h-4" /> {isLoading ? "Signing out..." : "Sign out"}
             </button>

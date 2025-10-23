@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import SignOut from "./ui/signOut";
 import { useSidebar } from "@/contexts/SidebarContext";
-
+import Image from "next/image";
 export default function SidebarNav() {
   const [displayName, setDisplayName] = useState<string>("");
   const { isCollapsed, toggleSidebar } = useSidebar();
@@ -37,7 +37,7 @@ export default function SidebarNav() {
       {/* Mobile overlay */}
       {!isCollapsed && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden"
           onClick={toggleSidebar}
         />
       )}
@@ -48,6 +48,10 @@ export default function SidebarNav() {
         } ${
           isCollapsed ? "-translate-x-full md:translate-x-0" : "translate-x-0"
         }`}>
+
+      <Image src="/sidenav/spectrum.jpeg" alt="KillSub" className="w-full h-full object-cover absolute top-0 left-0 z-0 opacity-50 blur-xs" width={100} height={100} />
+
+
       {/* Toggle Button - always visible on desktop, hidden on mobile when collapsed */}
       <button
         onClick={toggleSidebar}
@@ -74,7 +78,7 @@ export default function SidebarNav() {
 
       {/* User Info */}
       <div
-        className={`flex flex-row gap-2 mb-4 text-center items-center justify-center border-b border-border pb-4 ${
+        className={`flex flex-row gap-2 mb-4 text-center items-center justify-center border-b border-border pb-4 z-10 ${
           isCollapsed ? "opacity-0" : "opacity-100"
         } transition-opacity duration-300`}>
         {!isCollapsed && (
@@ -89,7 +93,7 @@ export default function SidebarNav() {
         )}
       </div>
 
-      <section className="flex flex-col gap-2 h-full">
+      <section className="flex flex-col gap-2 h-full z-10">
         
 
         {/* Navigation Links */}
@@ -187,6 +191,7 @@ export default function SidebarNav() {
       </section>
 
       {/* Sign Out */}
+      
       <div className={isCollapsed ? "flex justify-center" : ""}>
         <SignOut />
       </div>
